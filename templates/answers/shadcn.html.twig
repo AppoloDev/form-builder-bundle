@@ -141,6 +141,14 @@
     {% endif %}
 {% endblock %}
 
+{% block ChoiceGroup %}
+    {{ block('Select') }}
+{% endblock %}
+
+{% block HourMinuteInput %}
+    {{ block('labelAndValue') }}
+{% endblock %}
+
 {% block Signature %}
     <div class="mb-8 grid gap-1 sm:grid-cols-[minmax(0,33%)_1fr] sm:gap-4">
         <div class="font-bold text-muted-foreground">{{ block.label }}</div>

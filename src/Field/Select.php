@@ -4,97 +4,36 @@ declare(strict_types=1);
 
 namespace AppoloDev\FormBuilderBundle\Field;
 
-use AppoloDev\FormBuilderBundle\Field\Concern\ValueFieldKind;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
-class Select implements FieldInterface
+/**
+ * Liste déroulante (autocomplétion), à choix unique ou multiple. `checkCases` (ancienne config) l'affiche
+ * en radios / cases : le builder propose désormais le bloc ChoiceGroup pour cela.
+ */
+class Select extends AbstractChoiceField
 {
-    use ValueFieldKind;
-
-    /** @var array<string, mixed> */
-    private array $formOptions = [];
-    private bool $isPrototype = false;
-
-    private string $id = '';
-    private string $label = '';
-    /** @var array<int, array{label: string, isSelected: bool}> */
-    private array $options = [];
-    private bool $required = false;
-    private bool $readOnly = false;
-    private bool $multiple = false;
     private bool $checkCases = false;
     private bool $customOption = false;
-    private string $helpText = '';
-
-    public function addFieldFromDefinition(FormBuilderInterface $formBuilder): FormBuilderInterface
-    {
-        $this->isPrototype = '__name__' === $formBuilder->getName();
-        $formBuilder->add($this->id, ChoiceType::class, $this->getFieldOptions());
-
-        return $formBuilder;
-    }
 
     public function validateDefinition(FormLayoutBlock $block, array $formOptions): bool
     {
-        $this->id = $block->id ?? '';
-        $this->label = $block->label ?? '';
-        $this->options = $block->configOptions('options');
-        $this->helpText = $block->configString('helpText') ?? '';
-        $this->required = $block->configBool('required') ?? false;
-        $this->readOnly = $block->configBool('readOnly') ?? false;
-        $this->multiple = $block->configBool('multiple') ?? false;
+        $valid = parent::validateDefinition($block, $formOptions);
         $this->checkCases = $block->configBool('checkCases') ?? false;
         $this->customOption = $block->configBool('customOption') ?? false;
-        $this->formOptions = $formOptions;
 
-        return '' !== $this->id;
+        return $valid;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    protected function getFieldOptions(): array
+    protected function isExpanded(): bool
     {
-        $choices = array_map(static fn (array $item): string => $item['label'], $this->options);
-        $choices = array_combine($choices, $choices);
+        return $this->checkCases;
+    }
 
-        $fieldOptions = [
-            'placeholder' => false,
-            'label' => $this->label,
-            'choices' => $choices,
-            'required' => $this->required,
-            'disabled' => $this->readOnly,
-            'help' => $this->helpText,
-            'multiple' => $this->multiple,
-            'expanded' => $this->checkCases,
-            'attr' => [
-                'formBuilder' => true,
-            ],
-        ];
-
+    protected function decorateFieldOptions(array $fieldOptions): array
+    {
         if (!$this->checkCases) {
             $fieldOptions['autocomplete'] = true;
             $fieldOptions['allow_options_create'] = $this->customOption;
-        }
-
-        if (!isset($this->formOptions['edit']) || $this->isPrototype) {
-            $fieldOptions['data'] = array_filter(
-                array_map(static fn (array $item) => $item['isSelected'] ? $item['label'] : null, $this->options),
-                static fn (?string $item): bool => null !== $item
-            );
-
-            if (!$this->multiple) {
-                $fieldOptions['data'] = end($fieldOptions['data']);
-            }
-        }
-
-        if ($this->required) {
-            $fieldOptions['constraints'] = [
-                new NotBlank(),
-            ];
         }
 
         return $fieldOptions;

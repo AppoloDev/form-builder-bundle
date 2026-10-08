@@ -79,6 +79,8 @@ key and must be unique in the layout.
 | `NumberInput` | `required`, `readOnly`, `helpText`, `placeHolder`, `defaultValue`, `min`, `max`, `step` (a non-integer `step` selects the decimal type); legacy `allowDecimal` |
 | `DateTimeInput` | `required`, `readOnly`, `helpText`, `mode` (`date`, `time`, `datetime-local`), `hasCurrentDate`; legacy `showDate` / `showHour` when `mode` is absent |
 | `Select` | `options` (`[{label, isSelected?}]`, extra keys such as `id` ignored), `multiple`, `checkCases` (radio/checkbox), `customOption`, `required`, `readOnly`, `helpText` |
+| `ChoiceGroup` | `options` (`[{label}]`), `multiple` (checkboxes instead of radios), `required`, `readOnly`, `helpText`. Always expanded. Value: the option label (list if `multiple`) |
+| `HourMinuteInput` | `required`, `readOnly`, `helpText`, `defaultValue` (`HH:MM`). Value: string `HH:MM` |
 | `FileInput` | `acceptedFile`, `allowMultiple` (`false` ⇒ one file; otherwise up to `maxItems`, default 5), `required`, `helpText` |
 | `AddressInput` | `required`, `helpText`, `placeHolder` |
 | `Signature` | `required`, `helpText` |
@@ -93,7 +95,8 @@ key and must be unique in the layout.
 
 | Field | Value |
 |---|---|
-| Simple fields | scalar, or list for multiple selects |
+| Simple fields | scalar, or list of labels for multiple `Select` / `ChoiceGroup` |
+| `HourMinuteInput` | string `HH:MM` |
 | `DateTimeInput` | JSON form of a `DateTime` (`date`, `timezone_type`, `timezone`) |
 | `Repeatable` | list of rows: `[{childId: value}, …]` (stored per row index) |
 | `FieldSet` | nested map under the fieldset id |
@@ -111,7 +114,7 @@ Collection behaviour comes from the `form-builder-collection` Stimulus controlle
 
 **Answers template** must define block `answers_view` (variables `answers`, `formAnswer`) and one block per
 field type used (`FieldSet`, `Repeatable`, `Title`, `Paragraph`, `TextInput`, …, `FileInput`, `Select`,
-`Signature`). Extend the default one with `{% extends '@FormBuilder/answers/shadcn.html.twig' %}` and override
+`Signature`, `ChoiceGroup`, `HourMinuteInput`). Extend the default one with `{% extends '@FormBuilder/answers/shadcn.html.twig' %}` and override
 only what you need (e.g. `FileInput`, `fileList` for PDF).
 
 ## Translations
@@ -121,9 +124,8 @@ labels, answers view. Override by providing the same keys in your own `translati
 
 ## Known limitations
 
-- The bundled builder emits block types the PHP side does not handle yet: `ChoiceGroup` and `HourMinuteInput`
-  (planned, see `Plan.md`). A block with an unknown type throws `UnknownFieldTypeException` when
-  `kernel.debug` is on, and is skipped with a `warning` log otherwise.
+- A block with an unknown type throws `UnknownFieldTypeException` when `kernel.debug` is on, and is skipped
+  with a `warning` log otherwise.
 - Select `conditions` (conditional blocks) are stored in `config` but not evaluated server-side (planned).
 - The builder UI text is French only.
 - Custom PHP field types cannot be registered yet (`FieldFactory` resolves types in the bundle namespace).

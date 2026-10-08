@@ -70,8 +70,7 @@ Never reference host entities from bundle code; use the `Contract\*` interfaces.
 - Doctrine forbids `OneToMany` in mapped superclasses: that is why the `Has*` traits exist. A missing trait
   or `initialize*()` call gives "uninitialized property $fields/$children/$fieldValues".
 - Do not run the shadcn CLI inside `assets/builder` (generates `@/…` alias imports); keep imports relative.
-- Known gaps: builder blocks `ChoiceGroup` and `HourMinuteInput`, and Select `conditions`, are not handled by
-  PHP yet (see `Plan.md`); builder UI text is French only; custom PHP field types are not pluggable (see
+- Known gaps: Select/ChoiceGroup `conditions` are not handled by PHP yet (see `Plan.md`); builder UI text is French only; custom PHP field types are not pluggable (see
   "Known limitations" in `docs/reference.md`).
 - Translation domain `form_builder_bundle` (fr). `FormBuilderType` defaults `translation_domain` to
   `form_builder` — make sure labels from user structures are not unintentionally translated.

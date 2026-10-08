@@ -188,7 +188,7 @@ Aucun écart (pas de libellé ni de légende des deux côtés). Réponses stock�
 `ResourceAnswer.html.twig` (fonction Twig `form_builder_date_format`). `Repeatable` : défaut PHP 5 conservé et
 documenté (le builder envoie toujours `maxItems`).
 
-### Phase 3 — Nouveaux types et retraits
+### Phase 3 — Nouveaux types et retraits · **FAIT**
 `Field\ChoiceGroup` (D3) et `Field\HourMinuteInput` (D2) ; blocs `ChoiceGroup` et `HourMinuteInput` dans `answers/shadcn`,
 `ResourceAnswer.html.twig`, `FormAnswerCsvExportBuilder` (formatage de valeur).
 
