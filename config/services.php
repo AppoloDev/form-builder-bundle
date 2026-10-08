@@ -13,6 +13,8 @@ return static function (ContainerConfigurator $container): void {
     $services->load('AppoloDev\\FormBuilderBundle\\', '../src/')
         ->exclude([
             '../src/FormBuilderBundle.php',
+            '../src/Contract/',
+            '../src/Entity/',
             '../src/Enum/',
             '../src/ValueObject/',
         ]);

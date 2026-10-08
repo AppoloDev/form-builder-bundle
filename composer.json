@@ -14,11 +14,13 @@
         "doctrine/orm": "^3.0",
         "symfony/config": "^8.1",
         "symfony/dependency-injection": "^8.1",
+        "symfony/doctrine-bridge": "^8.1",
         "symfony/form": "^8.1",
         "symfony/framework-bundle": "^8.1",
         "symfony/http-foundation": "^8.1",
         "symfony/http-kernel": "^8.1",
-        "symfony/filesystem": "^8.1"
+        "symfony/filesystem": "^8.1",
+        "symfony/uid": "^8.1"
     },
     "autoload": {
         "psr-4": {
