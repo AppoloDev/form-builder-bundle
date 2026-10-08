@@ -74,7 +74,7 @@ Never reference host entities from bundle code; use the `Contract\*` interfaces.
 - Conditions: `Select`/`ChoiceGroup` `conditions` are stored flat (conditional blocks are marked siblings of their
   owner) and rendered through `ConditionalFieldType` + the `form-builder-condition` controller; always go through
   `FormLayoutBlock::listFromArray()` / `getStructure()` instead of reading `conditions` by hand.
-- Known gaps: builder UI text is French only; custom PHP field types are not pluggable (see
+- Known gaps: custom PHP field types are not pluggable (see
   "Known limitations" in `docs/reference.md`).
 - Translation domain `form_builder_bundle` (fr). `FormBuilderType` defaults `translation_domain` to
   `form_builder` — make sure labels from user structures are not unintentionally translated.

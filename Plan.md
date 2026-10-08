@@ -20,7 +20,7 @@ et les consommateurs côté OSCAR (`ResourceAnswer.html.twig`, `FormAnswerCsvExp
 | T4 | Clé `name` (slug du libellé) émise par tous les blocs : jamais lue par le PHP (la clé de réponse est `id`). | Faible |
 | T5 | `conditions` (blocs enfants conditionnés à une option, sur `Select` et `ChoiceGroup`) sont enregistrées dans `config` mais **aucune ligne `FormLayoutField` n'est créée pour les enfants** → leurs réponses ne peuvent être ni stockées ni affichées. | **Bloquant** (D5) |
 | T6 | Valeurs par défaut posées à chaque création de réponse : `NumberInput` préremplit `0`, `DateTimeInput` peut préremplir « maintenant ». Comportement PHP-only, non pilotable depuis le front (sauf `hasCurrentDate`, absent du front). | Moyenne |
-| T7 | Toute l'UI du builder est en français codé en dur (`Definition.ts`, composants). | Moyenne (i18n) |
+| T7 | ~~UI du builder en français codé en dur~~ — traité : catalogues `assets/builder/i18n/{fr,en}.ts`, option `locale` de `FormStructureType`. | Fait |
 | T8 | Les types sont dispatchés par **nom de classe/chaîne** à 5 endroits : `FieldFactory`, `FieldKindResolver`, blocs de `answers/shadcn.html.twig` (`{% block <Type> %}`), `ResourceAnswer.html.twig`, `FormAnswerCsvExportBuilder`. Renommer un type = toucher les 5. | À encadrer par des tests |
 | T9 | Aucun test ne détecte la dérive front/PHP (c'est comme ça que T1/T2 sont passés). | Haute |
 
@@ -225,5 +225,5 @@ Conception à valider avant code :
 - [x] `blocks.json` versionné et vérifié par vitest ; tests de contrat PHP verts ; `composer qa` vert ; job front (tsc, vitest) dans la CI.
 - [x] Un bloc de **chaque type** du builder traverse stockage, formulaire, soumission, réponses, affichage web/PDF et export CSV d'OSCAR (test d'intégration `FormBuilderAllTypesIntegrationTest`).
 - [ ] Vérification **dans un navigateur** : builder (nouvelles options, option présélectionnée, conditions), formulaire de réponse (affichage/masquage des champs conditionnels, signature, adresse, répétables), réédition, PDF réel.
-- [x] « Known limitations » de `docs/reference.md` et du skill à jour (reste : UI du builder en français, types PHP non extensibles).
+- [x] « Known limitations » de `docs/reference.md` et du skill à jour (reste : types PHP non extensibles).
 - [ ] Tag `v1.0.0` créé sur le dépôt du bundle.

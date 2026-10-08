@@ -13,9 +13,9 @@
     >
         <input type="hidden" id="{{ id }}" name="{{ full_name }}" value="{{ structureJson }}">
         {%- if has_structure -%}
-            <form-builder json="{{ structureJson }}"></form-builder>
+            <form-builder locale="{{ builder_locale }}" json="{{ structureJson }}"></form-builder>
         {%- else -%}
-            <form-builder></form-builder>
+            <form-builder locale="{{ builder_locale }}"></form-builder>
         {%- endif -%}
     </form-builder-manager>
 {%- endblock -%}

@@ -12,6 +12,7 @@ import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { GitPullRequest, Plus, Trash } from "lucide-react";
+import { t } from "../../i18n";
 
 type Props = {
     id: string;
@@ -163,18 +164,18 @@ const ChoiceGroupInput: FC<Props> = (props) => {
     const editionItems = useMemo(
         () => {
             const items = [
-                <TextEdition key="label" label="Titre" value={form.label} editItem={(v) => handleChange("label", v)}/>,
-                <TextEdition key="helpText" label="Message d'aide" value={form.helpText} type="textarea"
+                <TextEdition key="label" label={t("field.title")} value={form.label} editItem={(v) => handleChange("label", v)}/>,
+                <TextEdition key="helpText" label={t("field.helpText")} value={form.helpText} type="textarea"
                              editItem={(v) => handleChange("helpText", v)}/>,
-                <CheckboxEdition key="required" label="Requis" checked={form.required}
+                <CheckboxEdition key="required" label={t("field.required")} checked={form.required}
                                  editItem={(v) => handleChange("required", v)}/>,
                 <CheckboxEdition
                     key="multiple"
-                    label="Sélections multiples"
+                    label={t("field.multipleGroup")}
                     checked={form.multiple}
                     editItem={(v) => handleChange("multiple", v)}
                 />,
-                <CheckboxEdition key="readOnly" label="Lecture seule" checked={form.readOnly}
+                <CheckboxEdition key="readOnly" label={t("field.readOnly")} checked={form.readOnly}
                                  editItem={(v) => handleChange("readOnly", v)}/>,
             ];
 
@@ -192,7 +193,7 @@ const ChoiceGroupInput: FC<Props> = (props) => {
                             disabled={form.options.length === 0}
                         >
                             <GitPullRequest/>
-                            Ajouter une logique conditionnelle
+                            {t("condition.add")}
                         </Button>
                     </div>
                 );
@@ -242,7 +243,7 @@ const ChoiceGroupInput: FC<Props> = (props) => {
                 <Input
                     data-option-id={opt.id}
                     value={opt.label}
-                    placeholder={`Option ${idx + 1}`}
+                    placeholder={t("option.default", {n: idx + 1})}
                     onChange={(e) =>
                         updateOption(idx, {label: e.target.value, value: e.target.value})
                     }
@@ -256,7 +257,7 @@ const ChoiceGroupInput: FC<Props> = (props) => {
                         size="icon-sm"
                         onClick={() => removeOption(idx)}
                         className="text-destructive hover:text-destructive"
-                        aria-label="Supprimer l'option"
+                        aria-label={t("option.deleteAria")}
                     >
                         <Trash/>
                     </Button>
@@ -283,7 +284,7 @@ const ChoiceGroupInput: FC<Props> = (props) => {
                     <Button type="button" variant="ghost" onClick={addOption}
                             className="text-muted-foreground">
                         <Plus/>
-                        Ajouter une option
+                        {t("option.addLong")}
                     </Button>
                 </div>}
 

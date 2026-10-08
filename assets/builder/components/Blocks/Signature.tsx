@@ -5,6 +5,7 @@ import { EditableBlock } from "./EditableBlock";
 import { TextEdition } from "../Edition/TextEdition";
 import { CheckboxEdition } from "../Edition/CheckboxEdition";
 import { InlineEditableText } from "../InlineEditableText";
+import { t } from "../../i18n";
 
 type Props = SignatureProps & { isChildBlock?: boolean; preview?: boolean };
 
@@ -32,11 +33,11 @@ const Signature = ({id, type, label, helpText, required, isChildBlock, preview}:
     };
 
     const editionItems = [
-        <TextEdition key="label" label="Libellé" value={form.label} editItem={(v) => handleChange('label', v)}/>,
-        <TextEdition key="helpText" label="Message d'aide" type="textarea" value={form.helpText}
+        <TextEdition key="label" label={t("field.label")} value={form.label} editItem={(v) => handleChange('label', v)}/>,
+        <TextEdition key="helpText" label={t("field.helpText")} type="textarea" value={form.helpText}
                      editItem={(v) => handleChange('helpText', v)}/>,
         ...(isChildBlock ? [] : [
-            <CheckboxEdition key="required" label="Requis" checked={form.required}
+            <CheckboxEdition key="required" label={t("field.required")} checked={form.required}
                              editItem={(v: boolean) => handleChange('required', v)}/>
         ]),
     ];
@@ -51,7 +52,7 @@ const Signature = ({id, type, label, helpText, required, isChildBlock, preview}:
                         <InlineEditableText
                             value={form.label}
                             onCommit={(v) => handleChange('label', v)}
-                            placeholder="Libellé"
+                            placeholder={t("field.label")}
                         />
                     )}
                     {form.required && <span className="text-destructive">*</span>}
@@ -59,7 +60,7 @@ const Signature = ({id, type, label, helpText, required, isChildBlock, preview}:
 
                 <div
                     className="flex h-24 items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground">
-                    Zone de signature
+                    {t("signature.area")}
                 </div>
 
                 {form.helpText && <div className="text-sm text-muted-foreground">{form.helpText}</div>}

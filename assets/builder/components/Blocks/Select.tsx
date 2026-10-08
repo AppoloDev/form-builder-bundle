@@ -11,6 +11,7 @@ import { Select as SelectField, SelectContent, SelectItem, SelectTrigger, Select
 import { Button } from "../ui/button";
 import { v4 as uuidv4 } from "uuid";
 import { GitPullRequest, Plus } from "lucide-react";
+import { t } from "../../i18n";
 
 type Props = Omit<SelectProps, 'id'> & {
     id: string;
@@ -64,9 +65,9 @@ const Select = (
     useEffect(() => {
         if (form.options.length === 0) {
             const defaults: SelectOption[] = [
-                {id: uuidv4(), label: "Option 1"},
-                {id: uuidv4(), label: "Option 2"},
-                {id: uuidv4(), label: "Option 3"},
+                {id: uuidv4(), label: t("option.default", {n: 1})},
+                {id: uuidv4(), label: t("option.default", {n: 2})},
+                {id: uuidv4(), label: t("option.default", {n: 3})},
             ];
             setForm(prev => ({...prev, options: defaults}));
             updateBlock(id, {options: defaults});
@@ -140,22 +141,22 @@ const Select = (
     };
 
     const editionItems = [
-        <TextEdition key="label" label="Titre" value={form.label} editItem={(v) => handleChange("label", v)}/>,
-        <TextEdition key="helpText" label="Message d'aide" type="textarea" value={form.helpText}
+        <TextEdition key="label" label={t("field.title")} value={form.label} editItem={(v) => handleChange("label", v)}/>,
+        <TextEdition key="helpText" label={t("field.helpText")} type="textarea" value={form.helpText}
                      editItem={(v) => handleChange("helpText", v)}/>,
         ...(isChildBlock ? [] : [
-            <CheckboxEdition key="required" label="Requis" checked={form.required}
+            <CheckboxEdition key="required" label={t("field.required")} checked={form.required}
                              editItem={(v: boolean) => handleChange("required", v)}/>
         ]),
-        <CheckboxEdition key="multiple" label="Sélection multiple" checked={form.multiple}
+        <CheckboxEdition key="multiple" label={t("field.multiple")} checked={form.multiple}
                          editItem={(v) => handleChange("multiple", v)}/>,
-        <CheckboxEdition key="customOption" label="Autoriser la saisie d'une autre valeur" checked={form.customOption}
+        <CheckboxEdition key="customOption" label={t("select.customOption")} checked={form.customOption}
                          editItem={(v) => handleChange("customOption", v)}/>,
-        <CheckboxEdition key="readOnly" label="Lecture seule" checked={form.readOnly}
+        <CheckboxEdition key="readOnly" label={t("field.readOnly")} checked={form.readOnly}
                          editItem={(v) => handleChange("readOnly", v)}/>,
         <OptionsEdition key="options" label="Options" value={form.options} exclusive={!form.multiple}
                         onChange={(v) => handleChange("options", v)}
-                        helpText="Ajoutez, modifiez ou supprimez les options"/>,
+                        helpText={t("option.editHelp")}/>,
         ...(propsUseContionnalField ? [
             <div className="border-t pt-4">
                 <Button
@@ -168,7 +169,7 @@ const Select = (
 
                 >
                     <GitPullRequest/>
-                    Ajouter une logique conditionnelle
+                    {t("condition.add")}
                 </Button>
             </div>
         ] : []),
@@ -183,7 +184,7 @@ const Select = (
                 defaultValue={form.options[0]?.label}
             >
                 <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Sélectionner…"/>
+                    <SelectValue placeholder={t("option.select")}/>
                 </SelectTrigger>
                 <SelectContent>
                     {form.options.map((opt) => (

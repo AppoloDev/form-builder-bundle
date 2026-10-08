@@ -26,6 +26,7 @@ import {
 
 import { CSS } from "@dnd-kit/utilities";
 import { AddMenu } from "./components/AddMenu";
+import { t } from "./i18n";
 
 type Props = {
     onChange: (blocks: Block[]) => void;
@@ -164,12 +165,12 @@ export const FormBuilder = ({onChange, json = []}: Props) => {
                                             className="absolute -right-3 -bottom-3 z-10">
                                             <AddMenu
                                                 onPick={(def, overrides) => handleAddAt(idx, def, overrides)}
-                                                placeholder="Rechercher un type…"
+                                                placeholder={t("builder.searchType")}
                                             >
                                                 <button
                                                     type="button"
                                                     className="rounded-full border border-input bg-primary shadow-sm p-2 hover:bg-primary/80 cursor-pointer transition-colors"
-                                                    title="Ajouter un bloc"
+                                                    title={t("builder.addBlock")}
                                                 >
                                                     <svg width="16" height="16" viewBox="0 0 24 24"
                                                          className="text-primary-foreground">

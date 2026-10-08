@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 import { BLOCK_COMPONENTS } from "./BlockRegistry";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
+import { t } from "../i18n";
 
 type AddMenuProps = {
     onPick: (def: BlockDefinition, overrides?: Record<string, any>) => void;
@@ -17,7 +18,7 @@ type AddMenuProps = {
 export const AddMenu: React.FC<AddMenuProps> = (
     {
         onPick,
-        placeholder = "Rechercher un bloc…",
+        placeholder = t("builder.searchBlock"),
         allowTypes,
         children
     }) => {
@@ -74,9 +75,9 @@ export const AddMenu: React.FC<AddMenuProps> = (
                     {id: "preview-2", label: "", value: ""}
                 ]
                 : [
-                    {id: "preview-1", label: "Option 1"},
-                    {id: "preview-2", label: "Option 2"},
-                    {id: "preview-3", label: "Option 3"},
+                    {id: "preview-1", label: t("option.default", {n: 1})},
+                    {id: "preview-2", label: t("option.default", {n: 2})},
+                    {id: "preview-3", label: t("option.default", {n: 3})},
                 ];
         }
 
@@ -175,7 +176,7 @@ export const AddMenu: React.FC<AddMenuProps> = (
 
                     <div className="flex-1 overflow-auto">
                         {filtered.length === 0 ? (
-                            <div className="p-3 text-sm text-muted-foreground">Aucun résultat…</div>
+                            <div className="p-3 text-sm text-muted-foreground">{t("common.noResult")}</div>
                         ) : (
                             <ul className="p-2 space-y-1">
                                 {filtered.map(def => (
@@ -224,7 +225,7 @@ export const AddMenu: React.FC<AddMenuProps> = (
 
                                 {/* Preview */}
                                 <div className="p-4 border-t border-border bg-muted">
-                                    <p className="text-sm font-medium text-muted-foreground mb-2">Aperçu</p>
+                                    <p className="text-sm font-medium text-muted-foreground mb-2">{t("common.preview")}</p>
                                     <div className="pointer-events-none bg-background p-4 rounded-lg">
                                         {(() => {
                                             const PreviewComponent = BLOCK_COMPONENTS[selectedDef.type];
@@ -249,12 +250,12 @@ export const AddMenu: React.FC<AddMenuProps> = (
                                         setFormState({});
                                     }}
                                 >
-                                    Retour
+                                    {t("common.back")}
                                 </Button>
 
                                 <Button
                                     onClick={handleConfirm}
-                                >Ajouter</Button>
+                                >{t("common.add")}</Button>
                             </div>
                         </>
                     ) : (
@@ -264,7 +265,7 @@ export const AddMenu: React.FC<AddMenuProps> = (
                                      fill="none" stroke="currentColor" strokeWidth="1.5">
                                     <path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M2 2l1.932 1.932"/>
                                 </svg>
-                                <p className="text-sm">Sélectionnez un bloc pour configurer ses options</p>
+                                <p className="text-sm">{t("builder.selectBlock")}</p>
                             </div>
                         </div>
                     )}

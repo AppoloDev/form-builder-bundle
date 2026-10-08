@@ -5,6 +5,7 @@ import { AddMenu } from "../AddMenu";
 import { Empty } from "../Empty";
 import { ChildrenSorter } from "./ChildrenSorter";
 import { Block, BlockDefinition, ConditionOperator, ConditionRule } from "./Definition";
+import { t } from "../../i18n";
 
 type OptionChoice = { id: string; label: string };
 
@@ -18,9 +19,9 @@ type Props = {
     onReorderRuleChildren: (ruleId: string, next: Block[]) => void;
 };
 
-const OPERATOR_OPTIONS: { value: ConditionOperator; label: string }[] = [
-    {value: "is", label: "est sélectionné"},
-    {value: "is_not", label: "n'est pas sélectionné"},
+const operatorOptions = (): { value: ConditionOperator; label: string }[] => [
+    {value: "is", label: t("condition.is")},
+    {value: "is_not", label: t("condition.isNot")},
 ];
 
 export const ConditionRules = (
@@ -49,7 +50,7 @@ export const ConditionRules = (
                                 onValueChange={(v) => onChangeRuleOption(rule.id, v ?? "")}
                             >
                                 <SelectTrigger className="h-8 w-auto min-w-40">
-                                    <SelectValue placeholder="Choisir une option…"/>
+                                    <SelectValue placeholder={t("condition.choose")}/>
                                 </SelectTrigger>
                                 <SelectContent>
                                     {options.map((opt) => (
@@ -61,7 +62,7 @@ export const ConditionRules = (
                             </SelectField>
 
                             <SelectField
-                                items={OPERATOR_OPTIONS}
+                                items={operatorOptions()}
                                 value={rule.operator}
                                 onValueChange={(v) => onChangeRuleOperator(rule.id, (v ?? "is") as ConditionOperator)}
                             >
@@ -69,7 +70,7 @@ export const ConditionRules = (
                                     <SelectValue/>
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {OPERATOR_OPTIONS.map((op) => (
+                                    {operatorOptions().map((op) => (
                                         <SelectItem key={op.value} value={op.value}>
                                             {op.label}
                                         </SelectItem>
@@ -83,7 +84,7 @@ export const ConditionRules = (
                                 size="icon-sm"
                                 onClick={() => onRemoveRule(rule.id)}
                                 className="ml-auto text-destructive hover:text-destructive"
-                                aria-label="Supprimer la condition"
+                                aria-label={t("condition.deleteAria")}
                             >
                                 <Trash/>
                             </Button>
@@ -101,7 +102,7 @@ export const ConditionRules = (
                                 <div className="pt-1">
                                     <AddMenu onPick={(def, overrides) => onAddBlockToRule(rule.id, def, overrides)}>
                                         <Button type="button" size="sm">
-                                            Ajouter un bloc
+                                            {t("builder.addBlock")}
                                         </Button>
                                     </AddMenu>
                                 </div>

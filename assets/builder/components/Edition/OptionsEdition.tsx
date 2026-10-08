@@ -3,6 +3,7 @@ import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { v4 as uuidv4 } from "uuid";
 import { SelectOption } from "../Blocks/Definition";
+import { t } from "../../i18n";
 
 type Props = {
     label: string;
@@ -14,7 +15,7 @@ type Props = {
 };
 
 export const OptionsEdition = ({ label, value = [], helpText, exclusive = false, onChange }: Props) => {
-    const add = () => onChange([...value, { id: uuidv4(), label: "Nouvelle option" }]);
+    const add = () => onChange([...value, { id: uuidv4(), label: t("option.new") }]);
     const update = (idx: number, label: string) => {
         const next = [...value];
         next[idx] = { ...next[idx], label };
@@ -36,7 +37,7 @@ export const OptionsEdition = ({ label, value = [], helpText, exclusive = false,
             <div className="flex items-center justify-between mb-1">
                 <label className="block text-sm font-medium text-foreground">{label}</label>
                 <Button type="button" size="sm" variant="secondary" onClick={add}>
-                    + Ajouter
+                    {t("option.add")}
                 </Button>
             </div>
 
@@ -46,8 +47,8 @@ export const OptionsEdition = ({ label, value = [], helpText, exclusive = false,
                         <Checkbox
                             checked={opt.isSelected ?? false}
                             onCheckedChange={(checked) => toggleSelected(idx, checked)}
-                            aria-label="Présélectionner cette option"
-                            title="Présélectionnée par défaut"
+                            aria-label={t("option.preselectAria")}
+                            title={t("option.preselectTitle")}
                             className="cursor-pointer"
                         />
                         <Input
@@ -60,7 +61,7 @@ export const OptionsEdition = ({ label, value = [], helpText, exclusive = false,
                             size="sm"
                             variant="destructive"
                             onClick={() => remove(idx)}
-                            aria-label="Supprimer l'option"
+                            aria-label={t("option.deleteAria")}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path></svg>
                         </Button>

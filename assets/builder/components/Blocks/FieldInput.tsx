@@ -2,6 +2,7 @@ import React, { ReactElement, PropsWithChildren } from "react";
 import { EditableBlock } from "./EditableBlock";
 import { InlineEditableText } from "../InlineEditableText";
 import { BlockType } from "./Definition";
+import { t } from "../../i18n";
 
 type Props = { id: string;
     type?: BlockType;
@@ -22,7 +23,7 @@ export const FieldInput = ({id, type, editionItems, form, children, preview, onL
                             <InlineEditableText
                                 value={form.label}
                                 onCommit={(v) => onLabelChange?.(v)}
-                                placeholder="Label"
+                                placeholder={t("field.label")}
                             />
                         )}
                         {form.required && <span className="text-destructive">*</span>}

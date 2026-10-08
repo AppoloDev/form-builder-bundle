@@ -6,6 +6,7 @@ import { AddMenu } from "../AddMenu";
 import { ChildrenSorter } from "./ChildrenSorter";
 import { createBlockFromTemplate } from "../../utilities/block.utiles";
 import { Button } from "../ui/button";
+import { t } from "../../i18n";
 
 type Props = FieldSetProps & { preview?: boolean };
 
@@ -33,7 +34,7 @@ const FieldSet = ({id, type, children, preview}: Props) => {
                         <div className="pt-1">
                             <AddMenu onPick={addChild}>
                                 <Button type="button" size="sm">
-                                    Ajouter un bloc
+                                    {t("builder.addBlock")}
                                 </Button>
                             </AddMenu>
                         </div>

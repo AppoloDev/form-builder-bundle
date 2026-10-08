@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { t } from "../i18n";
 
 interface ContextMenuProps {
     visible: boolean;
@@ -13,7 +14,7 @@ export const ContextMenu = (
         visible,
         onClose,
         children,
-        title = "Configuration du champ"
+        title = t("builder.fieldConfig")
     }: ContextMenuProps) => {
     return (
         <Dialog open={visible} onOpenChange={(open) => {

@@ -7,6 +7,7 @@ import { ChildrenSorter } from "./ChildrenSorter";
 import { createBlockFromTemplate } from "../../utilities/block.utiles";
 import { TextEdition } from "../Edition/TextEdition";
 import { Button } from "../ui/button";
+import { t } from "../../i18n";
 
 type Props = RepeatableProps & { preview?: boolean };
 
@@ -30,9 +31,9 @@ const Repeatable = ({id, type, children, maxItems, preview}: Props) => {
         <EditableBlock id={id} type={type} preview={preview} editionItems={[
             <TextEdition
                 key="maxItems"
-                label="Nombre maximum de répétitions"
+                label={t("repeatable.max")}
                 type="number"
-                helpText="0 = illimité"
+                helpText={t("repeatable.unlimited")}
                 value={String(maxItems ?? 0)}
                 editItem={handleMaxItemsChange}
             />,
@@ -47,7 +48,7 @@ const Repeatable = ({id, type, children, maxItems, preview}: Props) => {
                         <div className="pt-1">
                             <AddMenu onPick={addChild}>
                                 <Button type="button" size="sm">
-                                    Ajouter un bloc
+                                    {t("builder.addBlock")}
                                 </Button>
                             </AddMenu>
                         </div>

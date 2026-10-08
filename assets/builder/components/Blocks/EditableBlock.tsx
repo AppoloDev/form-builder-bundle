@@ -7,6 +7,7 @@ import { DragHandleContext } from "../../FormBuilder";
 import { Button } from "../ui/button";
 import { GripVertical, SquarePen, Trash } from "lucide-react";
 import { BlockType, blockDefinitions } from "./Definition";
+import { t } from "../../i18n";
 
 interface EditableBlockProps {
     id: UniqueIdentifier;
@@ -65,31 +66,31 @@ export const EditableBlock = (
 
             <div className="absolute right-full mr-2 z-10 flex items-center gap-0.5 p-0.5 opacity-0 transition-opacity pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto">
                 {items.length > 0 && (
-                    <Tooltip content="Paramètres">
+                    <Tooltip content={t("block.settings")}>
                         <Button
                             variant="ghost"
                             size="icon-sm"
                             onClick={handleOpenContextMenu}
-                            aria-label="Ouvrir les paramètres"
+                            aria-label={t("block.openSettings")}
                         >
                             <SquarePen />
                         </Button>
                     </Tooltip>
                 )}
 
-                <Tooltip content="Supprimer">
+                <Tooltip content={t("block.delete")}>
                     <Button
                         variant="ghost"
                         size="icon-sm"
                         className="text-destructive"
                         onClick={handleDelete}
-                        aria-label="Supprimer le bloc"
+                        aria-label={t("block.deleteAria")}
                     >
                         <Trash />
                     </Button>
                 </Tooltip>
 
-                <Tooltip content="Déplacer le bloc">
+                <Tooltip content={t("block.move")}>
                     <Button
                         variant="ghost"
                         size="icon-sm"
@@ -109,7 +110,7 @@ export const EditableBlock = (
                 <ContextMenu
                     visible={contextMenuVisible}
                     onClose={handleCloseContextMenu}
-                    title={typeLabel ? `Configuration du champ — ${typeLabel}` : undefined}
+                    title={typeLabel ? t("builder.fieldConfigOf", {type: typeLabel}) : undefined}
                 >
                     {items.map((item, index) => (
                         <ContextMenuItem key={item.key || index}>{item}</ContextMenuItem>

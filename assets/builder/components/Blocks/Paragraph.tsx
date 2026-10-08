@@ -3,6 +3,7 @@ import { ParagraphProps } from "./Definition";
 import { useFormBuilderStore } from "../../stores/block.store";
 import { EditableBlock } from "./EditableBlock";
 import { InlineEditableText } from "../InlineEditableText";
+import { t } from "../../i18n";
 
 type Props = ParagraphProps & { preview?: boolean };
 
@@ -30,7 +31,7 @@ const Paragraph = ({id, type, text, preview}: Props) => {
                             setLabel(v);
                             handleChange('text', v);
                         }}
-                        placeholder="Texte du paragraphe"
+                        placeholder={t("paragraph.text")}
                         multiline
                     />
                 )}

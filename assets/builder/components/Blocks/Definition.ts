@@ -12,6 +12,7 @@ import {
     Paperclip,
     Clock,
 } from "lucide-react";
+import { onBuilderLocaleChange, t } from "../../i18n";
 
 export type BlockId = UniqueIdentifier;
 
@@ -241,50 +242,50 @@ export interface BlockDefinition<T extends BlockType = BlockType> {
 type BlockDefinitions = { [T in BlockType]: BlockDefinition<T> };
 
 // Common edition fields shared by most input blocks
-const commonInputSchema: DefinitionEditionItem[] = [
-    {key: "label", label: "Titre", type: "text"},
-    {key: "placeHolder", label: "Placeholder", type: "text"},
-    {key: "helpText", label: "Message d'aide", type: "textarea", rows: 2},
-    {key: "required", label: "Requis", type: "checkbox"},
+const commonInputSchema = (): DefinitionEditionItem[] => [
+    {key: "label", label: t("field.title"), type: "text"},
+    {key: "placeHolder", label: t("field.placeholder"), type: "text"},
+    {key: "helpText", label: t("field.helpText"), type: "textarea", rows: 2},
+    {key: "required", label: t("field.required"), type: "checkbox"},
 ];
 
-const readOnlyItem: DefinitionEditionItem = {key: "readOnly", label: "Lecture seule", type: "checkbox"};
+const readOnlyItem = (): DefinitionEditionItem => ({key: "readOnly", label: t("field.readOnly"), type: "checkbox"});
 
 // Text-like inputs that can be prefilled and locked
-const prefillableInputSchema: DefinitionEditionItem[] = [
-    ...commonInputSchema,
-    {key: "defaultValue", label: "Valeur par défaut", type: "text"},
-    readOnlyItem,
+const prefillableInputSchema = (): DefinitionEditionItem[] => [
+    ...commonInputSchema(),
+    {key: "defaultValue", label: t("field.defaultValue"), type: "text"},
+    readOnlyItem(),
 ];
 
 // Input blocks without a placeholder field
-const commonInputSchemaNoPlaceholder: DefinitionEditionItem[] = [
-    {key: "label", label: "Titre", type: "text"},
-    {key: "helpText", label: "Message d'aide", type: "textarea", rows: 2},
-    {key: "required", label: "Requis", type: "checkbox"},
+const commonInputSchemaNoPlaceholder = (): DefinitionEditionItem[] => [
+    {key: "label", label: t("field.title"), type: "text"},
+    {key: "helpText", label: t("field.helpText"), type: "textarea", rows: 2},
+    {key: "required", label: t("field.required"), type: "checkbox"},
 ];
 
-export const blockDefinitions: BlockDefinitions = {
+const buildDefinitions = (): BlockDefinitions => ({
     Title: {
         id: "drag-title",
         type: "Title",
-        title: "Titre",
-        description: 'Insertion d\'un titre informatif ne nécessitant pas de réponse de l\'utilisateur.',
+        title: t("def.Title.title"),
+        description: t("def.Title.description"),
         defaultProps: {
             type: "Title",
-            text: "Titre",
+            text: t("title.default"),
             heading: 'h1'
         },
         editionSchema: [
-            {key: "text", label: "Texte du titre", type: "text"},
+            {key: "text", label: t("title.text"), type: "text"},
             {
-                key: "heading", label: "Niveau de titre", type: "select", options: [
-                    {value: "h1", label: "Titre de niveau 1"},
-                    {value: "h2", label: "Titre de niveau 2"},
-                    {value: "h3", label: "Titre de niveau 3"},
-                    {value: "h4", label: "Titre de niveau 4"},
-                    {value: "h5", label: "Titre de niveau 5"},
-                    {value: "h6", label: "Titre de niveau 6"},
+                key: "heading", label: t("title.level"), type: "select", options: [
+                    {value: "h1", label: t("title.levelN", {n: 1})},
+                    {value: "h2", label: t("title.levelN", {n: 2})},
+                    {value: "h3", label: t("title.levelN", {n: 3})},
+                    {value: "h4", label: t("title.levelN", {n: 4})},
+                    {value: "h5", label: t("title.levelN", {n: 5})},
+                    {value: "h6", label: t("title.levelN", {n: 6})},
                 ]
             },
         ],
@@ -292,58 +293,58 @@ export const blockDefinitions: BlockDefinitions = {
     Paragraph: {
         id: "drag-paragraph",
         type: "Paragraph",
-        title: "Paragraphe",
-        description: 'Insertion d\'un paragraphe informatif ne nécessitant pas de réponse de l\'utilisateur.',
+        title: t("def.Paragraph.title"),
+        description: t("def.Paragraph.description"),
         defaultProps: {
             type: "Paragraph",
             text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
         },
         editionSchema: [
-            {key: "text", label: "Texte du paragraphe", type: "textarea", rows: 3},
+            {key: "text", label: t("paragraph.text"), type: "textarea", rows: 3},
         ],
     },
     TextInput: {
         id: "drag-textinput",
         type: "TextInput",
-        title: "Texte court",
+        title: t("def.TextInput.title"),
         icon: TypeIcon,
-        description: 'Permet la saisie d\'un texte court.',
+        description: t("def.TextInput.description"),
         defaultProps: {
             type: "TextInput",
-            label: "Libellé",
+            label: t("field.label"),
             placeHolder: "",
             required: false,
             helpText: ""
         },
-        editionSchema: prefillableInputSchema,
+        editionSchema: prefillableInputSchema(),
     },
     TextareaInput: {
         id: "drag-textareainput",
         type: "TextareaInput",
-        title: "Zone de texte",
+        title: t("def.TextareaInput.title"),
         icon: AlignLeft,
-        description: 'Saisie d\'une grande quantité de texte par l\'utilisateur.',
+        description: t("def.TextareaInput.description"),
         defaultProps: {
             type: "TextareaInput",
-            label: "Libellé",
+            label: t("field.label"),
             placeHolder: "",
             required: false,
             helpText: '',
             rows: 5
         },
         editionSchema: [
-            ...prefillableInputSchema,
-            {key: "rows", label: "Nombre de lignes", type: "number"},
+            ...prefillableInputSchema(),
+            {key: "rows", label: t("textarea.rows"), type: "number"},
         ],
     },
     ChoiceGroup: {
         id: "drag-choicegroup",
         type: "ChoiceGroup",
-        title: "Choix (radio / cases)",
-        description: 'Affiche des boutons radio (sélection unique) ou des cases à cocher (sélections multiples).',
+        title: t("def.ChoiceGroup.title"),
+        description: t("def.ChoiceGroup.description"),
         defaultProps: {
             type: "ChoiceGroup",
-            label: "Libellé",
+            label: t("field.label"),
             helpText: "",
             required: false,
             multiple: false,
@@ -351,22 +352,22 @@ export const blockDefinitions: BlockDefinitions = {
             conditions: [],
         },
         editionSchema: [
-            {key: "label", label: "Titre", type: "text"},
-            {key: "helpText", label: "Message d'aide", type: "textarea", rows: 2},
-            {key: "required", label: "Requis", type: "checkbox"},
-            {key: "multiple", label: "Sélection multiple", type: "checkbox"},
-            readOnlyItem,
+            {key: "label", label: t("field.title"), type: "text"},
+            {key: "helpText", label: t("field.helpText"), type: "textarea", rows: 2},
+            {key: "required", label: t("field.required"), type: "checkbox"},
+            {key: "multiple", label: t("field.multiple"), type: "checkbox"},
+            readOnlyItem(),
         ],
     },
     NumberInput: {
         id: "drag-numberinput",
         type: "NumberInput",
-        title: "Nombre",
+        title: t("def.NumberInput.title"),
         icon: Hash,
-        description: 'Permet la saisie d\'une valeur numérique, avec bornes min/max optionnelles.',
+        description: t("def.NumberInput.description"),
         defaultProps: {
             type: "NumberInput",
-            label: "Libellé",
+            label: t("field.label"),
             placeHolder: "",
             required: false,
             helpText: "",
@@ -375,152 +376,152 @@ export const blockDefinitions: BlockDefinitions = {
             step: "",
         },
         editionSchema: [
-            ...commonInputSchema,
-            {key: "defaultValue", label: "Valeur par défaut", type: "number"},
-            readOnlyItem,
-            {key: "min", label: "Valeur minimale", type: "number"},
-            {key: "max", label: "Valeur maximale", type: "number"},
-            {key: "step", label: "Pas", type: "number"},
+            ...commonInputSchema(),
+            {key: "defaultValue", label: t("field.defaultValue"), type: "number"},
+            readOnlyItem(),
+            {key: "min", label: t("number.min"), type: "number"},
+            {key: "max", label: t("number.max"), type: "number"},
+            {key: "step", label: t("number.step"), type: "number"},
         ],
     },
     EmailInput: {
         id: "drag-emailinput",
         type: "EmailInput",
-        title: "Email",
+        title: t("def.EmailInput.title"),
         icon: Mail,
-        description: 'Permet la saisie d\'une adresse email.',
+        description: t("def.EmailInput.description"),
         defaultProps: {
             type: "EmailInput",
-            label: "Libellé",
+            label: t("field.label"),
             placeHolder: "",
             required: false,
             helpText: "",
         },
-        editionSchema: prefillableInputSchema,
+        editionSchema: prefillableInputSchema(),
     },
     TelInput: {
         id: "drag-telinput",
         type: "TelInput",
-        title: "Téléphone",
+        title: t("def.TelInput.title"),
         icon: Phone,
-        description: 'Permet la saisie d\'un numéro de téléphone.',
+        description: t("def.TelInput.description"),
         defaultProps: {
             type: "TelInput",
-            label: "Libellé",
+            label: t("field.label"),
             placeHolder: "",
             required: false,
             helpText: "",
         },
-        editionSchema: prefillableInputSchema,
+        editionSchema: prefillableInputSchema(),
     },
     UrlInput: {
         id: "drag-urlinput",
         type: "UrlInput",
-        title: "URL",
+        title: t("def.UrlInput.title"),
         icon: Link,
-        description: 'Permet la saisie d\'une adresse web.',
+        description: t("def.UrlInput.description"),
         defaultProps: {
             type: "UrlInput",
-            label: "Libellé",
+            label: t("field.label"),
             placeHolder: "",
             required: false,
             helpText: "",
         },
-        editionSchema: prefillableInputSchema,
+        editionSchema: prefillableInputSchema(),
     },
     DateTimeInput: {
         id: "drag-datetimeinput",
         type: "DateTimeInput",
-        title: "Date / Heure",
+        title: t("def.DateTimeInput.title"),
         icon: Calendar,
-        description: 'Permet la saisie d\'une date, d\'une heure, ou des deux.',
+        description: t("def.DateTimeInput.description"),
         defaultProps: {
             type: "DateTimeInput",
-            label: "Libellé",
+            label: t("field.label"),
             required: false,
             helpText: "",
             mode: "datetime-local",
         },
         editionSchema: [
-            ...commonInputSchemaNoPlaceholder,
+            ...commonInputSchemaNoPlaceholder(),
             {
-                key: "mode", label: "Type de saisie", type: "select", options: [
-                    {value: "date", label: "Date"},
-                    {value: "datetime-local", label: "Date et heure"},
-                    {value: "time", label: "Heure"},
+                key: "mode", label: t("date.mode"), type: "select", options: [
+                    {value: "date", label: t("date.modeDate")},
+                    {value: "datetime-local", label: t("date.modeDateTime")},
+                    {value: "time", label: t("date.modeTime")},
                 ]
             },
-            {key: "hasCurrentDate", label: "Préremplir avec la date et l'heure actuelles", type: "checkbox"},
-            readOnlyItem,
+            {key: "hasCurrentDate", label: t("date.prefill"), type: "checkbox"},
+            readOnlyItem(),
         ],
     },
     AddressInput: {
         id: "drag-addressinput",
         type: "AddressInput",
-        title: "Adresse",
+        title: t("def.AddressInput.title"),
         icon: MapPin,
-        description: 'Permet la saisie d\'une adresse postale.',
+        description: t("def.AddressInput.description"),
         defaultProps: {
             type: "AddressInput",
-            label: "Libellé",
-            placeHolder: "Indiquez un lieu…",
+            label: t("field.label"),
+            placeHolder: t("field.addressPlaceholder"),
             required: false,
             helpText: "",
         },
-        editionSchema: commonInputSchema,
+        editionSchema: commonInputSchema(),
     },
     FileInput: {
         id: "drag-fileinput",
         type: "FileInput",
-        title: "Fichier",
+        title: t("def.FileInput.title"),
         icon: Paperclip,
-        description: 'Permet le dépôt d\'un ou plusieurs fichiers.',
+        description: t("def.FileInput.description"),
         defaultProps: {
             type: "FileInput",
-            label: "Libellé",
+            label: t("field.label"),
             required: false,
             helpText: "",
             acceptedFile: "image",
             allowMultiple: false,
         },
         editionSchema: [
-            ...commonInputSchemaNoPlaceholder,
+            ...commonInputSchemaNoPlaceholder(),
             {
-                key: "acceptedFile", label: "Fichiers acceptés", type: "select", options: [
-                    {value: "image", label: "Images"},
-                    {value: "file", label: "PDF"},
-                    {value: "both", label: "Images et PDF"},
+                key: "acceptedFile", label: t("file.accepted"), type: "select", options: [
+                    {value: "image", label: t("file.images")},
+                    {value: "file", label: t("file.pdf")},
+                    {value: "both", label: t("file.both")},
                 ]
             },
-            {key: "allowMultiple", label: "Autoriser plusieurs fichiers", type: "checkbox"},
+            {key: "allowMultiple", label: t("file.multiple"), type: "checkbox"},
         ],
     },
     HourMinuteInput: {
         id: "drag-hourminuteinput",
         type: "HourMinuteInput",
-        title: "Heure",
+        title: t("def.HourMinuteInput.title"),
         icon: Clock,
-        description: 'Permet la saisie d\'une heure (HH:MM).',
+        description: t("def.HourMinuteInput.description"),
         defaultProps: {
             type: "HourMinuteInput",
-            label: "Libellé",
+            label: t("field.label"),
             required: false,
             helpText: "",
         },
         editionSchema: [
-            ...commonInputSchemaNoPlaceholder,
-            {key: "defaultValue", label: "Valeur par défaut", type: "text", helpText: "Format HH:MM, par exemple 08:30"},
-            readOnlyItem,
+            ...commonInputSchemaNoPlaceholder(),
+            {key: "defaultValue", label: t("field.defaultValue"), type: "text", helpText: t("hourMinute.help")},
+            readOnlyItem(),
         ],
     },
     Select: {
         id: "drag-select",
         type: "Select",
-        title: "Liste déroulante",
-        description: 'Affiche une liste déroulante d\'options, à choix unique ou multiple.',
+        title: t("def.Select.title"),
+        description: t("def.Select.description"),
         defaultProps: {
             type: "Select",
-            label: "Libellé",
+            label: t("field.label"),
             helpText: "",
             required: false,
             multiple: false,
@@ -528,32 +529,32 @@ export const blockDefinitions: BlockDefinitions = {
             conditions: [],
         },
         editionSchema: [
-            {key: "label", label: "Titre", type: "text"},
-            {key: "helpText", label: "Message d'aide", type: "textarea", rows: 2},
-            {key: "required", label: "Requis", type: "checkbox"},
-            {key: "multiple", label: "Sélection multiple", type: "checkbox"},
-            {key: "customOption", label: "Autoriser la saisie d'une autre valeur", type: "checkbox"},
-            readOnlyItem,
+            {key: "label", label: t("field.title"), type: "text"},
+            {key: "helpText", label: t("field.helpText"), type: "textarea", rows: 2},
+            {key: "required", label: t("field.required"), type: "checkbox"},
+            {key: "multiple", label: t("field.multiple"), type: "checkbox"},
+            {key: "customOption", label: t("select.customOption"), type: "checkbox"},
+            readOnlyItem(),
         ],
     },
     Signature: {
         id: "drag-signature",
         type: "Signature",
-        title: "Signature",
-        description: 'Affiche une zone dédiée à la signature de l\'utilisateur.',
+        title: t("def.Signature.title"),
+        description: t("def.Signature.description"),
         defaultProps: {
             type: "Signature",
-            label: "Libellé",
+            label: t("field.label"),
             helpText: "",
             required: false,
         },
-        editionSchema: commonInputSchemaNoPlaceholder,
+        editionSchema: commonInputSchemaNoPlaceholder(),
     },
     FieldSet: {
         id: "drag-fieldset",
         type: "FieldSet",
-        title: "Groupe de champs",
-        description: 'Regroupe plusieurs blocs à l\'intérieur d\'un même ensemble.',
+        title: t("def.FieldSet.title"),
+        description: t("def.FieldSet.description"),
         defaultProps: {
             type: "FieldSet",
             children: [],
@@ -562,14 +563,19 @@ export const blockDefinitions: BlockDefinitions = {
     Repeatable: {
         id: "drag-repeatable",
         type: "Repeatable",
-        title: "Répétable",
-        description: 'Permet à l\'utilisateur de répéter un ensemble de blocs plusieurs fois.',
+        title: t("def.Repeatable.title"),
+        description: t("def.Repeatable.description"),
         defaultProps: {
             type: "Repeatable",
             children: [],
             maxItems: 1,
         },
     }
-};
+});
+
+export const blockDefinitions: BlockDefinitions = buildDefinitions();
+
+// Les définitions portent des textes traduits : on les reconstruit en place quand la langue change.
+onBuilderLocaleChange(() => Object.assign(blockDefinitions, buildDefinitions()));
 
 export const getAllBlockDefinitions = () => Object.values(blockDefinitions);

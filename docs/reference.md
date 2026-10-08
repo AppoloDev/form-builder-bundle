@@ -34,7 +34,7 @@ The bundle also registers `@FormBuilder/form_theme/structure.html.twig` (the bui
 
 | Type | Options |
 |---|---|
-| `FormType\FormStructureType` | `answers_count` (int, default 0). Data: structure array ⇄ JSON in a hidden input |
+| `FormType\FormStructureType` | `answers_count` (int, default 0), `locale` (string, default: request locale; the builder UI is available in `fr` and `en`, any other locale falls back to English). Data: structure array ⇄ JSON in a hidden input |
 | `FormType\FormBuilderType` | `edit` (bool). Root type used by `FormTypeGenerator` |
 | `FormType\DatePickerType`, `DateTimePickerType` | Wrappers over `DateType` / `DateTimeType` |
 | `FormType\ConditionalFieldType` | Wraps a conditional block (`inherit_data`); options `block`, `owner`, `operator`, `option_label` |
@@ -144,5 +144,4 @@ layout structure are user text and are never translated.
 
 - A block with an unknown type throws `UnknownFieldTypeException` when `kernel.debug` is on, and is skipped
   with a `warning` log otherwise.
-- The builder UI text is French only.
 - Custom PHP field types cannot be registered yet (`FieldFactory` resolves types in the bundle namespace).

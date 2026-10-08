@@ -4,6 +4,7 @@ import { useFormBuilderStore } from "../../stores/block.store";
 import { EditableBlock } from "./EditableBlock";
 import { SelectEdition } from "../Edition/SelectEdition";
 import { InlineEditableText } from "../InlineEditableText";
+import { t } from "../../i18n";
 
 type Props = TitleProps & { preview?: boolean };
 
@@ -41,15 +42,15 @@ const Title = ({id, type, text, heading, preview}: Props) => {
     return (
         <EditableBlock id={id} type={type} preview={preview} editionItems={[
             <SelectEdition
-                label={'Niveau de titre'}
+                label={t("title.level")}
                 value={headingLevel}
                 options={[
-                    {value: 'h1', label: 'Titre de niveau 1'},
-                    {value: 'h2', label: 'Titre de niveau 2'},
-                    {value: 'h3', label: 'Titre de niveau 3'},
-                    {value: 'h4', label: 'Titre de niveau 4'},
-                    {value: 'h5', label: 'Titre de niveau 5'},
-                    {value: 'h6', label: 'Titre de niveau 6'},
+                    {value: 'h1', label: t("title.levelN", {n: 1})},
+                    {value: 'h2', label: t("title.levelN", {n: 2})},
+                    {value: 'h3', label: t("title.levelN", {n: 3})},
+                    {value: 'h4', label: t("title.levelN", {n: 4})},
+                    {value: 'h5', label: t("title.levelN", {n: 5})},
+                    {value: 'h6', label: t("title.levelN", {n: 6})},
                 ]}
                 editItem={(v) => {
                     handleChange('heading', v)
@@ -67,7 +68,7 @@ const Title = ({id, type, text, heading, preview}: Props) => {
                             setLabel(v);
                             handleChange('text', v);
                         }}
-                        placeholder="Titre sans nom"
+                        placeholder={t("title.placeholder")}
                         // shadcn's Input hardcodes `md:text-sm`, which otherwise silently
                         // shrinks the title back down on desktop widths — repeat the size
                         // under `md:` too so it actually wins over Input's own default.

@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import FormBuilder from './builder/FormBuilder'
+import { setBuilderLocale } from './builder/i18n'
 
 export class FormBuilderElement extends HTMLElement {
     connectedCallback() {
@@ -17,6 +18,8 @@ export class FormBuilderElement extends HTMLElement {
                     break;
             }
         });
+
+        setBuilderLocale(attrs.locale);
 
         this.root = createRoot(this);
         this.root.render(

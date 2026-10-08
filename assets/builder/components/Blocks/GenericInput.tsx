@@ -9,6 +9,7 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { InputGroup, InputGroupAddon } from "../ui/input-group";
 import { Tooltip } from "../Tooltip";
+import { t } from "../../i18n";
 
 type CommonProps = {
     id: string;
@@ -39,11 +40,11 @@ export type EditionItem =
     helpText?: string
 };
 
-const baseSchema: EditionItem[] = [
-    {key: "label", label: "Titre", type: "text"},
-    {key: "placeHolder", label: "Placeholder", type: "text"},
-    {key: "helpText", label: "Message d'aide", type: "textarea"},
-    {key: "required", label: "Requis", type: "checkbox"},
+const baseSchema = (): EditionItem[] => [
+    {key: "label", label: t("field.title"), type: "text"},
+    {key: "placeHolder", label: t("field.placeholder"), type: "text"},
+    {key: "helpText", label: t("field.helpText"), type: "textarea"},
+    {key: "required", label: t("field.required"), type: "checkbox"},
 ];
 
 type MakeOpts = {
@@ -79,7 +80,7 @@ export const makeInputBlock = (
         const editionSchema = useMemo(
             () => {
                 // Source unique : le schéma d'édition déclaré dans Definition.ts (aussi utilisé par AddMenu).
-                let schema: EditionItem[] = blockDefinitions[blockType as keyof typeof blockDefinitions]?.editionSchema ?? baseSchema;
+                let schema: EditionItem[] = blockDefinitions[blockType as keyof typeof blockDefinitions]?.editionSchema ?? baseSchema();
                 if (isChildBlock) {
                     schema = schema.filter(item => item.key !== 'required');
                 }

@@ -2,7 +2,7 @@
 
 ## How it fits together
 
-`FormStructureType` renders:
+`FormStructureType` renders (the `<form-builder>` element receives a `locale` attribute, `fr` or `en`):
 
 ```html
 <form-builder-manager data-answers-count="3" data-confirm-template="…">

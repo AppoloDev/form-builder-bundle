@@ -7,6 +7,8 @@ namespace AppoloDev\FormBuilderBundle\Tests\Unit\FormType;
 use AppoloDev\FormBuilderBundle\FormType\FormStructureType;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Forms;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class FormStructureTypeTest extends TestCase
 {
@@ -29,6 +31,22 @@ class FormStructureTypeTest extends TestCase
 
         self::assertFalse($view->vars['has_structure']);
         self::assertSame(0, $view->vars['answers_count']);
+    }
+
+    public function testTheBuilderLocaleDefaultsToTheRequestLocaleThenToEnglish(): void
+    {
+        $request = new Request();
+        $request->setLocale('fr');
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $factory = Forms::createFormFactoryBuilder()
+            ->addType(new FormStructureType($requestStack))
+            ->getFormFactory();
+
+        self::assertSame('fr', $factory->create(FormStructureType::class)->createView()->vars['builder_locale']);
+        self::assertSame('en', $factory->create(FormStructureType::class, null, ['locale' => 'en'])->createView()->vars['builder_locale']);
+        self::assertSame('en', Forms::createFormFactory()->create(FormStructureType::class)->createView()->vars['builder_locale']);
     }
 
     public function testSubmittedJsonIsDecodedBackToAnArray(): void

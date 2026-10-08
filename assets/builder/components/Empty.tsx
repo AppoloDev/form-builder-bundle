@@ -1,6 +1,7 @@
 import { AddMenu } from "./AddMenu";
 import { BlockDefinition } from "./Blocks/Definition";
 import { Button } from "./ui/button";
+import { t } from "../i18n";
 
 type Props = {
     onPick: (def: BlockDefinition, overrides?: Record<string, any>) => void;
@@ -11,7 +12,7 @@ export const Empty = ({onPick}: Props) => {
         <div className="max-w-sm w-full flex flex-col justify-center mx-auto space-y-5 p-8">
             <div className="flex flex-col items-center gap-2">
                 <div className="font-semibold text-foreground text-center">
-                    Aucun bloc pour le moment !
+                    {t("builder.empty")}
                 </div>
 
                 <p className="text-sm text-muted-foreground text-center">
@@ -24,7 +25,7 @@ export const Empty = ({onPick}: Props) => {
                     onPick={onPick}
                 >
                     <Button type="button">
-                        Ajouter un bloc
+                        {t("builder.addBlock")}
                     </Button>
                 </AddMenu>
             </div>

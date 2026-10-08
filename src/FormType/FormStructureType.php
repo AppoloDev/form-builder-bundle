@@ -10,6 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -19,6 +20,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class FormStructureType extends AbstractType
 {
+    public function __construct(private readonly ?RequestStack $requestStack = null)
+    {
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addModelTransformer(new CallbackTransformer(
@@ -38,6 +43,7 @@ class FormStructureType extends AbstractType
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         $view->vars['answers_count'] = $options['answers_count'];
+        $view->vars['builder_locale'] = $options['locale'] ?? $this->requestStack?->getCurrentRequest()?->getLocale() ?? 'en';
         $data = $form->getData();
         $view->vars['has_structure'] = \is_array($data) && [] !== $data;
     }
@@ -46,9 +52,11 @@ class FormStructureType extends AbstractType
     {
         $resolver->setDefaults([
             'answers_count' => 0,
+            'locale' => null,
             'translation_domain' => 'form_builder_bundle',
         ]);
         $resolver->setAllowedTypes('answers_count', 'int');
+        $resolver->setAllowedTypes('locale', ['null', 'string']);
     }
 
     public function getParent(): string
