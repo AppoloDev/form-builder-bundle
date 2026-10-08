@@ -221,8 +221,9 @@ Conception à valider avant code :
 ---
 
 ## 4. Définition de « prêt pour v1.0.0 »
-- [ ] Phases 1 à 6 terminées (D1…D8 tranchées).
-- [ ] `blocks.json` généré en CI, tests de contrat verts, `composer qa` vert.
-- [ ] Un formulaire de **chaque type** créé dans le builder, répondu, ré-édité, affiché (web + PDF) et exporté sans perte dans OSCAR.
-- [ ] Section « Known limitations » de `docs/reference.md` et du skill mise à jour (i18n du builder) ; types et options documentés (`ChoiceGroup`, `HourMinuteInput`, `conditions`, `readOnly`, `defaultValue`).
+- [x] Phases 1 à 6 terminées (D1…D8 tranchées).
+- [x] `blocks.json` versionné et vérifié par vitest ; tests de contrat PHP verts ; `composer qa` vert ; job front (tsc, vitest) dans la CI.
+- [x] Un bloc de **chaque type** du builder traverse stockage, formulaire, soumission, réponses, affichage web/PDF et export CSV d'OSCAR (test d'intégration `FormBuilderAllTypesIntegrationTest`).
+- [ ] Vérification **dans un navigateur** : builder (nouvelles options, option présélectionnée, conditions), formulaire de réponse (affichage/masquage des champs conditionnels, signature, adresse, répétables), réédition, PDF réel.
+- [x] « Known limitations » de `docs/reference.md` et du skill à jour (reste : UI du builder en français, types PHP non extensibles).
 - [ ] Tag `v1.0.0` créé sur le dépôt du bundle.
