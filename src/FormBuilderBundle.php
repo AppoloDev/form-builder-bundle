@@ -22,6 +22,13 @@ class FormBuilderBundle extends AbstractBundle
             ->end();
     }
 
+    public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
+    {
+        $container->extension('twig', [
+            'form_themes' => ['@FormBuilder/form_theme/structure.html.twig'],
+        ]);
+    }
+
     /**
      * @param array{upload_path: string} $config
      */

@@ -1,0 +1,7 @@
+structure:
+    confirm:
+        template: "Attention : {fields} vont effacer des données de réponse ({answers}).\n\nConfirmer l'enregistrement ?"
+        fields_one: '1 champ supprimé'
+        fields_many: '{count} champs supprimés'
+        answers_one: '1 réponse existante impactée'
+        answers_many: '{count} réponses existantes impactées'

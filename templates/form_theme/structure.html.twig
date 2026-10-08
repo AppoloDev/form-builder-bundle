@@ -1,0 +1,21 @@
+{#- Widget du champ FormStructureType : le builder JS (<form-builder>) et le champ caché qu'il
+    met à jour. <form-builder-manager> écoute la soumission du <form> englobant pour demander
+    confirmation quand des champs supprimés effaceraient des réponses existantes. -#}
+{%- block form_builder_structure_widget -%}
+    {%- set structureJson = value is not empty ? value : '' -%}
+    <form-builder-manager
+        data-answers-count="{{ answers_count }}"
+        data-confirm-template="{{ 'structure.confirm.template'|trans({}, 'form_builder_bundle') }}"
+        data-fields-one="{{ 'structure.confirm.fields_one'|trans({}, 'form_builder_bundle') }}"
+        data-fields-many="{{ 'structure.confirm.fields_many'|trans({}, 'form_builder_bundle') }}"
+        data-answers-one="{{ 'structure.confirm.answers_one'|trans({}, 'form_builder_bundle') }}"
+        data-answers-many="{{ 'structure.confirm.answers_many'|trans({}, 'form_builder_bundle') }}"
+    >
+        <input type="hidden" id="{{ id }}" name="{{ full_name }}" value="{{ structureJson }}">
+        {%- if has_structure -%}
+            <form-builder json="{{ structureJson }}"></form-builder>
+        {%- else -%}
+            <form-builder></form-builder>
+        {%- endif -%}
+    </form-builder-manager>
+{%- endblock -%}
