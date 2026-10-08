@@ -1,0 +1,186 @@
+{#- Thème de formulaire par défaut du bundle : habille les types propres au form-builder
+    (fieldset, titre, paragraphe, répétable, adresse, signature, fichiers répétables) avec le kit
+    shadcn de symfony/ux-toolkit (composants UI:Shadcn:* installés dans l'application). Les types
+    Symfony standard (texte, choix, date...) restent rendus par le thème de formulaire de
+    l'application. Remplaçable via `form_builder.form_theme`. Les comportements JS passent par les
+    contrôleurs Stimulus du bundle (form-builder-collection, form-builder-geo-complete,
+    form-builder-sign-area). -#}
+
+{%- block fieldset_row -%}
+    <div class="mb-8 rounded-md border border-dashed border-border">
+        <fieldset id="{{ id }}" class="p-5 md:p-10">
+            {%- for child in form %}
+                {{- form_row(child) -}}
+            {% endfor -%}
+        </fieldset>
+    </div>
+{%- endblock -%}
+
+{%- block title_row -%}
+    <div class="mb-8"><h2 id="{{ id }}" class="text-xl font-bold text-foreground">{{ label }}</h2></div>
+{%- endblock -%}
+
+{%- block paragraph_row -%}
+    <div class="mb-8"><p id="{{ id }}" class="text-muted-foreground">{{ label|nl2br }}</p></div>
+{%- endblock -%}
+
+{%- block repeatable_row -%}
+    <div class="repeatable mb-8 rounded-md border border-dashed border-border p-5 md:p-10">
+        <div
+            data-controller="form-builder-collection"
+            data-prototype="{{ block('repeatable_children_prototype')|e('html') }}"
+            data-name="__name__"
+            {% if attr.maxItems is defined and attr.maxItems is not same as(0) %}data-max-items="{{ attr.maxItems }}"{% endif %}
+            data-remove-btn-target=".remove-container"
+            data-collection-child-selector=".repeatable_child"
+            {% if data is null %}data-add-auto="1"{% endif %}
+        >
+            {% for field in form.children %}
+                <div class="collec_child repeatable_child" data-val="{{ field.vars.name }}">
+                    {% with {form: field} %}
+                        {{ block('repeatable_child_row') }}
+                    {% endwith %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{%- endblock -%}
+
+{%- block repeatable_children_prototype -%}
+    {% with {form: form.vars.prototype} %}
+        {{ block('repeatable_child_row') }}
+    {% endwith %}
+{%- endblock -%}
+
+{%- block repeatable_child_row -%}
+    <div class="repeatable--item mb-8 flex gap-4">
+        <div class="min-w-0 flex-1">
+            {{ form_widget(form) }}
+        </div>
+
+        <div class="remove-container"></div>
+    </div>
+
+    {% with {label: 'theme.add_item'|trans({}, 'form_builder_bundle')} %}
+        {{ block('add_btn') }}
+    {% endwith %}
+    {{ block('remove_btn') }}
+{%- endblock -%}
+
+{%- block add_btn -%}
+    <template id="add-btn">
+        <div class="text-center md:text-left">
+            <twig:UI:Shadcn:Button as="a" variant="link">
+                <twig:ux:icon name="ph:plus" />
+
+                {{ label }}
+            </twig:UI:Shadcn:Button>
+        </div>
+    </template>
+{%- endblock -%}
+
+{%- block remove_btn -%}
+    <template id="remove-btn">
+        <twig:UI:Shadcn:Button as="a" size="lg">
+            <twig:ux:icon name="ph:x" />
+        </twig:UI:Shadcn:Button>
+    </template>
+{%- endblock -%}
+
+{%- block address_row -%}
+    <div class="mb-5">
+        {{ form_label(form) }}
+        <div data-controller="form-builder-geo-complete">
+            {{ form_widget(form) }}
+        </div>
+        {{ form_help(form) }}
+        {{ form_errors(form) }}
+    </div>
+{%- endblock -%}
+
+{%- block signature_row -%}
+    <div class="mb-5">
+        {{ form_label(form) }}
+        <div
+            class="relative"
+            data-controller="form-builder-sign-area"
+            data-form-builder-sign-area-input-value="#{{ form.vars.id }}"
+            data-form-builder-sign-area-clear-label-value="{{ 'signature.clear'|trans({}, 'form_builder_bundle') }}"
+            data-form-builder-sign-area-modify-label-value="{{ 'signature.modify'|trans({}, 'form_builder_bundle') }}"
+        >
+            <div data-form-builder-sign-area-target="container" class="relative z-10"></div>
+
+            <div class="absolute top-0 -z-10">
+                {{ form_widget(form) }}
+            </div>
+        </div>
+        {{ form_help(form) }}
+        {{ form_errors(form) }}
+    </div>
+{%- endblock -%}
+
+{%- block file_repeatable_row -%}
+    <div class="file-item">
+        <div class="my-8 border-t border-dashed border-border"></div>
+
+        <div class="space-y-6">
+            <h3 class="text-xl font-bold text-foreground">{{ 'theme.attached_files'|trans({}, 'form_builder_bundle') }}</h3>
+
+            <div
+                data-controller="form-builder-collection"
+                data-prototype="{{ block('file_repeatable_children_prototype')|e('html') }}"
+                data-name="__name__"
+                {% if attr.maxItems is defined and attr.maxItems is not same as(0) %}data-max-items="{{ attr.maxItems }}"{% endif %}
+                data-remove-btn-target=".remove-container"
+                data-collection-child-selector=".file_child"
+                data-delete-selector=".input-delete"
+            >
+                {% for field in form.children %}
+                    <div class="collec_child file_child mb-3" data-val="{{ field.vars.name }}">
+                        {% with {form: field} %}
+                            {{ block('file_repeatable_child_row') }}
+                        {% endwith %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="my-8 border-t border-dashed border-border"></div>
+    </div>
+{%- endblock -%}
+
+{%- block file_repeatable_children_prototype -%}
+    {% with {form: form.vars.prototype} %}
+        {{ block('file_repeatable_child_row') }}
+    {% endwith %}
+{%- endblock -%}
+
+{%- block file_repeatable_child_row -%}
+    <div class="repeatable--item mb-5">
+        {{ form_label(form.file) }}
+        <div class="flex items-start gap-3">
+            {% if form.file.vars.data is not null and form.file.vars.valid is same as(true) %}
+                <div class="file-name flex-1 rounded-md border border-dashed border-border px-4 py-2">
+                    <span>{{ form.file.vars.data.getClientOriginalName() }}</span>
+                    <div class="hidden">
+                        {{ form_widget(form) }}
+                    </div>
+                </div>
+            {% else %}
+               <div class="flex-1">
+                   {{ form_widget(form.file) }}
+                   {{ form_errors(form.file) }}
+                   {{ form_help(form.file) }}
+               </div>
+            {% endif %}
+            {{ form_rest(form) }}
+
+            <div class="remove-container"></div>
+        </div>
+    </div>
+
+    {% with {label: 'theme.add_file'|trans({}, 'form_builder_bundle')} %}
+        {{ block('add_btn') }}
+    {% endwith %}
+    {{ block('remove_btn') }}
+{%- endblock -%}

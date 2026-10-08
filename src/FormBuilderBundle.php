@@ -33,6 +33,10 @@ class FormBuilderBundle extends AbstractBundle
                     ->info('Répertoire où sont stockés les fichiers envoyés dans les réponses.')
                     ->defaultValue('%kernel.project_dir%/uploads/form-files/')
                 ->end()
+                ->scalarNode('form_theme')
+                    ->info('Thème Twig utilisé pour rendre les types propres au form-builder (remplaçable par un autre thème).')
+                    ->defaultValue('@FormBuilder/form_theme/shadcn.html.twig')
+                ->end()
                 ->arrayNode('classes')
                     ->info('Entités concrètes de l\'application, qui étendent les classes de base du bundle.')
                     ->isRequired()
@@ -48,16 +52,20 @@ class FormBuilderBundle extends AbstractBundle
 
     public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
     {
-        $container->extension('twig', [
-            'form_themes' => ['@FormBuilder/form_theme/structure.html.twig'],
-        ]);
-
         $classes = [];
+        $formTheme = '@FormBuilder/form_theme/shadcn.html.twig';
         foreach ($builder->getExtensionConfig('form_builder') as $config) {
             if (is_array($config['classes'] ?? null)) {
                 $classes = array_merge($classes, $config['classes']);
             }
+            if (is_string($config['form_theme'] ?? null)) {
+                $formTheme = $config['form_theme'];
+            }
         }
+
+        $container->extension('twig', [
+            'form_themes' => ['@FormBuilder/form_theme/structure.html.twig', $formTheme],
+        ]);
 
         $resolveTargetEntities = [];
         foreach (self::ENTITY_INTERFACES as $key => $interface) {
@@ -74,7 +82,7 @@ class FormBuilderBundle extends AbstractBundle
     }
 
     /**
-     * @param array{upload_path: string, classes: array<string, string>} $config
+     * @param array{upload_path: string, form_theme: string, classes: array<string, string>} $config
      */
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {

@@ -1,0 +1,12 @@
+{
+  "name": "@appolodev/form-builder-bundle",
+  "private": true,
+  "description": "Assets JS du bundle appolodev/form-builder-bundle (builder, contrôleurs Stimulus)",
+  "peerDependencies": {
+    "@hotwired/stimulus": "*",
+    "form-builder": "*",
+    "react": "*",
+    "react-dom": "*",
+    "signature_pad": "*"
+  }
+}
