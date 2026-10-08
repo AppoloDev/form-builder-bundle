@@ -74,10 +74,20 @@ enregistre `form_theme` dans `twig.form_themes`.
 
 ## Assets JS
 
-`assets/` contient les composants `<form-builder>` / `<form-builder-manager>` et les contrôleurs
-Stimulus `form-builder-collection`, `form-builder-geo-complete` et `form-builder-sign-area`. Dépendances
-JS : voir `package.json`. Le champ adresse attend que l'application charge l'API Google Maps Places et
-émette l'événement `google-maps:ready`.
+`assets/` contient tout le front :
+
+- `builder/` : le builder React (ex-dépôt `AppoloDev/form-builder`, fusionné ici — il ne s'utilise plus en
+  standalone). Les imports y sont **relatifs** (pas d'alias `@/`) pour que l'application hôte n'ait rien à
+  configurer côté Vite ; n'utilisez donc pas la CLI shadcn telle quelle (elle génère des imports `@/…`).
+- `form-builder.jsx` / `form-builder-manager.js` : les custom elements `<form-builder>` et
+  `<form-builder-manager>` rendus par `FormStructureType` ;
+- `controllers/` : contrôleurs Stimulus `form-builder-collection`, `form-builder-geo-complete` et
+  `form-builder-sign-area`.
+
+L'hôte importe les deux custom elements, enregistre les contrôleurs (préfixe `form-builder-`) et ajoute
+`@source '…/form-builder-bundle/assets/builder/**/*.tsx'` à sa feuille Tailwind. Dépendances JS : voir
+`package.json` (à déclarer aussi côté application). Le champ adresse attend que l'application charge l'API
+Google Maps Places et émette l'événement `google-maps:ready`.
 
 ## Tests
 

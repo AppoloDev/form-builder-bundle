@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import FormBuilder from 'form-builder/src/FormBuilder'
+import FormBuilder from './builder/FormBuilder'
 
 export class FormBuilderElement extends HTMLElement {
     connectedCallback() {
