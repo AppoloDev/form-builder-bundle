@@ -8,8 +8,3 @@ parameters:
         - tests/bootstrap.php
     treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: true
-    ignoreErrors:
-        # Traits destinés aux entités concrètes de l'application hôte : inutilisés dans ce dépôt.
-        -
-            identifier: trait.unused
-            path: src/Entity/Concern/*
