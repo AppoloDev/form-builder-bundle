@@ -2,7 +2,7 @@
 
 Objectif : que **tout ce que le builder permet de configurer soit géré côté PHP** (formulaire, validation, stockage,
 affichage, export), et que **tout ce que le PHP sait faire soit pilotable depuis le builder** quand c'est pertinent.
-Pas de tag `v1.0.0` tant que la phase 5 n'est pas terminée.
+Pas de tag `v1.0.0` tant que les phases 1 à 6 ne sont pas terminées.
 
 Sources comparées : `assets/builder/components/Blocks/Definition.ts` (+ composants de bloc, store) ↔
 `src/Field/*.php`, `src/FormType/*`, `templates/form_theme/shadcn.html.twig`, `templates/answers/shadcn.html.twig`,
@@ -18,7 +18,7 @@ et les consommateurs côté OSCAR (`ResourceAnswer.html.twig`, `FormAnswerCsvExp
 | T2 | Options de `Select` : front `{id, label}`, PHP exige `{label: string, isSelected: bool}` (`FormLayoutBlock::configOptions`). Toute option du builder est rejetée → **liste déroulante vide**. | **Bloquant** |
 | T3 | Format des ids : le front génère `"<Type>-<uuid>"` (`generateBlockId`). Le listener `PreRemoveRemoveFormAnswerFile` repère les fichiers par préfixe `file_`, `fieldset_`, `repeatable_` → **les fichiers ne sont plus supprimés** avec la réponse. | Haute |
 | T4 | Clé `name` (slug du libellé) émise par tous les blocs : jamais lue par le PHP (la clé de réponse est `id`). | Faible |
-| T5 | `conditions` (blocs enfants conditionnés à une option, sur `Select` et `ChoiceGroup`) sont enregistrées dans `config` mais **aucune ligne `FormLayoutField` n'est créée pour les enfants** → leurs réponses ne peuvent être ni stockées ni affichées. | Haute (feature) |
+| T5 | `conditions` (blocs enfants conditionnés à une option, sur `Select` et `ChoiceGroup`) sont enregistrées dans `config` mais **aucune ligne `FormLayoutField` n'est créée pour les enfants** → leurs réponses ne peuvent être ni stockées ni affichées. | **Bloquant** (D5) |
 | T6 | Valeurs par défaut posées à chaque création de réponse : `NumberInput` préremplit `0`, `DateTimeInput` peut préremplir « maintenant ». Comportement PHP-only, non pilotable depuis le front (sauf `hasCurrentDate`, absent du front). | Moyenne |
 | T7 | Toute l'UI du builder est en français codé en dur (`Definition.ts`, composants). | Moyenne (i18n) |
 | T8 | Les types sont dispatchés par **nom de classe/chaîne** à 5 endroits : `FieldFactory`, `FieldKindResolver`, blocs de `answers/shadcn.html.twig` (`{% block <Type> %}`), `ResourceAnswer.html.twig`, `FormAnswerCsvExportBuilder`. Renommer un type = toucher les 5. | À encadrer par des tests |
@@ -30,14 +30,14 @@ et les consommateurs côté OSCAR (`ResourceAnswer.html.twig`, `FormAnswerCsvExp
 
 | # | Question | Recommandation |
 |---|---|---|
-| D1 | Nom canonique pour `TextareaInput`/`TextAreaInput` et `AddressInput`/`Address` | **Noms PHP** (`TextAreaInput`, `Address`) : ce sont ceux des données OSCAR existantes et des 5 consommateurs (T8). Le front est renommé ; le PHP accepte aussi l'ancien nom front en alias (lecture) pour les structures déjà sauvegardées avec le nouveau builder. Zéro migration de données. |
-| D2 | `HourMinuteInput` : doublon de `DateTimeInput` `mode: "time"` | **Retirer le type du modèle de données** : le bouton « Heure » du builder insère un `DateTimeInput` avec `mode: "time"`. Aucun nouveau type PHP. |
-| D3 | `ChoiceGroup` (radio / cases) vs `Select.checkCases` (PHP) | **Garder `ChoiceGroup` côté front et créer une classe PHP `ChoiceGroup`** (ChoiceType `expanded`), qui partage le code de `Select`. `Select.checkCases` reste lu pour les anciennes données mais n'est plus proposé. |
-| D4 | `defaultValue` et `readOnly` (PHP-only) | **Les ajouter au front** (« Valeur par défaut », « Lecture seule ») sur Texte/Zone de texte/Email/Tél/URL/Nombre. Petit coût, déjà géré et testé côté PHP. |
-| D5 | `conditions` | **Hors périmètre de `v1.0.0`** : désactiver le bouton « condition » du builder via la prop `useContionnalField=false` (prop existante dans `Select.tsx` et `ChoiceGroupInput.tsx`, à exposer globalement) tant que le PHP ne suit pas. Livrer ensuite comme `v1.1.0` (phase 6). Si vous voulez les conditions dans `v1.0.0`, la phase 6 devient bloquante. |
-| D6 | `NumberInput` : `allowDecimal` (PHP) vs `min/max/step` (front) | **Garder `min/max/step`**, les implémenter en PHP (attributs HTML + contraintes), dériver entier/décimal de `step` (`step` entier ⇒ `IntegerType`, sinon `NumberType`). `allowDecimal` reste lu en legacy. |
-| D7 | Type inconnu à la génération du formulaire | **Exception en `kernel.debug`, log `warning` + saut en prod**. Fini le silence. |
-| D8 | `Title.heading` (h1…h6) | **Respecter le niveau** côté thème de formulaire et vue des réponses. |
+| D1 | Nom canonique pour `TextareaInput`/`TextAreaInput` et `AddressInput`/`Address` | **Noms du front** (`TextareaInput`, `AddressInput`) : cohérents avec `EmailInput`/`UrlInput`/… et avec `TextareaType` de Symfony. Les classes PHP sont renommées ; OSCAR migre ses données avec `migrations.sql` (2 `UPDATE` sur `form_form_layout_field.type`, aucun consommateur OSCAR ne cite ces noms). **Pas d'alias** : le SQL est lancé avec le déploiement. **Décidé.** |
+| D2 | `HourMinuteInput` : doublon de `DateTimeInput` `mode: "time"` | **Garder un type distinct `HourMinuteInput`** (classe PHP dédiée, `TimeType`, valeur stockée en chaîne `"HH:MM"`). `DateTimeInput` garde `mode: "time"`. **Décidé.** |
+| D3 | `ChoiceGroup` (radio / cases) vs `Select.checkCases` (PHP) | **Classe PHP `ChoiceGroup`** (ChoiceType `expanded`), code partagé avec `Select`. `Select.checkCases` n'est plus proposé par le builder ; sa lecture PHP est supprimée avec le reste du legacy une fois OSCAR migré. **Décidé.** |
+| D4 | `defaultValue` et `readOnly` (PHP-only) | **Ajoutés au front** (« Valeur par défaut », « Lecture seule ») sur Texte/Zone de texte/Email/Tél/URL/Nombre (+ `readOnly` sur Heure, Date, Select, ChoiceGroup). **Décidé.** |
+| D5 | `conditions` | **Dans `v1.0.0`** : la phase 6 est bloquante pour le tag. **Décidé.** |
+| D6 *(retenu)* | `NumberInput` : `allowDecimal` (PHP) vs `min/max/step` (front) | **Garder `min/max/step`**, les implémenter en PHP (attributs HTML + contraintes), dériver entier/décimal de `step` (`step` entier ⇒ `IntegerType`, sinon `NumberType`). `allowDecimal` reste lu en legacy. |
+| D7 *(retenu)* | Type inconnu à la génération du formulaire | **Exception en `kernel.debug`, log `warning` + saut en prod**. Fini le silence. |
+| D8 *(retenu)* | `Title.heading` (h1…h6) | **Respecter le niveau** côté thème de formulaire et vue des réponses. |
 | D9 | Validation `TelInput` : exactement 10 chiffres (contrainte FR en dur) | Hors périmètre : à documenter ; option `pattern` configurable à étudier plus tard. |
 
 ---
@@ -67,10 +67,10 @@ Aucun écart.
 | `defaultValue` | non | oui | **P→F** (D4) |
 | `name` | oui | ignoré | ✂ côté front (T4) ou ignorer |
 
-### 2.4 `TextareaInput` → `TextAreaInput` (D1)
+### 2.4 `TextareaInput` (ancien PHP : `TextAreaInput`, D1)
 | Propriété | Front | PHP | Action |
 |---|---|---|---|
-| Nom du type | `TextareaInput` | `TextAreaInput` | **Renommer le front** + alias PHP (T1) |
+| Nom du type | `TextareaInput` | `TextAreaInput` | **Renommer la classe PHP** en `TextareaInput` (T1) |
 | `rows` | oui (défaut 5) | oui (défaut 5) | = |
 | `label`, `helpText`, `required`, `placeHolder` | oui | oui | = |
 | `readOnly`, `defaultValue` | non | oui | **P→F** (D4) |
@@ -103,14 +103,20 @@ Aucun écart.
 | Affichage réponse | — | `answers/shadcn` lit `block.showDate/showHour` pour le format | Lire `mode` aussi (format `d/m/Y`, `d/m/Y H:i`, `H:i`) ; idem `ResourceAnswer.html.twig` |
 
 ### 2.8 `HourMinuteInput` (D2)
-Type front uniquement (T1). **Décision D2** : le front l'émet comme `DateTimeInput` `mode: "time"`. Retirer
-`HourMinuteInput` de `BlockPropsByType`/`BlockRegistry`/`blockDefinitions` (garder un raccourci dans le menu d'ajout).
-PHP : rien à créer.
-
-### 2.9 `AddressInput` → `Address` (D1)
 | Propriété | Front | PHP | Action |
 |---|---|---|---|
-| Nom du type | `AddressInput` | `Address` | **Renommer le front** + alias PHP |
+| Type | `HourMinuteInput` | **absent** (T1) | **F→P** : créer `Field\HourMinuteInput` (`TimeType`, `input: string`, `widget: single_text`) ; valeur stockée `"HH:MM"` |
+| `label`, `helpText`, `required` | oui | via la classe | = |
+| `placeHolder` | oui (sans effet sur un input `time` natif) | — | ✂ front : retirer du schéma d'édition |
+| `readOnly`, `defaultValue` (`"HH:MM"`) | non | à prévoir | **P→F** (D4) |
+| Affichage réponse | — | pas de bloc | Ajouter `{% block HourMinuteInput %}` (chaîne brute) ; `ResourceAnswer.html.twig` et export CSV : valeur telle quelle |
+
+Doublon assumé avec `DateTimeInput` `mode: "time"` (valeur `DateTime` JSON) : les deux restent valides.
+
+### 2.9 `AddressInput` (ancien PHP : `Address`, D1)
+| Propriété | Front | PHP | Action |
+|---|---|---|---|
+| Nom du type | `AddressInput` | `Address` | **Renommer la classe PHP** en `AddressInput` |
 | `placeHolder` (défaut « Indiquez un lieu… ») | oui | **ignoré** | **F→P** : `AddressType` accepte `attr.placeholder` |
 | `label`, `helpText`, `required` | oui | oui | = |
 
@@ -170,9 +176,9 @@ Aucun écart (pas de libellé ni de légende des deux côtés). Réponses stock�
 ## 3. Phases d'exécution
 
 ### Phase 1 — Débloquer (T1, T2, T3) · petit
-1. PHP `FieldFactory` : table d'alias `TextareaInput→TextAreaInput`, `AddressInput→Address` ; type inconnu ⇒ comportement D7.
+1. PHP : renommer `Field\TextAreaInput` → `TextareaInput` et `Field\Address` → `AddressInput` (classes, tests, blocs de `answers/shadcn.html.twig`, docs) ; type inconnu ⇒ comportement D7. OSCAR : exécuter `migrations.sql` (racine du dépôt OSCAR) avec le déploiement.
 2. PHP `FormLayoutBlock::configOptions` : accepter `{id?, label, isSelected?}`.
-3. Front : renommer `TextareaInput`/`AddressInput` en `TextAreaInput`/`Address` (types TS, `blockDefinitions`, `BlockRegistry`, ids de drag) ; accepter les anciens noms au chargement (normalisation dans le store).
+3. Front : rien à renommer (noms de référence).
 4. PHP `PreRemoveRemoveFormAnswerFile` : parcours par structure (T3), couvert par test avec ids `FileInput-<uuid>`, fichier dans `FieldSet` et dans `Repeatable`.
 5. Tests : un cas par type avec les blocs **tels qu'émis par le front** (voir phase 5).
 
@@ -182,12 +188,12 @@ Aucun écart (pas de libellé ni de légende des deux côtés). Réponses stock�
 `ResourceAnswer.html.twig`.
 
 ### Phase 3 — Nouveaux types et retraits
-`Field\ChoiceGroup` (D3) ; retrait de `HourMinuteInput` du front (D2) ; blocs `ChoiceGroup` dans `answers/shadcn`,
+`Field\ChoiceGroup` (D3) et `Field\HourMinuteInput` (D2) ; blocs `ChoiceGroup` et `HourMinuteInput` dans `answers/shadcn`,
 `ResourceAnswer.html.twig`, `FormAnswerCsvExportBuilder` (formatage de valeur).
 
 ### Phase 4 — Exposer le PHP dans le front (P→F)
 `readOnly` + `defaultValue` (D4) ; `hasCurrentDate` ; `isSelected` et `customOption` pour `Select` ; retirer `name` (T4)
-et `placeHolder` des blocs date. Désactiver `conditions` (`useContionnalField=false`) en attendant la phase 6 (D5).
+et `placeHolder` des blocs date et heure.
 
 ### Phase 5 — Garde-fous anti-dérive (T9) · **condition du tag `v1.0.0`**
 1. Script `pnpm run export-contract` : dumpe `blockDefinitions` en `assets/builder/contract/blocks.json`
@@ -197,9 +203,9 @@ et `placeHolder` des blocs date. Désactiver `conditions` (`useContionnalField=f
    lue par la classe PHP (liste explicite des clés ignorées volontairement). Il échoue si le front ajoute un type ou une clé.
 3. Test inverse : chaque clé PHP lue figure au contrat ou est listée comme « legacy ».
 4. CI : générer le contrat avant PHPUnit ; échouer si `blocks.json` n'est pas à jour.
-5. Côté OSCAR : ajuster `ResourceAnswer.html.twig`, `FormAnswerCsvExportBuilder`, `ShowDoneControlController` si un nom de type change (aucun avec D1 = noms PHP).
+5. Côté OSCAR : ajuster `ResourceAnswer.html.twig`, `FormAnswerCsvExportBuilder`, `ShowDoneControlController` si un nom de type change (aucun avec D1 : ces consommateurs ne citent pas les deux types renommés).
 
-### Phase 6 — Conditions (`v1.1.0`)
+### Phase 6 — Conditions (bloquante pour `v1.0.0`, D5)
 Conception à valider avant code :
 - Stockage : un enfant conditionnel = `FormLayoutField` avec `parent` = le Select/ChoiceGroup et une marque `conditionId` (+ `operator`, `optionLabel`) dans `config` ; `FormLayoutFieldHydrator::buildContent()` reconstitue `conditions[].children`; `SyncFormLayoutStructureUseCase` les synchronise.
 - Formulaire : `Select`/`ChoiceGroup` ajoutent les enfants conditionnels ; contrôleur Stimulus `form-builder-conditions` (affiche/masque selon l'option choisie, `is` / `is_not`).
@@ -210,8 +216,8 @@ Conception à valider avant code :
 ---
 
 ## 4. Définition de « prêt pour v1.0.0 »
-- [ ] Phase 1 à 5 terminées ; D1…D8 tranchées.
+- [ ] Phases 1 à 6 terminées (D1…D8 tranchées).
 - [ ] `blocks.json` généré en CI, tests de contrat verts, `composer qa` vert.
 - [ ] Un formulaire de **chaque type** créé dans le builder, répondu, ré-édité, affiché (web + PDF) et exporté sans perte dans OSCAR.
-- [ ] Section « Known limitations » de `docs/reference.md` et du skill mise à jour (conditions, i18n du builder).
+- [ ] Section « Known limitations » de `docs/reference.md` et du skill mise à jour (i18n du builder) ; types et options documentés (`ChoiceGroup`, `HourMinuteInput`, `conditions`, `readOnly`, `defaultValue`).
 - [ ] Tag `v1.0.0` créé sur le dépôt du bundle.
