@@ -36,12 +36,12 @@ final class DeleteRemovedFormLayoutFieldValuesUseCase
         $deleted = 0;
 
         foreach ($formLayout->getFields() as $field) {
-            if (!in_array($field->getFieldKey(), $removedKeys, true)) {
+            if (!\in_array($field->getFieldKey(), $removedKeys, true)) {
                 continue;
             }
 
             $result = $this->entityManager
-                ->createQuery(sprintf('DELETE FROM %s fafv WHERE fafv.formLayoutField = :field', FormAnswerFieldValueInterface::class))
+                ->createQuery(\sprintf('DELETE FROM %s fafv WHERE fafv.formLayoutField = :field', FormAnswerFieldValueInterface::class))
                 ->setParameter('field', $field->getId(), UuidType::NAME)
                 ->execute();
 
@@ -59,7 +59,7 @@ final class DeleteRemovedFormLayoutFieldValuesUseCase
     private function collectKeys(array $blocks): array
     {
         $keys = [];
-        FormLayoutBlockTreeWalker::walk($blocks, function (FormLayoutBlock $block) use (&$keys): void {
+        FormLayoutBlockTreeWalker::walk($blocks, static function (FormLayoutBlock $block) use (&$keys): void {
             if (null !== $block->id) {
                 $keys[] = $block->id;
             }

@@ -21,18 +21,18 @@ class AnswerGenerator
             $id = $item['id'] ?? null;
             $children = $this->toArrayList($item['children'] ?? null);
 
-            if ([] !== $children && is_string($id) && isset($formAnswerContent[$id])) {
+            if ([] !== $children && \is_string($id) && isset($formAnswerContent[$id])) {
                 $answerChildren = $formAnswerContent[$id];
-                $item['children'] = $this->generate($children, is_array($answerChildren) ? $answerChildren : []);
+                $item['children'] = $this->generate($children, \is_array($answerChildren) ? $answerChildren : []);
             }
 
             $type = $item['type'] ?? '';
-            $kind = FieldKindResolver::resolve(is_string($type) ? $type : '');
+            $kind = FieldKindResolver::resolve(\is_string($type) ? $type : '');
 
-            if (FieldKind::Repeatable === $kind && is_string($id)) {
+            if (FieldKind::Repeatable === $kind && \is_string($id)) {
                 $answerValue = $formAnswerContent[$id] ?? [];
-                $item['value'] = $this->getRepeatableValues($children, is_array($answerValue) ? $answerValue : []);
-            } elseif (FieldKind::Value === $kind && is_string($id)) {
+                $item['value'] = $this->getRepeatableValues($children, \is_array($answerValue) ? $answerValue : []);
+            } elseif (FieldKind::Value === $kind && \is_string($id)) {
                 $item['value'] = $formAnswerContent[$id] ?? null;
             }
 
@@ -50,7 +50,7 @@ class AnswerGenerator
         $fields = [];
         foreach ($answers as $item) {
             $type = $item['type'] ?? '';
-            $kind = FieldKindResolver::resolve(is_string($type) ? $type : '');
+            $kind = FieldKindResolver::resolve(\is_string($type) ? $type : '');
 
             if (FieldKind::DisplayOnly === $kind) {
                 continue;
@@ -72,12 +72,12 @@ class AnswerGenerator
                         continue;
                     }
                     $values = array_filter(
-                        array_map(function (array $row) use ($i): string {
+                        array_map(static function (array $row) use ($i): string {
                             $val = $row[$i]['value'] ?? '';
 
-                            return is_array($val) ? implode(', ', array_map(static fn (mixed $v): string => is_scalar($v) ? (string) $v : '', $val)) : (is_scalar($val) ? (string) $val : '');
+                            return \is_array($val) ? implode(', ', array_map(static fn (mixed $v): string => \is_scalar($v) ? (string) $v : '', $val)) : (\is_scalar($val) ? (string) $val : '');
                         }, $rows),
-                        fn (string $v): bool => '' !== $v
+                        static fn (string $v): bool => '' !== $v
                     );
                     $fields[] = ['label' => $label, 'value' => implode(' - ', $values)];
                 }
@@ -97,12 +97,12 @@ class AnswerGenerator
      */
     private function getRepeatableValues(array $repeatableDefinition, array $repeatableValues): array
     {
-        return array_map(function (mixed $values) use ($repeatableDefinition): array {
-            $values = is_array($values) ? $values : [];
+        return array_map(static function (mixed $values) use ($repeatableDefinition): array {
+            $values = \is_array($values) ? $values : [];
 
-            return array_map(function (array $field) use ($values): array {
+            return array_map(static function (array $field) use ($values): array {
                 $id = $field['id'] ?? null;
-                $field['value'] = is_string($id) ? ($values[$id] ?? null) : null;
+                $field['value'] = \is_string($id) ? ($values[$id] ?? null) : null;
 
                 return $field;
             }, $repeatableDefinition);
@@ -114,7 +114,7 @@ class AnswerGenerator
      */
     private function toArrayList(mixed $value): array
     {
-        if (!is_array($value)) {
+        if (!\is_array($value)) {
             return [];
         }
 

@@ -20,7 +20,7 @@ class NumberInputTest extends TestCase
 
         $formBuilder = $this->createMock(FormBuilderInterface::class);
         $formBuilder->method('getName')->willReturn('n-1');
-        $formBuilder->expects(self::once())->method('add')->with('n-1', IntegerType::class, self::callback(function (array $options): bool {
+        $formBuilder->expects(self::once())->method('add')->with('n-1', IntegerType::class, self::callback(static function (array $options): bool {
             self::assertSame(3.0, $options['data']);
 
             return true;
@@ -48,7 +48,7 @@ class NumberInputTest extends TestCase
 
         $formBuilder = $this->createMock(FormBuilderInterface::class);
         $formBuilder->method('getName')->willReturn('n-1');
-        $formBuilder->expects(self::once())->method('add')->with('n-1', IntegerType::class, self::callback(function (array $options): bool {
+        $formBuilder->expects(self::once())->method('add')->with('n-1', IntegerType::class, self::callback(static function (array $options): bool {
             self::assertSame(0, $options['data']);
 
             return true;

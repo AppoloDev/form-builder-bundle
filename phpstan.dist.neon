@@ -1,0 +1,15 @@
+# Les règles strictes et PHPUnit sont chargées par phpstan/extension-installer.
+parameters:
+    level: max
+    paths:
+        - src
+        - tests
+    excludePaths:
+        - tests/bootstrap.php
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: true
+    ignoreErrors:
+        # Traits destinés aux entités concrètes de l'application hôte : inutilisés dans ce dépôt.
+        -
+            identifier: trait.unused
+            path: src/Entity/Concern/*

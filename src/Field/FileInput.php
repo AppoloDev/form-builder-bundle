@@ -38,7 +38,7 @@ class FileInput implements FieldInterface
         $this->required = $block->configBool('required') ?? false;
 
         $maxItems = $block->configNumeric('maxItems');
-        $this->maxItems = $maxItems ? (int) $maxItems : 5;
+        $this->maxItems = (null === $maxItems || 0.0 === (float) $maxItems) ? 5 : (int) $maxItems;
 
         return '' !== $this->id;
     }

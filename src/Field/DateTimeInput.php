@@ -45,8 +45,8 @@ class DateTimeInput implements FieldInterface
         $formBuilder->add($this->id, $type, $this->getFieldOptions());
 
         $formBuilder->get($this->id)->addModelTransformer(new CallbackTransformer(
-            function (array|\DateTime|null $value): ?\DateTime {
-                if (is_null($value)) {
+            static function (array|\DateTime|null $value): ?\DateTime {
+                if (null === $value) {
                     return null;
                 }
                 if ($value instanceof \DateTime) {
@@ -55,12 +55,12 @@ class DateTimeInput implements FieldInterface
                     return $value;
                 }
 
-                $date = new \DateTime($value['date']);
+                $date = new \DateTime(\is_string($value['date'] ?? null) ? $value['date'] : 'now');
                 $date->setTime((int) $date->format('G'), (int) $date->format('i'), 0);
 
                 return $date;
             },
-            function (?\DateTime $value): ?\DateTime {
+            static function (?\DateTime $value): ?\DateTime {
                 return $value;
             }
         ));

@@ -20,16 +20,16 @@ interface FormLayoutFieldInterface
 
     public function getParent(): ?self;
 
-    public function setParent(?FormLayoutFieldInterface $parent): static;
+    public function setParent(?self $parent): static;
 
     /**
      * @return Collection<int, FormLayoutFieldInterface>
      */
     public function getChildren(): Collection;
 
-    public function addChild(FormLayoutFieldInterface $child): static;
+    public function addChild(self $child): static;
 
-    public function removeChild(FormLayoutFieldInterface $child): static;
+    public function removeChild(self $child): static;
 
     public function getFieldKey(): string;
 

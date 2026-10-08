@@ -35,6 +35,9 @@ class FieldKindConsistencyTest extends TestCase
         );
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
     public static function typeProvider(): iterable
     {
         foreach ([

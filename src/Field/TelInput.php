@@ -21,7 +21,7 @@ class TelInput extends GenericTextInput
 
         $constraints = $fieldOptions['constraints'] ?? [];
         $fieldOptions['constraints'] = [
-            ...(is_array($constraints) ? $constraints : []),
+            ...(\is_array($constraints) ? $constraints : []),
             new Regex(
                 pattern: '/^(\+)?[0-9]\d*$/',
                 message: 'validators.form_builder.tel_digits_only',

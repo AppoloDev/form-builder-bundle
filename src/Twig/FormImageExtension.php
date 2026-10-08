@@ -29,12 +29,12 @@ class FormImageExtension extends AbstractExtension
     public function convertToBase64(string $fileName): ?string
     {
         $file = $this->fileUploader->getFile($fileName);
-        if (is_null($file)) {
+        if (null === $file) {
             return null;
         }
         $content = file_get_contents($file->getPathname());
 
-        if (!is_string($content)) {
+        if (!\is_string($content)) {
             return null;
         }
 
@@ -52,7 +52,7 @@ class FormImageExtension extends AbstractExtension
     public function formImageFileUri(string $fileName): ?string
     {
         $file = $this->fileUploader->getFile($fileName);
-        if (is_null($file)) {
+        if (null === $file) {
             return null;
         }
 

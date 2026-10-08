@@ -58,7 +58,7 @@ class Select implements FieldInterface
      */
     protected function getFieldOptions(): array
     {
-        $choices = array_map(fn (array $item): string => $item['label'], $this->options);
+        $choices = array_map(static fn (array $item): string => $item['label'], $this->options);
         $choices = array_combine($choices, $choices);
 
         $fieldOptions = [
@@ -82,8 +82,8 @@ class Select implements FieldInterface
 
         if (!isset($this->formOptions['edit']) || $this->isPrototype) {
             $fieldOptions['data'] = array_filter(
-                array_map(fn (array $item) => $item['isSelected'] ? $item['label'] : null, $this->options),
-                fn (?string $item): bool => !is_null($item)
+                array_map(static fn (array $item) => $item['isSelected'] ? $item['label'] : null, $this->options),
+                static fn (?string $item): bool => null !== $item
             );
 
             if (!$this->multiple) {

@@ -49,6 +49,9 @@ class FieldFactoryTest extends TestCase
     private function buildLocator(array $services): ContainerInterface
     {
         return new class($services) implements ContainerInterface {
+            /**
+             * @param array<string, FieldInterface> $services
+             */
             public function __construct(private readonly array $services)
             {
             }

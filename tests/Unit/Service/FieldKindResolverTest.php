@@ -17,6 +17,9 @@ class FieldKindResolverTest extends TestCase
         self::assertSame($expected, FieldKindResolver::resolve($type));
     }
 
+    /**
+     * @return iterable<string, array{string, FieldKind}>
+     */
     public static function typeProvider(): iterable
     {
         yield 'Title' => ['Title', FieldKind::DisplayOnly];

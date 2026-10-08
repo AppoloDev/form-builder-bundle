@@ -69,17 +69,17 @@ abstract class AbstractFormAnswer implements FormAnswerInterface
 
             $repeatableIndex = $fieldValue->getRepeatableIndex() ?? 0;
             $repeatableKey = $parent->getFieldKey();
-            if (!isset($content[$repeatableKey]) || !is_array($content[$repeatableKey])) {
+            if (!isset($content[$repeatableKey]) || !\is_array($content[$repeatableKey])) {
                 $content[$repeatableKey] = [];
             }
-            if (!isset($content[$repeatableKey][$repeatableIndex]) || !is_array($content[$repeatableKey][$repeatableIndex])) {
+            if (!isset($content[$repeatableKey][$repeatableIndex]) || !\is_array($content[$repeatableKey][$repeatableIndex])) {
                 $content[$repeatableKey][$repeatableIndex] = [];
             }
             $content[$repeatableKey][$repeatableIndex][$field->getFieldKey()] = $fieldValue->getValue();
         }
 
         foreach ($content as $key => $value) {
-            if (is_array($value) && isset($value[0]) && is_array($value[0])) {
+            if (\is_array($value) && isset($value[0]) && \is_array($value[0])) {
                 ksort($value);
                 $content[$key] = array_values($value);
             }
@@ -101,9 +101,9 @@ abstract class AbstractFormAnswer implements FormAnswerInterface
         foreach ($content as $key => $value) {
             $field = $this->formLayout->getFieldByKey((string) $key);
 
-            if (null !== $field && FieldKind::Repeatable === FieldKindResolver::resolve($field->getType()) && is_array($value)) {
+            if (null !== $field && FieldKind::Repeatable === FieldKindResolver::resolve($field->getType()) && \is_array($value)) {
                 foreach ($value as $index => $item) {
-                    if (!is_array($item)) {
+                    if (!\is_array($item)) {
                         continue;
                     }
 

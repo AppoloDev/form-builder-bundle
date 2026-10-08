@@ -2,6 +2,7 @@
     "name": "appolodev/form-builder-bundle",
     "description": "Moteur de formulaires personnalisés pour Symfony : structure, rendu, réponses et export",
     "type": "symfony-bundle",
+    "keywords": ["symfony", "bundle", "form", "form-builder", "doctrine"],
     "license": "MIT",
     "authors": [
         {
@@ -11,16 +12,36 @@
     ],
     "require": {
         "php": ">=8.4",
+        "doctrine/doctrine-bundle": "^2.0 || ^3.0",
         "doctrine/orm": "^3.0",
+        "doctrine/persistence": "^3.0 || ^4.0",
+        "psr/container": "^2.0",
         "symfony/config": "^8.1",
         "symfony/dependency-injection": "^8.1",
         "symfony/doctrine-bridge": "^8.1",
+        "symfony/filesystem": "^8.1",
         "symfony/form": "^8.1",
         "symfony/framework-bundle": "^8.1",
         "symfony/http-foundation": "^8.1",
         "symfony/http-kernel": "^8.1",
-        "symfony/filesystem": "^8.1",
-        "symfony/uid": "^8.1"
+        "symfony/mime": "^8.1",
+        "symfony/uid": "^8.1",
+        "symfony/validator": "^8.1",
+        "twig/twig": "^3.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.1",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2",
+        "phpstan/phpstan-phpunit": "^2",
+        "phpstan/phpstan-strict-rules": "^2",
+        "phpunit/phpunit": "^13.1"
+    },
+    "suggest": {
+        "symfony/ux-twig-component": "Requis par le thème et les templates par défaut (composants UI:Shadcn:*)",
+        "symfony/ux-icons": "Requis par le thème et les templates par défaut (<twig:ux:icon>)",
+        "symfony/ux-toolkit": "Kit shadcn (composants UI:Shadcn:*) utilisé par le thème par défaut",
+        "symfony/stimulus-bundle": "Requis pour les contrôleurs Stimulus du bundle"
     },
     "autoload": {
         "psr-4": {
@@ -31,5 +52,22 @@
         "psr-4": {
             "AppoloDev\\FormBuilderBundle\\Tests\\": "tests/"
         }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    },
+    "scripts": {
+        "cs": "php-cs-fixer fix --dry-run --diff",
+        "cs-fix": "php-cs-fixer fix",
+        "phpstan": "phpstan analyse --memory-limit=-1",
+        "test": "phpunit",
+        "qa": [
+            "@cs",
+            "@phpstan",
+            "@test"
+        ]
     }
 }

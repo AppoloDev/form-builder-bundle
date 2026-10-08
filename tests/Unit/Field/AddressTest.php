@@ -25,7 +25,7 @@ class AddressTest extends TestCase
         $formBuilder->expects(self::once())->method('add')->with(
             'addr-1',
             AddressType::class,
-            self::callback(function (array $options): bool {
+            self::callback(static function (array $options): bool {
                 self::assertSame('Adresse', $options['label']);
                 self::assertSame('Adresse complète', $options['help']);
                 self::assertFalse($options['required']);

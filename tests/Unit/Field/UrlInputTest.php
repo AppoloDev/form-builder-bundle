@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AppoloDev\FormBuilderBundle\Tests\Unit\Field;
 
 use AppoloDev\FormBuilderBundle\Field\UrlInput;
+use AppoloDev\FormBuilderBundle\Tests\Support\Options;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
@@ -20,10 +21,11 @@ class UrlInputTest extends TestCase
 
         $formBuilder = $this->createMock(FormBuilderInterface::class);
         $formBuilder->method('getName')->willReturn('u-1');
-        $formBuilder->expects(self::once())->method('add')->with('u-1', UrlType::class, self::callback(function (array $options): bool {
+        $formBuilder->expects(self::once())->method('add')->with('u-1', UrlType::class, self::callback(static function (array $options): bool {
             self::assertSame('https', $options['default_protocol']);
-            self::assertCount(1, $options['constraints']);
-            self::assertInstanceOf(Url::class, $options['constraints'][0]);
+            $constraints = Options::at($options, 'constraints');
+            self::assertCount(1, $constraints);
+            self::assertInstanceOf(Url::class, $constraints[0]);
 
             return true;
         }));

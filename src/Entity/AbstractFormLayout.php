@@ -42,7 +42,7 @@ abstract class AbstractFormLayout implements FormLayoutInterface
     public function getStructure(): array
     {
         return FormLayoutFieldHydrator::buildContent(
-            $this->getFields()->filter(fn (FormLayoutFieldInterface $field): bool => null === $field->getParent())->toArray()
+            $this->getFields()->filter(static fn (FormLayoutFieldInterface $field): bool => null === $field->getParent())->toArray()
         );
     }
 

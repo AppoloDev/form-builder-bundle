@@ -22,7 +22,7 @@ class FormStructureType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addModelTransformer(new CallbackTransformer(
-            static fn (?array $structure): string => json_encode($structure ?? [], JSON_THROW_ON_ERROR),
+            static fn (?array $structure): string => json_encode($structure ?? [], \JSON_THROW_ON_ERROR),
             static function (?string $json): ?array {
                 if (null === $json || '' === $json) {
                     return null;
@@ -30,7 +30,7 @@ class FormStructureType extends AbstractType
 
                 $structure = json_decode($json, true);
 
-                return is_array($structure) ? $structure : null;
+                return \is_array($structure) ? $structure : null;
             },
         ));
     }
@@ -38,7 +38,8 @@ class FormStructureType extends AbstractType
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         $view->vars['answers_count'] = $options['answers_count'];
-        $view->vars['has_structure'] = !empty($form->getData());
+        $data = $form->getData();
+        $view->vars['has_structure'] = \is_array($data) && [] !== $data;
     }
 
     public function configureOptions(OptionsResolver $resolver): void

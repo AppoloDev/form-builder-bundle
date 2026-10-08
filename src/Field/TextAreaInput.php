@@ -33,7 +33,7 @@ class TextAreaInput extends AbstractValueFieldWithDefault
     protected function getFieldOptions(): array
     {
         $fieldOptions = parent::getFieldOptions();
-        $attr = is_array($fieldOptions['attr']) ? $fieldOptions['attr'] : [];
+        $attr = \is_array($fieldOptions['attr']) ? $fieldOptions['attr'] : [];
         $attr['rows'] = $this->rows;
         $fieldOptions['attr'] = $attr;
 

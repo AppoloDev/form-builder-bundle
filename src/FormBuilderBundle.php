@@ -69,10 +69,10 @@ class FormBuilderBundle extends AbstractBundle
         $classes = [];
         $formTheme = '@FormBuilder/form_theme/shadcn.html.twig';
         foreach ($builder->getExtensionConfig('form_builder') as $config) {
-            if (is_array($config['classes'] ?? null)) {
+            if (\is_array($config['classes'] ?? null)) {
                 $classes = array_merge($classes, $config['classes']);
             }
-            if (is_string($config['form_theme'] ?? null)) {
+            if (\is_string($config['form_theme'] ?? null)) {
                 $formTheme = $config['form_theme'];
             }
         }
@@ -96,15 +96,31 @@ class FormBuilderBundle extends AbstractBundle
     }
 
     /**
-     * @param array{upload_path: string, form_theme: string, answers_template: string, answers_pdf_template: ?string, file_url_resolver: string, classes: array<string, string>} $config
+     * @param array<mixed> $config
      */
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
+        $answersTemplate = self::stringOption($config, 'answers_template');
+        $answersPdfTemplate = $config['answers_pdf_template'] ?? null;
+
         $container->parameters()
-            ->set('form_builder.upload_path', $config['upload_path'])
-            ->set('form_builder.answers_template', $config['answers_template'])
-            ->set('form_builder.answers_pdf_template', $config['answers_pdf_template'] ?? $config['answers_template']);
-        $container->services()->alias(FormAnswerFileUrlResolverInterface::class, $config['file_url_resolver']);
+            ->set('form_builder.upload_path', self::stringOption($config, 'upload_path'))
+            ->set('form_builder.answers_template', $answersTemplate)
+            ->set('form_builder.answers_pdf_template', \is_string($answersPdfTemplate) ? $answersPdfTemplate : $answersTemplate);
+        $container->services()->alias(FormAnswerFileUrlResolverInterface::class, self::stringOption($config, 'file_url_resolver'));
         $container->import('../config/services.php');
+    }
+
+    /**
+     * @param array<mixed> $config
+     */
+    private static function stringOption(array $config, string $key): string
+    {
+        $value = $config[$key] ?? null;
+        if (!\is_string($value)) {
+            throw new \InvalidArgumentException(\sprintf('La configuration "form_builder.%s" doit être une chaîne.', $key));
+        }
+
+        return $value;
     }
 }

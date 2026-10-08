@@ -16,7 +16,7 @@ class RepeatableItemTypeTest extends TestCase
     public function testBuildFormDelegatesTheFilteredChildrenToTheFormTypeGenerator(): void
     {
         $block = FormLayoutBlock::fromArray(['id' => 'field-a', 'type' => 'ShortText']);
-        $formBuilder = $this->createStub(FormBuilderInterface::class);
+        $formBuilder = self::createStub(FormBuilderInterface::class);
 
         $formTypeGenerator = $this->createMock(FormTypeGenerator::class);
         $formTypeGenerator->expects(self::once())
@@ -30,7 +30,7 @@ class RepeatableItemTypeTest extends TestCase
 
     public function testBuildFormPassesNoChildrenWhenTheOptionIsNotAnArray(): void
     {
-        $formBuilder = $this->createStub(FormBuilderInterface::class);
+        $formBuilder = self::createStub(FormBuilderInterface::class);
 
         $formTypeGenerator = $this->createMock(FormTypeGenerator::class);
         $formTypeGenerator->expects(self::once())->method('addFields')->with($formBuilder, [])->willReturn($formBuilder);
@@ -42,7 +42,7 @@ class RepeatableItemTypeTest extends TestCase
     public function testConfigureOptionsDefaultsChildrenToAnEmptyArray(): void
     {
         $resolver = new OptionsResolver();
-        (new RepeatableItemType($this->createStub(FormTypeGenerator::class)))->configureOptions($resolver);
+        (new RepeatableItemType(self::createStub(FormTypeGenerator::class)))->configureOptions($resolver);
 
         self::assertSame([], $resolver->resolve([])['children']);
     }

@@ -89,8 +89,17 @@ L'hôte importe les deux custom elements, enregistre les contrôleurs (préfixe 
 `package.json` (à déclarer aussi côté application). Le champ adresse attend que l'application charge l'API
 Google Maps Places et émette l'événement `google-maps:ready`.
 
-## Tests
+## Qualité
 
 ```
-vendor/bin/phpunit -c lib/form-builder-bundle/phpunit.dist.xml
+composer install
+composer qa          # php-cs-fixer (dry-run) + PHPStan + PHPUnit
+composer test        # PHPUnit seul
+composer phpstan     # niveau max + phpstan-strict-rules + phpstan-phpunit
+composer cs-fix      # corrige le style (@Symfony, @Symfony:risky, strict_comparison, strict_param)
 ```
+
+La CI (`.github/workflows/ci.yml`) exécute sur PHP 8.4 et 8.5 : `composer validate --strict`,
+`composer audit`, php-cs-fixer, PHPStan et PHPUnit (avec couverture). Les tests du bundle sont des tests
+unitaires autonomes : les entités concrètes d'une application sont simulées par `tests/Fixtures/`. Le
+comportement avec une vraie base reste testé côté application hôte.

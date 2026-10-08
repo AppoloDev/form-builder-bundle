@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AppoloDev\FormBuilderBundle\Tests\Unit\Field;
 
 use AppoloDev\FormBuilderBundle\Field\EmailInput;
+use AppoloDev\FormBuilderBundle\Tests\Support\Options;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -21,10 +22,11 @@ class EmailInputTest extends TestCase
 
         $formBuilder = $this->createMock(FormBuilderInterface::class);
         $formBuilder->method('getName')->willReturn('e-1');
-        $formBuilder->expects(self::once())->method('add')->with('e-1', EmailType::class, self::callback(function (array $options): bool {
-            self::assertCount(2, $options['constraints']);
-            self::assertInstanceOf(NotBlank::class, $options['constraints'][0]);
-            self::assertInstanceOf(Email::class, $options['constraints'][1]);
+        $formBuilder->expects(self::once())->method('add')->with('e-1', EmailType::class, self::callback(static function (array $options): bool {
+            $constraints = Options::at($options, 'constraints');
+            self::assertCount(2, $constraints);
+            self::assertInstanceOf(NotBlank::class, $constraints[0]);
+            self::assertInstanceOf(Email::class, $constraints[1]);
 
             return true;
         }));
@@ -39,9 +41,10 @@ class EmailInputTest extends TestCase
 
         $formBuilder = $this->createMock(FormBuilderInterface::class);
         $formBuilder->method('getName')->willReturn('e-1');
-        $formBuilder->expects(self::once())->method('add')->with('e-1', EmailType::class, self::callback(function (array $options): bool {
-            self::assertCount(1, $options['constraints']);
-            self::assertInstanceOf(Email::class, $options['constraints'][0]);
+        $formBuilder->expects(self::once())->method('add')->with('e-1', EmailType::class, self::callback(static function (array $options): bool {
+            $constraints = Options::at($options, 'constraints');
+            self::assertCount(1, $constraints);
+            self::assertInstanceOf(Email::class, $constraints[0]);
 
             return true;
         }));

@@ -38,7 +38,7 @@ final class SyncFormLayoutStructureUseCase
         $this->processBlocks(FormLayoutBlock::listFromArray($content), null, $existingByKey, $keptKeys, $formLayout);
 
         foreach ($formLayout->getFields()->toArray() as $field) {
-            if (!in_array($field->getFieldKey(), $keptKeys, true)) {
+            if (!\in_array($field->getFieldKey(), $keptKeys, true)) {
                 $this->entityManager->remove($field);
             }
         }

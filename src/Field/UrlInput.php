@@ -22,7 +22,7 @@ class UrlInput extends GenericTextInput
 
         $constraints = $fieldOptions['constraints'] ?? [];
         $fieldOptions['constraints'] = [
-            ...(is_array($constraints) ? $constraints : []),
+            ...(\is_array($constraints) ? $constraints : []),
             new Url(),
         ];
 

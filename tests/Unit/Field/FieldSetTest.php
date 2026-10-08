@@ -7,6 +7,7 @@ namespace AppoloDev\FormBuilderBundle\Tests\Unit\Field;
 use AppoloDev\FormBuilderBundle\Enum\FieldKind;
 use AppoloDev\FormBuilderBundle\Field\FieldSet;
 use AppoloDev\FormBuilderBundle\FormType\FieldsetType;
+use AppoloDev\FormBuilderBundle\Tests\Support\Options;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -32,9 +33,11 @@ class FieldSetTest extends TestCase
         ]), []);
 
         $formBuilder = $this->createMock(FormBuilderInterface::class);
-        $formBuilder->expects(self::once())->method('add')->with('fs-1', FieldsetType::class, self::callback(function (array $options): bool {
-            self::assertCount(1, $options['children']);
-            self::assertSame('child', $options['children'][0]->id);
+        $formBuilder->expects(self::once())->method('add')->with('fs-1', FieldsetType::class, self::callback(static function (array $options): bool {
+            $children = Options::at($options, 'children');
+            self::assertCount(1, $children);
+            self::assertInstanceOf(FormLayoutBlock::class, $children[0]);
+            self::assertSame('child', $children[0]->id);
 
             return true;
         }));

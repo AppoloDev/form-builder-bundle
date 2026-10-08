@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AppoloDev\FormBuilderBundle\Tests\Unit\Field;
 
 use AppoloDev\FormBuilderBundle\Field\Select;
+use AppoloDev\FormBuilderBundle\Tests\Support\Options;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -25,7 +26,7 @@ class SelectTest extends TestCase
 
         $formBuilder = $this->createMock(FormBuilderInterface::class);
         $formBuilder->method('getName')->willReturn('s-1');
-        $formBuilder->expects(self::once())->method('add')->with('s-1', ChoiceType::class, self::callback(function (array $options): bool {
+        $formBuilder->expects(self::once())->method('add')->with('s-1', ChoiceType::class, self::callback(static function (array $options): bool {
             self::assertSame(['Oui' => 'Oui', 'Non' => 'Non'], $options['choices']);
             self::assertSame('Oui', $options['data']);
 
@@ -50,8 +51,8 @@ class SelectTest extends TestCase
 
         $formBuilder = $this->createMock(FormBuilderInterface::class);
         $formBuilder->method('getName')->willReturn('s-1');
-        $formBuilder->expects(self::once())->method('add')->with('s-1', ChoiceType::class, self::callback(function (array $options): bool {
-            self::assertSame(['Oui', 'Peut-être'], array_values($options['data']));
+        $formBuilder->expects(self::once())->method('add')->with('s-1', ChoiceType::class, self::callback(static function (array $options): bool {
+            self::assertSame(['Oui', 'Peut-être'], array_values(Options::at($options, 'data')));
 
             return true;
         }));
@@ -66,7 +67,7 @@ class SelectTest extends TestCase
 
         $formBuilder = $this->createMock(FormBuilderInterface::class);
         $formBuilder->method('getName')->willReturn('s-1');
-        $formBuilder->expects(self::once())->method('add')->with('s-1', ChoiceType::class, self::callback(function (array $options): bool {
+        $formBuilder->expects(self::once())->method('add')->with('s-1', ChoiceType::class, self::callback(static function (array $options): bool {
             self::assertTrue($options['autocomplete']);
             self::assertTrue($options['allow_options_create']);
 
@@ -83,7 +84,7 @@ class SelectTest extends TestCase
 
         $formBuilder = $this->createMock(FormBuilderInterface::class);
         $formBuilder->method('getName')->willReturn('s-1');
-        $formBuilder->expects(self::once())->method('add')->with('s-1', ChoiceType::class, self::callback(function (array $options): bool {
+        $formBuilder->expects(self::once())->method('add')->with('s-1', ChoiceType::class, self::callback(static function (array $options): bool {
             self::assertArrayNotHasKey('autocomplete', $options);
             self::assertTrue($options['expanded']);
 

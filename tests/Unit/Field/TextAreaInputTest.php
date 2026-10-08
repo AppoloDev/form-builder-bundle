@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AppoloDev\FormBuilderBundle\Tests\Unit\Field;
 
 use AppoloDev\FormBuilderBundle\Field\TextAreaInput;
+use AppoloDev\FormBuilderBundle\Tests\Support\Options;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -19,8 +20,8 @@ class TextAreaInputTest extends TestCase
 
         $formBuilder = $this->createMock(FormBuilderInterface::class);
         $formBuilder->method('getName')->willReturn('ta-1');
-        $formBuilder->expects(self::once())->method('add')->with('ta-1', TextareaType::class, self::callback(function (array $options): bool {
-            self::assertSame(8, $options['attr']['rows']);
+        $formBuilder->expects(self::once())->method('add')->with('ta-1', TextareaType::class, self::callback(static function (array $options): bool {
+            self::assertSame(8, Options::at($options, 'attr')['rows']);
 
             return true;
         }));
@@ -35,8 +36,8 @@ class TextAreaInputTest extends TestCase
 
         $formBuilder = $this->createMock(FormBuilderInterface::class);
         $formBuilder->method('getName')->willReturn('ta-1');
-        $formBuilder->expects(self::once())->method('add')->with('ta-1', TextareaType::class, self::callback(function (array $options): bool {
-            self::assertSame(5, $options['attr']['rows']);
+        $formBuilder->expects(self::once())->method('add')->with('ta-1', TextareaType::class, self::callback(static function (array $options): bool {
+            self::assertSame(5, Options::at($options, 'attr')['rows']);
 
             return true;
         }));

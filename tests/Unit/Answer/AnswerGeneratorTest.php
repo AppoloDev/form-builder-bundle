@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AppoloDev\FormBuilderBundle\Tests\Unit\Answer;
 
 use AppoloDev\FormBuilderBundle\Answer\AnswerGenerator;
+use AppoloDev\FormBuilderBundle\Tests\Support\Options;
 use PHPUnit\Framework\TestCase;
 
 class AnswerGeneratorTest extends TestCase
@@ -35,7 +36,7 @@ class AnswerGeneratorTest extends TestCase
         self::assertArrayNotHasKey('value', $result[0]);
         self::assertSame('Alice', $result[1]['value']);
         self::assertArrayNotHasKey('value', $result[2]);
-        self::assertSame('Paris', $result[2]['children'][0]['value']);
+        self::assertSame('Paris', Options::at($result[2], 'children', 0)['value']);
     }
 
     public function testGenerateBuildsRepeatableRowValues(): void
@@ -54,8 +55,8 @@ class AnswerGeneratorTest extends TestCase
 
         $result = $this->generator->generate($structure, $answerData);
 
-        self::assertSame('A', $result[0]['value'][0][0]['value']);
-        self::assertSame('B', $result[0]['value'][1][0]['value']);
+        self::assertSame('A', Options::at($result[0], 'value', 0, 0)['value']);
+        self::assertSame('B', Options::at($result[0], 'value', 1, 0)['value']);
     }
 
     public function testFlattenToFieldsSkipsDisplayOnlyAndRecursesIntoFieldSets(): void

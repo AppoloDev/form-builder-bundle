@@ -6,10 +6,17 @@
          failOnNotice="true"
          failOnWarning="true"
          bootstrap="tests/bootstrap.php"
+         cacheDirectory=".phpunit.cache"
 >
     <testsuites>
         <testsuite name="FormBuilderBundle">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
+
+    <source>
+        <include>
+            <directory>src</directory>
+        </include>
+    </source>
 </phpunit>

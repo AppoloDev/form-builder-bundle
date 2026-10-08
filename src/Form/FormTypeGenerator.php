@@ -67,7 +67,7 @@ class FormTypeGenerator
         if (null !== $block->type) {
             $field = $this->fieldFactory->getField($block->type);
 
-            if (!is_null($field) && $field->validateDefinition($block, $this->formOptions)) {
+            if (null !== $field && $field->validateDefinition($block, $this->formOptions)) {
                 $field->addFieldFromDefinition($formBuilder);
             }
         }

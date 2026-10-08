@@ -22,7 +22,7 @@ abstract class AbstractChildrenFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $children = is_array($options['children']) ? FormLayoutBlock::filterBlocks($options['children']) : [];
+        $children = \is_array($options['children']) ? FormLayoutBlock::filterBlocks($options['children']) : [];
         $this->formTypeGenerator->addFields($builder, $children);
     }
 

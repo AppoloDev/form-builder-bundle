@@ -60,7 +60,7 @@ final class FormLayoutFieldHydrator
      */
     public static function buildContent(array $fields): array
     {
-        usort($fields, fn (FormLayoutFieldInterface $a, FormLayoutFieldInterface $b): int => $a->getPosition() <=> $b->getPosition());
+        usort($fields, static fn (FormLayoutFieldInterface $a, FormLayoutFieldInterface $b): int => $a->getPosition() <=> $b->getPosition());
 
         $content = [];
         foreach ($fields as $field) {
@@ -69,11 +69,11 @@ final class FormLayoutFieldHydrator
                 'type' => $field->getType(),
             ], $field->getConfig());
 
-            if (!is_null($field->getLabel())) {
+            if (null !== $field->getLabel()) {
                 $block['label'] = $field->getLabel();
             }
 
-            if (!is_null($field->getText())) {
+            if (null !== $field->getText()) {
                 $block['text'] = $field->getText();
             }
 
@@ -94,12 +94,12 @@ final class FormLayoutFieldHydrator
      */
     public static function collectRepeatables(array $blocks, array &$repeatables): void
     {
-        FormLayoutBlockTreeWalker::walk($blocks, function (FormLayoutBlock $block) use (&$repeatables): void {
+        FormLayoutBlockTreeWalker::walk($blocks, static function (FormLayoutBlock $block) use (&$repeatables): void {
             if (FieldKind::Repeatable === FieldKindResolver::resolve((string) $block->type) && null !== $block->id) {
-                $repeatables[$block->id] = array_values(array_filter(array_map(
-                    fn (FormLayoutBlock $child): ?string => $child->id,
-                    $block->children
-                )));
+                $repeatables[$block->id] = array_values(array_filter(
+                    array_map(static fn (FormLayoutBlock $child): ?string => $child->id, $block->children),
+                    static fn (?string $id): bool => null !== $id && '' !== $id,
+                ));
             }
         });
     }

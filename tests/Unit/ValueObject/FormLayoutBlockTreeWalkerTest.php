@@ -31,7 +31,7 @@ class FormLayoutBlockTreeWalkerTest extends TestCase
         ]);
 
         $visitedIds = [];
-        FormLayoutBlockTreeWalker::walk($blocks, function (FormLayoutBlock $block) use (&$visitedIds): void {
+        FormLayoutBlockTreeWalker::walk($blocks, static function (FormLayoutBlock $block) use (&$visitedIds): void {
             $visitedIds[] = $block->id;
         });
 
@@ -46,7 +46,7 @@ class FormLayoutBlockTreeWalkerTest extends TestCase
         ]);
 
         $visited = 0;
-        FormLayoutBlockTreeWalker::walk($blocks, function () use (&$visited): void {
+        FormLayoutBlockTreeWalker::walk($blocks, static function () use (&$visited): void {
             ++$visited;
         });
 
@@ -56,7 +56,7 @@ class FormLayoutBlockTreeWalkerTest extends TestCase
     public function testDoesNothingOnEmptyTree(): void
     {
         $visited = 0;
-        FormLayoutBlockTreeWalker::walk([], function () use (&$visited): void {
+        FormLayoutBlockTreeWalker::walk([], static function () use (&$visited): void {
             ++$visited;
         });
 

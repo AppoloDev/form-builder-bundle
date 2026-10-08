@@ -152,7 +152,7 @@ class DateTimeInputTest extends TestCase
     }
 
     /**
-     * @return array{0: FormBuilderInterface, 1: callable(): ?string, 2: callable(): array<string, mixed>, 3: callable(): ?CallbackTransformer}
+     * @return array{0: FormBuilderInterface, 1: callable(): ?string, 2: callable(): array<array-key, mixed>, 3: callable(): ?CallbackTransformer}
      */
     private function buildFormBuilderStub(string $id): array
     {
@@ -160,32 +160,35 @@ class DateTimeInputTest extends TestCase
         $addedOptions = [];
         $capturedTransformer = null;
 
-        $childBuilder = $this->createStub(FormBuilderInterface::class);
-        $childBuilder->method('addModelTransformer')->willReturnCallback(function (CallbackTransformer $transformer) use ($childBuilder, &$capturedTransformer): FormBuilderInterface {
+        $childBuilder = self::createStub(FormBuilderInterface::class);
+        $childBuilder->method('addModelTransformer')->willReturnCallback(static function (CallbackTransformer $transformer) use ($childBuilder, &$capturedTransformer): FormBuilderInterface {
             $capturedTransformer = $transformer;
 
             return $childBuilder;
         });
 
-        $formBuilder = $this->createStub(FormBuilderInterface::class);
+        $formBuilder = self::createStub(FormBuilderInterface::class);
         $formBuilder->method('getName')->willReturn($id);
         $formBuilder->method('get')->willReturn($childBuilder);
-        $formBuilder->method('add')->willReturnCallback(function (string $fieldId, string $type, array $options) use ($formBuilder, &$addedType, &$addedOptions): FormBuilderInterface {
-            $addedType = $type;
-            $addedOptions = $options;
+        $formBuilder->method('add')->willReturnCallback(
+            /** @param array<string, mixed> $options */
+            static function (string $fieldId, string $type, array $options) use ($formBuilder, &$addedType, &$addedOptions): FormBuilderInterface {
+                $addedType = $type;
+                $addedOptions = $options;
 
-            return $formBuilder;
-        });
+                return $formBuilder;
+            },
+        );
 
         return [
             $formBuilder,
-            function () use (&$addedType): ?string {
+            static function () use (&$addedType): ?string {
                 return $addedType;
             },
-            function () use (&$addedOptions): array {
+            static function () use (&$addedOptions): array {
                 return $addedOptions;
             },
-            function () use (&$capturedTransformer): ?CallbackTransformer {
+            static function () use (&$capturedTransformer): ?CallbackTransformer {
                 return $capturedTransformer;
             },
         ];

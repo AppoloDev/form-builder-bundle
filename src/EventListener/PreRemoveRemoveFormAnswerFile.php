@@ -35,7 +35,7 @@ class PreRemoveRemoveFormAnswerFile
     protected function parseContent(array $content): void
     {
         foreach ($content as $fieldId => $fieldValue) {
-            if (!is_array($fieldValue)) {
+            if (!\is_array($fieldValue)) {
                 continue;
             }
 
@@ -45,7 +45,7 @@ class PreRemoveRemoveFormAnswerFile
                 $this->parseContent($fieldValue);
             } elseif (str_starts_with($fieldId, 'repeatable_')) {
                 foreach ($fieldValue as $repeatableValue) {
-                    if (is_array($repeatableValue)) {
+                    if (\is_array($repeatableValue)) {
                         $this->parseContent($repeatableValue);
                     }
                 }
@@ -59,7 +59,7 @@ class PreRemoveRemoveFormAnswerFile
     protected function removeFiles(array $files): void
     {
         foreach ($files as $file) {
-            if (is_array($file) && isset($file['file']) && (is_array($file['file']) || is_null($file['file']))) {
+            if (\is_array($file) && isset($file['file']) && \is_array($file['file'])) {
                 $this->formFileUploader->removeFile($file['file']);
             }
         }

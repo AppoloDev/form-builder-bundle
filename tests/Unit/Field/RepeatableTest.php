@@ -7,6 +7,7 @@ namespace AppoloDev\FormBuilderBundle\Tests\Unit\Field;
 use AppoloDev\FormBuilderBundle\Enum\FieldKind;
 use AppoloDev\FormBuilderBundle\Field\Repeatable;
 use AppoloDev\FormBuilderBundle\FormType\RepeatableType;
+use AppoloDev\FormBuilderBundle\Tests\Support\Options;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -24,8 +25,8 @@ class RepeatableTest extends TestCase
         $field->validateDefinition(FormLayoutBlock::fromArray(['id' => 'r-1', 'maxItems' => 3]), []);
 
         $formBuilder = $this->createMock(FormBuilderInterface::class);
-        $formBuilder->expects(self::once())->method('add')->with('r-1', RepeatableType::class, self::callback(function (array $options): bool {
-            self::assertSame(3, $options['attr']['maxItems']);
+        $formBuilder->expects(self::once())->method('add')->with('r-1', RepeatableType::class, self::callback(static function (array $options): bool {
+            self::assertSame(3, Options::at($options, 'attr')['maxItems']);
 
             return true;
         }));
@@ -39,8 +40,8 @@ class RepeatableTest extends TestCase
         $field->validateDefinition(FormLayoutBlock::fromArray(['id' => 'r-1']), []);
 
         $formBuilder = $this->createMock(FormBuilderInterface::class);
-        $formBuilder->expects(self::once())->method('add')->with('r-1', RepeatableType::class, self::callback(function (array $options): bool {
-            self::assertSame(5, $options['attr']['maxItems']);
+        $formBuilder->expects(self::once())->method('add')->with('r-1', RepeatableType::class, self::callback(static function (array $options): bool {
+            self::assertSame(5, Options::at($options, 'attr')['maxItems']);
 
             return true;
         }));

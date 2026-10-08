@@ -6,6 +6,7 @@ namespace AppoloDev\FormBuilderBundle\Tests\Unit\Field;
 
 use AppoloDev\FormBuilderBundle\Field\FileInput;
 use AppoloDev\FormBuilderBundle\FormType\FileRepeatableType;
+use AppoloDev\FormBuilderBundle\Tests\Support\Options;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -24,16 +25,16 @@ class FileInputTest extends TestCase
         $field->validateDefinition(FormLayoutBlock::fromArray(['id' => 'file-1', 'acceptedFile' => $acceptedFile]), []);
 
         $formBuilder = $this->createMock(FormBuilderInterface::class);
-        $formBuilder->expects(self::once())->method('add')->with('file-1', FileRepeatableType::class, self::callback(function (array $options) use ($expectedMimeTypes): bool {
-            $fileOptions = $options['entry_options']['file_options'];
+        $formBuilder->expects(self::once())->method('add')->with('file-1', FileRepeatableType::class, self::callback(static function (array $options) use ($expectedMimeTypes): bool {
+            $constraints = Options::at($options, 'entry_options', 'file_options', 'constraints');
             if ([] === $expectedMimeTypes) {
-                self::assertSame([], $fileOptions['constraints']);
+                self::assertSame([], $constraints);
 
                 return true;
             }
-            self::assertCount(1, $fileOptions['constraints']);
-            self::assertInstanceOf(File::class, $fileOptions['constraints'][0]);
-            self::assertSame($expectedMimeTypes, $fileOptions['constraints'][0]->mimeTypes);
+            self::assertCount(1, $constraints);
+            self::assertInstanceOf(File::class, $constraints[0]);
+            self::assertSame($expectedMimeTypes, $constraints[0]->mimeTypes);
 
             return true;
         }));
@@ -58,8 +59,8 @@ class FileInputTest extends TestCase
         $field->validateDefinition(FormLayoutBlock::fromArray(['id' => 'file-1', 'maxItems' => 2]), []);
 
         $formBuilder = $this->createMock(FormBuilderInterface::class);
-        $formBuilder->expects(self::once())->method('add')->with('file-1', FileRepeatableType::class, self::callback(function (array $options): bool {
-            self::assertSame(2, $options['attr']['maxItems']);
+        $formBuilder->expects(self::once())->method('add')->with('file-1', FileRepeatableType::class, self::callback(static function (array $options): bool {
+            self::assertSame(2, Options::at($options, 'attr')['maxItems']);
 
             return true;
         }));

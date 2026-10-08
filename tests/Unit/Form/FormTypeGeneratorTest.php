@@ -17,16 +17,16 @@ class FormTypeGeneratorTest extends TestCase
     public function testAddFieldDelegatesToTheResolvedFieldWhenDefinitionIsValid(): void
     {
         $block = FormLayoutBlock::fromArray(['id' => 'field-a', 'type' => 'ShortText']);
-        $formBuilder = $this->createStub(FormBuilderInterface::class);
+        $formBuilder = self::createStub(FormBuilderInterface::class);
 
         $field = $this->createMock(FieldInterface::class);
         $field->expects(self::once())->method('validateDefinition')->with($block, [])->willReturn(true);
         $field->expects(self::once())->method('addFieldFromDefinition')->with($formBuilder);
 
-        $fieldFactory = $this->createStub(FieldFactory::class);
+        $fieldFactory = self::createStub(FieldFactory::class);
         $fieldFactory->method('getField')->willReturn($field);
 
-        $generator = new FormTypeGenerator($this->createStub(FormFactoryInterface::class), $fieldFactory);
+        $generator = new FormTypeGenerator(self::createStub(FormFactoryInterface::class), $fieldFactory);
 
         $generator->addField($formBuilder, $block);
     }
@@ -34,16 +34,16 @@ class FormTypeGeneratorTest extends TestCase
     public function testAddFieldDoesNothingWhenDefinitionIsInvalid(): void
     {
         $block = FormLayoutBlock::fromArray(['type' => 'ShortText']);
-        $formBuilder = $this->createStub(FormBuilderInterface::class);
+        $formBuilder = self::createStub(FormBuilderInterface::class);
 
         $field = $this->createMock(FieldInterface::class);
         $field->method('validateDefinition')->willReturn(false);
         $field->expects(self::never())->method('addFieldFromDefinition');
 
-        $fieldFactory = $this->createStub(FieldFactory::class);
+        $fieldFactory = self::createStub(FieldFactory::class);
         $fieldFactory->method('getField')->willReturn($field);
 
-        $generator = new FormTypeGenerator($this->createStub(FormFactoryInterface::class), $fieldFactory);
+        $generator = new FormTypeGenerator(self::createStub(FormFactoryInterface::class), $fieldFactory);
 
         $generator->addField($formBuilder, $block);
     }
@@ -53,12 +53,12 @@ class FormTypeGeneratorTest extends TestCase
         $this->expectNotToPerformAssertions();
 
         $block = FormLayoutBlock::fromArray(['id' => 'field-a', 'type' => 'UnknownType']);
-        $formBuilder = $this->createStub(FormBuilderInterface::class);
+        $formBuilder = self::createStub(FormBuilderInterface::class);
 
-        $fieldFactory = $this->createStub(FieldFactory::class);
+        $fieldFactory = self::createStub(FieldFactory::class);
         $fieldFactory->method('getField')->willReturn(null);
 
-        $generator = new FormTypeGenerator($this->createStub(FormFactoryInterface::class), $fieldFactory);
+        $generator = new FormTypeGenerator(self::createStub(FormFactoryInterface::class), $fieldFactory);
 
         $generator->addField($formBuilder, $block);
     }
@@ -66,12 +66,12 @@ class FormTypeGeneratorTest extends TestCase
     public function testAddFieldDoesNothingWhenBlockHasNoType(): void
     {
         $block = FormLayoutBlock::fromArray(['id' => 'field-a']);
-        $formBuilder = $this->createStub(FormBuilderInterface::class);
+        $formBuilder = self::createStub(FormBuilderInterface::class);
 
         $fieldFactory = $this->createMock(FieldFactory::class);
         $fieldFactory->expects(self::never())->method('getField');
 
-        $generator = new FormTypeGenerator($this->createStub(FormFactoryInterface::class), $fieldFactory);
+        $generator = new FormTypeGenerator(self::createStub(FormFactoryInterface::class), $fieldFactory);
 
         $generator->addField($formBuilder, $block);
     }
@@ -80,15 +80,15 @@ class FormTypeGeneratorTest extends TestCase
     {
         $blockA = FormLayoutBlock::fromArray(['id' => 'field-a', 'type' => 'ShortText']);
         $blockB = FormLayoutBlock::fromArray(['id' => 'field-b', 'type' => 'ShortText']);
-        $formBuilder = $this->createStub(FormBuilderInterface::class);
+        $formBuilder = self::createStub(FormBuilderInterface::class);
 
-        $field = $this->createStub(FieldInterface::class);
+        $field = self::createStub(FieldInterface::class);
         $field->method('validateDefinition')->willReturn(true);
 
-        $fieldFactory = $this->createStub(FieldFactory::class);
+        $fieldFactory = self::createStub(FieldFactory::class);
         $fieldFactory->method('getField')->willReturn($field);
 
-        $generator = new FormTypeGenerator($this->createStub(FormFactoryInterface::class), $fieldFactory);
+        $generator = new FormTypeGenerator(self::createStub(FormFactoryInterface::class), $fieldFactory);
 
         $result = $generator->addFields($formBuilder, [$blockA, $blockB]);
 

@@ -48,9 +48,9 @@ class FormFileUploader
         $originalFilename = $fileData['originalFilename'] ?? null;
 
         if (
-            is_string($filename)
+            \is_string($filename)
             && $this->filesystem->exists($this->formFileUploadPath.$filename)
-            && is_string($originalFilename)
+            && \is_string($originalFilename)
         ) {
             return new UploadedFile($this->formFileUploadPath.$filename, $originalFilename);
         }
@@ -65,7 +65,7 @@ class FormFileUploader
     {
         $filename = $fileData['filename'] ?? null;
 
-        if (is_string($filename) && $this->filesystem->exists($this->formFileUploadPath.$filename)) {
+        if (\is_string($filename) && $this->filesystem->exists($this->formFileUploadPath.$filename)) {
             $this->filesystem->remove($this->formFileUploadPath.$filename);
         }
     }
@@ -90,7 +90,7 @@ class FormFileUploader
         try {
             $this->filesystem->mkdir($this->formFileUploadPath);
         } catch (IOExceptionInterface $exception) {
-            throw new FileException(sprintf('Unable to create the "%s" directory.', $this->formFileUploadPath), 0, $exception);
+            throw new FileException(\sprintf('Unable to create the "%s" directory.', $this->formFileUploadPath), 0, $exception);
         }
     }
 

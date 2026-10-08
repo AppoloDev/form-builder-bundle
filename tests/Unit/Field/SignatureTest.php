@@ -7,6 +7,7 @@ namespace AppoloDev\FormBuilderBundle\Tests\Unit\Field;
 use AppoloDev\FormBuilderBundle\Enum\FieldKind;
 use AppoloDev\FormBuilderBundle\Field\Signature;
 use AppoloDev\FormBuilderBundle\FormType\SignatureType;
+use AppoloDev\FormBuilderBundle\Tests\Support\Options;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -38,12 +39,13 @@ class SignatureTest extends TestCase
         $formBuilder->expects(self::once())->method('add')->with(
             'sig-1',
             SignatureType::class,
-            self::callback(function (array $options): bool {
+            self::callback(static function (array $options): bool {
                 self::assertSame('Signature', $options['label']);
                 self::assertTrue($options['required']);
                 self::assertSame('Signez ici', $options['help']);
-                self::assertCount(1, $options['constraints']);
-                self::assertInstanceOf(NotBlank::class, $options['constraints'][0]);
+                $constraints = Options::at($options, 'constraints');
+                self::assertCount(1, $constraints);
+                self::assertInstanceOf(NotBlank::class, $constraints[0]);
 
                 return true;
             })
@@ -61,7 +63,7 @@ class SignatureTest extends TestCase
         $formBuilder->expects(self::once())->method('add')->with(
             'sig-1',
             SignatureType::class,
-            self::callback(function (array $options): bool {
+            self::callback(static function (array $options): bool {
                 self::assertArrayNotHasKey('constraints', $options);
 
                 return true;

@@ -51,7 +51,7 @@ class NumberInput implements FieldInterface
         $this->allowDecimal = $block->configBool('allowDecimal') ?? false;
 
         $defaultValue = $block->configNumeric('defaultValue');
-        $this->defaultValue = $defaultValue ? (float) $defaultValue : 0;
+        $this->defaultValue = null === $defaultValue ? 0 : (float) $defaultValue;
         $this->formOptions = $formOptions;
 
         return '' !== $this->id;

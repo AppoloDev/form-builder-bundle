@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AppoloDev\FormBuilderBundle\Tests\Unit\Field;
 
 use AppoloDev\FormBuilderBundle\Field\TelInput;
+use AppoloDev\FormBuilderBundle\Tests\Support\Options;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
@@ -21,10 +22,11 @@ class TelInputTest extends TestCase
 
         $formBuilder = $this->createMock(FormBuilderInterface::class);
         $formBuilder->method('getName')->willReturn('t-1');
-        $formBuilder->expects(self::once())->method('add')->with('t-1', TelType::class, self::callback(function (array $options): bool {
-            self::assertCount(2, $options['constraints']);
-            self::assertInstanceOf(Regex::class, $options['constraints'][0]);
-            self::assertInstanceOf(Length::class, $options['constraints'][1]);
+        $formBuilder->expects(self::once())->method('add')->with('t-1', TelType::class, self::callback(static function (array $options): bool {
+            $constraints = Options::at($options, 'constraints');
+            self::assertCount(2, $constraints);
+            self::assertInstanceOf(Regex::class, $constraints[0]);
+            self::assertInstanceOf(Length::class, $constraints[1]);
 
             return true;
         }));
