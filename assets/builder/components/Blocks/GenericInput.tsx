@@ -5,7 +5,6 @@ import { CheckboxEdition } from "../Edition/CheckboxEdition";
 import { SelectEdition } from "../Edition/SelectEdition";
 import { FieldInput } from "./FieldInput";
 import { blockDefinitions } from "./Definition";
-import { labelToName } from "../../utilities/string.utiles";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { InputGroup, InputGroupAddon } from "../ui/input-group";
@@ -48,7 +47,6 @@ const baseSchema: EditionItem[] = [
 ];
 
 type MakeOpts = {
-    extraSchema?: EditionItem[];
     toInputAttrs?: (form: Record<string, any>) => Record<string, any>;
 };
 
@@ -66,7 +64,6 @@ export const makeInputBlock = (
             placeHolder: restProps.placeHolder || "",
             helpText: restProps.helpText || "",
             required: restProps.required || false,
-            name: restProps.name || labelToName(restProps.label || ""),
         });
 
         useEffect(() => {
@@ -76,25 +73,24 @@ export const makeInputBlock = (
                 placeHolder: restProps.placeHolder || "",
                 helpText: restProps.helpText || "",
                 required: restProps.required || false,
-                name: restProps.name || labelToName(restProps.label || ""),
-            });
+                });
         }, [JSON.stringify(restProps)]);
 
         const editionSchema = useMemo(
             () => {
-                let schema = [...baseSchema, ...(opts.extraSchema ?? [])];
+                // Source unique : le schéma d'édition déclaré dans Definition.ts (aussi utilisé par AddMenu).
+                let schema: EditionItem[] = blockDefinitions[blockType as keyof typeof blockDefinitions]?.editionSchema ?? baseSchema;
                 if (isChildBlock) {
                     schema = schema.filter(item => item.key !== 'required');
                 }
                 return schema;
             },
-            [opts.extraSchema, isChildBlock]
+            [blockType, isChildBlock]
         );
 
         const handleChange = (key: string, value: any) => {
             if (key === 'label') {
-                const newName = labelToName(value);
-                const patch = { label: value, name: newName };
+                const patch = { label: value };
                 setForm(prev => ({ ...prev, ...patch }));
                 updateBlock(id, patch);
             } else {

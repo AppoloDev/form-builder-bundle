@@ -11,7 +11,6 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { labelToName } from "../../utilities/string.utiles";
 import { GitPullRequest, Plus, Trash } from "lucide-react";
 
 type Props = {
@@ -19,8 +18,8 @@ type Props = {
     type?: BlockType;
     helpText?: string;
     label?: string;
-    name?: string;
     required?: boolean;
+    readOnly?: boolean;
     multiple?: boolean;
     options?: OptionItem[];
     conditions?: ConditionRule[];
@@ -35,8 +34,8 @@ const ChoiceGroupInput: FC<Props> = (props) => {
         type: blockType,
         helpText: propsHelpText,
         label: propsLabel,
-        name: propsName,
         required: propsRequired,
+        readOnly: propsReadOnly,
         multiple: propsMultiple,
         options: propsOptions,
         conditions: propsConditions,
@@ -49,9 +48,9 @@ const ChoiceGroupInput: FC<Props> = (props) => {
 
     const [form, setForm] = useState({
         label: propsLabel || "",
-        name: propsName || labelToName(propsLabel || ""),
         helpText: propsHelpText || "",
         required: propsRequired ?? false,
+        readOnly: propsReadOnly ?? false,
         multiple: propsMultiple ?? false,
         options: (propsOptions || []) as OptionItem[],
         conditions: (propsConditions || []) as ConditionRule[],
@@ -69,18 +68,18 @@ const ChoiceGroupInput: FC<Props> = (props) => {
     useEffect(() => {
         setForm({
             label: propsLabel || "",
-            name: propsName || labelToName(propsLabel || ""),
             helpText: propsHelpText || "",
             required: propsRequired ?? false,
+            readOnly: propsReadOnly ?? false,
             multiple: propsMultiple ?? false,
             options: (propsOptions || []) as OptionItem[],
             conditions: (propsConditions || []) as ConditionRule[],
         });
     }, [
         propsLabel,
-        propsName,
         propsHelpText,
         propsRequired,
+        propsReadOnly,
         propsMultiple,
         JSON.stringify(propsOptions),
         JSON.stringify(propsConditions),
@@ -99,8 +98,7 @@ const ChoiceGroupInput: FC<Props> = (props) => {
 
     const handleChange = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
         if (key === 'label') {
-            const newName = labelToName(value as string);
-            const patch = {label: value as string, name: newName};
+            const patch = {label: value as string};
             setForm(prev => ({...prev, ...patch}));
             updateBlock(id, patch);
         } else {
@@ -176,6 +174,8 @@ const ChoiceGroupInput: FC<Props> = (props) => {
                     checked={form.multiple}
                     editItem={(v) => handleChange("multiple", v)}
                 />,
+                <CheckboxEdition key="readOnly" label="Lecture seule" checked={form.readOnly}
+                                 editItem={(v) => handleChange("readOnly", v)}/>,
             ];
 
             const filtered = isChildBlock ? items.filter(item => item.key !== 'required') : [...items];
@@ -200,7 +200,7 @@ const ChoiceGroupInput: FC<Props> = (props) => {
 
             return filtered;
         },
-        [form.label, form.helpText, form.required, form.multiple, form.options, form.conditions, isChildBlock, propsUseContionnalField]
+        [form.label, form.helpText, form.required, form.readOnly, form.multiple, form.options, form.conditions, isChildBlock, propsUseContionnalField]
     );
 
     const addOption = () => {

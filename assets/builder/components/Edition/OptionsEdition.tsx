@@ -1,5 +1,6 @@
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { Checkbox } from "../ui/checkbox";
 import { v4 as uuidv4 } from "uuid";
 import { SelectOption } from "../Blocks/Definition";
 
@@ -7,15 +8,23 @@ type Props = {
     label: string;
     value: SelectOption[];
     helpText?: string;
+    /** Choix unique : cocher une option par défaut décoche les autres. */
+    exclusive?: boolean;
     onChange: (next: SelectOption[]) => void;
 };
 
-export const OptionsEdition = ({ label, value = [], helpText, onChange }: Props) => {
+export const OptionsEdition = ({ label, value = [], helpText, exclusive = false, onChange }: Props) => {
     const add = () => onChange([...value, { id: uuidv4(), label: "Nouvelle option" }]);
     const update = (idx: number, label: string) => {
         const next = [...value];
         next[idx] = { ...next[idx], label };
         onChange(next);
+    };
+    const toggleSelected = (idx: number, isSelected: boolean) => {
+        onChange(value.map((opt, i) => {
+            if (i === idx) return { ...opt, isSelected };
+            return exclusive && isSelected ? { ...opt, isSelected: false } : opt;
+        }));
     };
     const remove = (idx: number) => {
         const next = value.filter((_, i) => i !== idx);
@@ -34,6 +43,13 @@ export const OptionsEdition = ({ label, value = [], helpText, onChange }: Props)
             <div className="space-y-2">
                 {value.map((opt, idx) => (
                     <div key={opt.id} className="flex items-center gap-2">
+                        <Checkbox
+                            checked={opt.isSelected ?? false}
+                            onCheckedChange={(checked) => toggleSelected(idx, checked)}
+                            aria-label="Présélectionner cette option"
+                            title="Présélectionnée par défaut"
+                            className="cursor-pointer"
+                        />
                         <Input
                             value={opt.label}
                             onChange={(e) => update(idx, e.target.value)}

@@ -12,7 +12,6 @@ import {
     Paperclip,
     Clock,
 } from "lucide-react";
-import { labelToName } from "../../utilities/string.utiles";
 
 export type BlockId = UniqueIdentifier;
 
@@ -24,22 +23,22 @@ export interface BaseBlockProps {
 export interface TextInputProps extends BaseBlockProps {
     type: 'TextInput';
     label: string;
-    name: string;
     placeHolder?: string;
     helpText?: string;
     required?: boolean;
     readOnly?: boolean;
+    defaultValue?: string;
 }
 
 
 export interface TextareaInputProps extends BaseBlockProps {
     type: 'TextareaInput';
     label: string;
-    name: string;
     placeHolder?: string;
     required?: boolean;
     helpText?: string;
     readOnly?: boolean;
+    defaultValue?: string;
     rows?: number;
 }
 
@@ -57,9 +56,9 @@ export interface ParagraphProps extends BaseBlockProps {
 export interface ChoiceGroupProps extends BaseBlockProps {
     type: 'ChoiceGroup';
     label: string;
-    name: string;
     helpText?: string;
     required?: boolean;
+    readOnly?: boolean;
     multiple?: boolean;
     options: OptionItem[];
     conditions?: ConditionRule[];
@@ -68,10 +67,11 @@ export interface ChoiceGroupProps extends BaseBlockProps {
 export interface NumberInputProps extends BaseBlockProps {
     type: 'NumberInput';
     label: string;
-    name: string;
     placeHolder?: string;
     helpText?: string;
     required?: boolean;
+    readOnly?: boolean;
+    defaultValue?: string;
     min?: string;
     max?: string;
     step?: string;
@@ -80,44 +80,46 @@ export interface NumberInputProps extends BaseBlockProps {
 export interface EmailInputProps extends BaseBlockProps {
     type: 'EmailInput';
     label: string;
-    name: string;
     placeHolder?: string;
     helpText?: string;
     required?: boolean;
+    readOnly?: boolean;
+    defaultValue?: string;
 }
 
 export interface TelInputProps extends BaseBlockProps {
     type: 'TelInput';
     label: string;
-    name: string;
     placeHolder?: string;
     helpText?: string;
     required?: boolean;
+    readOnly?: boolean;
+    defaultValue?: string;
 }
 
 export interface UrlInputProps extends BaseBlockProps {
     type: 'UrlInput';
     label: string;
-    name: string;
     placeHolder?: string;
     helpText?: string;
     required?: boolean;
+    readOnly?: boolean;
+    defaultValue?: string;
 }
 
 export interface DateTimeInputProps extends BaseBlockProps {
     type: 'DateTimeInput';
     label: string;
-    name: string;
-    placeHolder?: string;
     helpText?: string;
     required?: boolean;
+    readOnly?: boolean;
+    hasCurrentDate?: boolean;
     mode?: string;
 }
 
 export interface AddressInputProps extends BaseBlockProps {
     type: 'AddressInput';
     label: string;
-    name: string;
     placeHolder?: string;
     helpText?: string;
     required?: boolean;
@@ -126,7 +128,6 @@ export interface AddressInputProps extends BaseBlockProps {
 export interface FileInputProps extends BaseBlockProps {
     type: 'FileInput';
     label: string;
-    name: string;
     helpText?: string;
     required?: boolean;
     acceptedFile?: string;
@@ -136,19 +137,20 @@ export interface FileInputProps extends BaseBlockProps {
 export interface HourMinuteInputProps extends BaseBlockProps {
     type: 'HourMinuteInput';
     label: string;
-    name: string;
-    placeHolder?: string;
     helpText?: string;
     required?: boolean;
+    readOnly?: boolean;
+    defaultValue?: string;
 }
 
 export interface SelectProps extends BaseBlockProps {
     type: 'Select';
     label: string;
-    name: string;
     helpText?: string;
     required?: boolean;
+    readOnly?: boolean;
     multiple?: boolean;
+    customOption?: boolean;
     options: SelectOption[];
     conditions?: ConditionRule[];
 }
@@ -156,7 +158,6 @@ export interface SelectProps extends BaseBlockProps {
 export interface SignatureProps extends BaseBlockProps {
     type: 'Signature';
     label: string;
-    name: string;
     helpText?: string;
     required?: boolean;
 }
@@ -181,6 +182,7 @@ export type OptionItem = {
 export type SelectOption = {
     id: string;
     label: string;
+    isSelected?: boolean;
 };
 
 export type ConditionOperator = 'is' | 'is_not';
@@ -246,6 +248,15 @@ const commonInputSchema: DefinitionEditionItem[] = [
     {key: "required", label: "Requis", type: "checkbox"},
 ];
 
+const readOnlyItem: DefinitionEditionItem = {key: "readOnly", label: "Lecture seule", type: "checkbox"};
+
+// Text-like inputs that can be prefilled and locked
+const prefillableInputSchema: DefinitionEditionItem[] = [
+    ...commonInputSchema,
+    {key: "defaultValue", label: "Valeur par défaut", type: "text"},
+    readOnlyItem,
+];
+
 // Input blocks without a placeholder field
 const commonInputSchemaNoPlaceholder: DefinitionEditionItem[] = [
     {key: "label", label: "Titre", type: "text"},
@@ -300,12 +311,11 @@ export const blockDefinitions: BlockDefinitions = {
         defaultProps: {
             type: "TextInput",
             label: "Libellé",
-            name: labelToName("Libellé"),
             placeHolder: "",
             required: false,
             helpText: ""
         },
-        editionSchema: commonInputSchema,
+        editionSchema: prefillableInputSchema,
     },
     TextareaInput: {
         id: "drag-textareainput",
@@ -316,14 +326,13 @@ export const blockDefinitions: BlockDefinitions = {
         defaultProps: {
             type: "TextareaInput",
             label: "Libellé",
-            name: labelToName("Libellé"),
             placeHolder: "",
             required: false,
             helpText: '',
             rows: 5
         },
         editionSchema: [
-            ...commonInputSchema,
+            ...prefillableInputSchema,
             {key: "rows", label: "Nombre de lignes", type: "number"},
         ],
     },
@@ -335,7 +344,6 @@ export const blockDefinitions: BlockDefinitions = {
         defaultProps: {
             type: "ChoiceGroup",
             label: "Libellé",
-            name: labelToName("Libellé"),
             helpText: "",
             required: false,
             multiple: false,
@@ -347,6 +355,7 @@ export const blockDefinitions: BlockDefinitions = {
             {key: "helpText", label: "Message d'aide", type: "textarea", rows: 2},
             {key: "required", label: "Requis", type: "checkbox"},
             {key: "multiple", label: "Sélection multiple", type: "checkbox"},
+            readOnlyItem,
         ],
     },
     NumberInput: {
@@ -358,7 +367,6 @@ export const blockDefinitions: BlockDefinitions = {
         defaultProps: {
             type: "NumberInput",
             label: "Libellé",
-            name: labelToName("Libellé"),
             placeHolder: "",
             required: false,
             helpText: "",
@@ -368,6 +376,8 @@ export const blockDefinitions: BlockDefinitions = {
         },
         editionSchema: [
             ...commonInputSchema,
+            {key: "defaultValue", label: "Valeur par défaut", type: "number"},
+            readOnlyItem,
             {key: "min", label: "Valeur minimale", type: "number"},
             {key: "max", label: "Valeur maximale", type: "number"},
             {key: "step", label: "Pas", type: "number"},
@@ -382,12 +392,11 @@ export const blockDefinitions: BlockDefinitions = {
         defaultProps: {
             type: "EmailInput",
             label: "Libellé",
-            name: labelToName("Libellé"),
             placeHolder: "",
             required: false,
             helpText: "",
         },
-        editionSchema: commonInputSchema,
+        editionSchema: prefillableInputSchema,
     },
     TelInput: {
         id: "drag-telinput",
@@ -398,12 +407,11 @@ export const blockDefinitions: BlockDefinitions = {
         defaultProps: {
             type: "TelInput",
             label: "Libellé",
-            name: labelToName("Libellé"),
             placeHolder: "",
             required: false,
             helpText: "",
         },
-        editionSchema: commonInputSchema,
+        editionSchema: prefillableInputSchema,
     },
     UrlInput: {
         id: "drag-urlinput",
@@ -414,12 +422,11 @@ export const blockDefinitions: BlockDefinitions = {
         defaultProps: {
             type: "UrlInput",
             label: "Libellé",
-            name: labelToName("Libellé"),
             placeHolder: "",
             required: false,
             helpText: "",
         },
-        editionSchema: commonInputSchema,
+        editionSchema: prefillableInputSchema,
     },
     DateTimeInput: {
         id: "drag-datetimeinput",
@@ -430,14 +437,12 @@ export const blockDefinitions: BlockDefinitions = {
         defaultProps: {
             type: "DateTimeInput",
             label: "Libellé",
-            name: labelToName("Libellé"),
-            placeHolder: "",
             required: false,
             helpText: "",
             mode: "datetime-local",
         },
         editionSchema: [
-            ...commonInputSchema,
+            ...commonInputSchemaNoPlaceholder,
             {
                 key: "mode", label: "Type de saisie", type: "select", options: [
                     {value: "date", label: "Date"},
@@ -445,6 +450,8 @@ export const blockDefinitions: BlockDefinitions = {
                     {value: "time", label: "Heure"},
                 ]
             },
+            {key: "hasCurrentDate", label: "Préremplir avec la date et l'heure actuelles", type: "checkbox"},
+            readOnlyItem,
         ],
     },
     AddressInput: {
@@ -456,7 +463,6 @@ export const blockDefinitions: BlockDefinitions = {
         defaultProps: {
             type: "AddressInput",
             label: "Libellé",
-            name: labelToName("Libellé"),
             placeHolder: "Indiquez un lieu…",
             required: false,
             helpText: "",
@@ -472,7 +478,6 @@ export const blockDefinitions: BlockDefinitions = {
         defaultProps: {
             type: "FileInput",
             label: "Libellé",
-            name: labelToName("Libellé"),
             required: false,
             helpText: "",
             acceptedFile: "image",
@@ -499,12 +504,14 @@ export const blockDefinitions: BlockDefinitions = {
         defaultProps: {
             type: "HourMinuteInput",
             label: "Libellé",
-            name: labelToName("Libellé"),
-            placeHolder: "",
             required: false,
             helpText: "",
         },
-        editionSchema: commonInputSchema,
+        editionSchema: [
+            ...commonInputSchemaNoPlaceholder,
+            {key: "defaultValue", label: "Valeur par défaut", type: "text", helpText: "Format HH:MM, par exemple 08:30"},
+            readOnlyItem,
+        ],
     },
     Select: {
         id: "drag-select",
@@ -514,7 +521,6 @@ export const blockDefinitions: BlockDefinitions = {
         defaultProps: {
             type: "Select",
             label: "Libellé",
-            name: labelToName("Libellé"),
             helpText: "",
             required: false,
             multiple: false,
@@ -526,6 +532,8 @@ export const blockDefinitions: BlockDefinitions = {
             {key: "helpText", label: "Message d'aide", type: "textarea", rows: 2},
             {key: "required", label: "Requis", type: "checkbox"},
             {key: "multiple", label: "Sélection multiple", type: "checkbox"},
+            {key: "customOption", label: "Autoriser la saisie d'une autre valeur", type: "checkbox"},
+            readOnlyItem,
         ],
     },
     Signature: {
@@ -536,7 +544,6 @@ export const blockDefinitions: BlockDefinitions = {
         defaultProps: {
             type: "Signature",
             label: "Libellé",
-            name: labelToName("Libellé"),
             helpText: "",
             required: false,
         },

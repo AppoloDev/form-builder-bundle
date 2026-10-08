@@ -3,7 +3,6 @@ import { BlockDefinition, DefinitionEditionItem, getAllBlockDefinitions } from "
 import { TextEdition } from "./Edition/TextEdition";
 import { CheckboxEdition } from "./Edition/CheckboxEdition";
 import { SelectEdition } from "./Edition/SelectEdition";
-import { labelToName } from "../utilities/string.utiles";
 import { Button } from "./ui/button";
 import { BLOCK_COMPONENTS } from "./BlockRegistry";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
@@ -86,12 +85,7 @@ export const AddMenu: React.FC<AddMenuProps> = (
 
     const handleFormChange = (key: string, value: any) => {
         setFormState(prev => {
-            const next = {...prev, [key]: value};
-            // Auto-derive `name` from `label`
-            if (key === "label") {
-                next.name = labelToName(value);
-            }
-            return next;
+            return {...prev, [key]: value};
         });
     };
 
@@ -106,11 +100,6 @@ export const AddMenu: React.FC<AddMenuProps> = (
                 overrides[key] = value;
             }
         }
-        // If label was changed, also include the derived name
-        if (overrides.label) {
-            overrides.name = labelToName(overrides.label);
-        }
-
         onPick(selectedDef, Object.keys(overrides).length > 0 ? overrides : undefined);
         handleClose();
     };

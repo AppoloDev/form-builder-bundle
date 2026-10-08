@@ -7,7 +7,6 @@ import { CheckboxEdition } from "../Edition/CheckboxEdition";
 import { OptionsEdition } from "../Edition/OptionsEdition";
 import { ConditionRules } from "./ConditionRules";
 import { createBlockFromTemplate } from "../../utilities/block.utiles";
-import { labelToName } from "../../utilities/string.utiles";
 import { Select as SelectField, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Button } from "../ui/button";
 import { v4 as uuidv4 } from "uuid";
@@ -25,10 +24,11 @@ const Select = (
         id,
         type: blockType,
         label: propsLabel,
-        name: propsName,
         helpText: propsHelpText,
         required: propsRequired,
+        readOnly: propsReadOnly,
         multiple: propsMultiple,
+        customOption: propsCustomOption,
         options: propsOptions,
         conditions: propsConditions,
         isChildBlock,
@@ -39,10 +39,11 @@ const Select = (
 
     const [form, setForm] = useState({
         label: propsLabel || "",
-        name: propsName || labelToName(propsLabel || ""),
         helpText: propsHelpText || "",
         required: propsRequired ?? false,
+        readOnly: propsReadOnly ?? false,
         multiple: propsMultiple ?? false,
+        customOption: propsCustomOption ?? false,
         options: (propsOptions || []) as SelectOption[],
         conditions: (propsConditions || []) as ConditionRule[],
     });
@@ -50,14 +51,15 @@ const Select = (
     useEffect(() => {
         setForm({
             label: propsLabel || "",
-            name: propsName || labelToName(propsLabel || ""),
             helpText: propsHelpText || "",
             required: propsRequired ?? false,
+            readOnly: propsReadOnly ?? false,
             multiple: propsMultiple ?? false,
+            customOption: propsCustomOption ?? false,
             options: (propsOptions || []) as SelectOption[],
             conditions: (propsConditions || []) as ConditionRule[],
         });
-    }, [propsLabel, propsName, propsHelpText, propsRequired, propsMultiple, JSON.stringify(propsOptions), JSON.stringify(propsConditions)]);
+    }, [propsLabel, propsHelpText, propsRequired, propsReadOnly, propsMultiple, propsCustomOption, JSON.stringify(propsOptions), JSON.stringify(propsConditions)]);
 
     useEffect(() => {
         if (form.options.length === 0) {
@@ -73,8 +75,7 @@ const Select = (
 
     const handleChange = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
         if (key === 'label') {
-            const newName = labelToName(value as string);
-            const patch = {label: value as string, name: newName};
+            const patch = {label: value as string};
             setForm(prev => ({...prev, ...patch}));
             updateBlock(id, patch);
         } else if (key === 'options') {
@@ -148,7 +149,11 @@ const Select = (
         ]),
         <CheckboxEdition key="multiple" label="Sélection multiple" checked={form.multiple}
                          editItem={(v) => handleChange("multiple", v)}/>,
-        <OptionsEdition key="options" label="Options" value={form.options}
+        <CheckboxEdition key="customOption" label="Autoriser la saisie d'une autre valeur" checked={form.customOption}
+                         editItem={(v) => handleChange("customOption", v)}/>,
+        <CheckboxEdition key="readOnly" label="Lecture seule" checked={form.readOnly}
+                         editItem={(v) => handleChange("readOnly", v)}/>,
+        <OptionsEdition key="options" label="Options" value={form.options} exclusive={!form.multiple}
                         onChange={(v) => handleChange("options", v)}
                         helpText="Ajoutez, modifiez ou supprimez les options"/>,
         ...(propsUseContionnalField ? [
