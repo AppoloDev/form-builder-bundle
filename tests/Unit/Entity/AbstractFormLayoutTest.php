@@ -150,4 +150,43 @@ class AbstractFormLayoutTest extends TestCase
 
         self::assertTrue($formLayout->hasStructure());
     }
+
+    public function testConditionalBlocksAreStoredAsSiblingsAndRestoredNested(): void
+    {
+        $structure = [[
+            'id' => 'sel',
+            'type' => 'Select',
+            'label' => 'Choix',
+            'options' => [['id' => 'o1', 'label' => 'Oui']],
+            'conditions' => [
+                ['id' => 'r1', 'operator' => 'is', 'optionId' => 'o1', 'children' => [['id' => 'detail', 'type' => 'TextInput', 'label' => 'Détail']]],
+            ],
+        ]];
+
+        $formLayout = (new TestFormLayout())->setStructure($structure);
+
+        self::assertCount(2, $formLayout->getFields());
+        $detail = $formLayout->getFieldByKey('detail');
+        self::assertNotNull($detail);
+        self::assertNull($detail->getParent(), 'Un bloc conditionnel vit au même niveau que son propriétaire.');
+        self::assertSame(['owner' => 'sel', 'rule' => 'r1'], $detail->getConfig()['condition']);
+        self::assertEquals($structure, $formLayout->getStructure());
+    }
+
+    public function testConditionalBlocksInsideARepeatableStayInTheRepeatable(): void
+    {
+        $formLayout = (new TestFormLayout())->setStructure([[
+            'id' => 'rep',
+            'type' => 'Repeatable',
+            'children' => [[
+                'id' => 'sel',
+                'type' => 'ChoiceGroup',
+                'options' => [['id' => 'o1', 'label' => 'Oui']],
+                'conditions' => [['id' => 'r1', 'operator' => 'is', 'optionId' => 'o1', 'children' => [['id' => 'detail', 'type' => 'TextInput']]]],
+            ]],
+        ]]);
+
+        self::assertSame(['rep' => ['sel', 'detail']], $formLayout->getRepeatableFieldMap());
+        self::assertNotNull($formLayout->getRepeatableChildField('rep', 'detail'));
+    }
 }

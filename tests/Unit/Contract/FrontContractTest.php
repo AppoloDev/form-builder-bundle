@@ -18,18 +18,8 @@ use Symfony\Component\Form\FormBuilderInterface;
  */
 class FrontContractTest extends TestCase
 {
-    /** Clés portées par le bloc lui-même, hors `config`. */
-    private const STRUCTURAL_KEYS = ['id', 'type', 'label', 'text', 'children'];
-
-    /**
-     * Clés émises par le builder que le PHP ne lit pas encore.
-     *
-     * @var array<string, list<string>>
-     */
-    private const NOT_YET_SUPPORTED = [
-        'ChoiceGroup' => ['conditions'],
-        'Select' => ['conditions'],
-    ];
+    /** Clés portées par le bloc lui-même, ou traitées pour tous les blocs par ConditionalStructure (`conditions`). */
+    private const STRUCTURAL_KEYS = ['id', 'type', 'label', 'text', 'children', 'conditions'];
 
     /**
      * Clés lues par le PHP que le builder n'émet plus (anciennes configurations conservées en lecture).
@@ -94,14 +84,8 @@ class FrontContractTest extends TestCase
     #[DataProvider('builderTypes')]
     public function testEveryKeyEmittedByTheBuilderIsReadByPhp(string $type, array $defaults, array $keys): void
     {
-        $read = self::keysReadBy($type);
-        $pending = self::NOT_YET_SUPPORTED[$type] ?? [];
-
-        $unsupported = array_values(array_diff($keys, self::STRUCTURAL_KEYS, $read, $pending));
+        $unsupported = array_values(array_diff($keys, self::STRUCTURAL_KEYS, self::keysReadBy($type)));
         self::assertSame([], $unsupported, \sprintf('Clés émises par le builder pour "%s" mais ignorées par le PHP.', $type));
-
-        $stale = array_values(array_intersect($pending, $read));
-        self::assertSame([], $stale, \sprintf('"%s" : ces clés sont désormais lues, les retirer de NOT_YET_SUPPORTED.', $type));
     }
 
     /**

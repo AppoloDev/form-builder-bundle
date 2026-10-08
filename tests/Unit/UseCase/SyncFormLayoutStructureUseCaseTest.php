@@ -60,4 +60,33 @@ class SyncFormLayoutStructureUseCaseTest extends TestCase
             ['id' => 'kept', 'type' => 'ShortText', 'label' => 'Kept'],
         ]);
     }
+
+    public function testConditionalBlocksAreCreatedAndRemovedAsSiblingsOfTheirOwner(): void
+    {
+        $owner = static fn (array $children): array => [
+            'id' => 'sel',
+            'type' => 'Select',
+            'options' => [['id' => 'o1', 'label' => 'Oui']],
+            'conditions' => [['id' => 'r1', 'operator' => 'is', 'optionId' => 'o1', 'children' => $children]],
+        ];
+
+        $formLayout = (new TestFormLayout())->setStructure([$owner([['id' => 'old', 'type' => 'TextInput']])]);
+        $oldField = $formLayout->getFieldByKey('old');
+        self::assertNotNull($oldField);
+
+        $persisted = [];
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->method('persist')->willReturnCallback(static function (object $object) use (&$persisted): void {
+            $persisted[] = $object;
+        });
+        $entityManager->expects(self::once())->method('remove')->with($oldField);
+
+        (new SyncFormLayoutStructureUseCase($entityManager))($formLayout, [$owner([['id' => 'new', 'type' => 'TextInput']])]);
+
+        self::assertCount(1, $persisted);
+        self::assertInstanceOf(TestFormLayoutField::class, $persisted[0]);
+        self::assertSame('new', $persisted[0]->getFieldKey());
+        self::assertNull($persisted[0]->getParent());
+        self::assertSame(['owner' => 'sel', 'rule' => 'r1'], $persisted[0]->getConfig()['condition']);
+    }
 }

@@ -185,3 +185,16 @@
     {% endwith %}
     {{ block('remove_btn') }}
 {%- endblock -%}
+
+{#- Champ conditionnel : enveloppe lue par le contrôleur form-builder-condition, qui l'affiche ou le masque
+    selon la valeur du champ propriétaire (#owner_id). -#}
+{%- block form_builder_conditional_field_row -%}
+    <div
+        data-controller="form-builder-condition"
+        data-form-builder-condition-owner-value="{{ owner_id }}"
+        data-form-builder-condition-operator-value="{{ operator }}"
+        data-form-builder-condition-option-label-value="{{ option_label }}"
+    >
+        {{- form_widget(form) -}}
+    </div>
+{%- endblock -%}

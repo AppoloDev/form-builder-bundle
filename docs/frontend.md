@@ -59,6 +59,7 @@
 |---|---|---|
 | `form-builder-collection` | `repeatable_row`, `file_repeatable_row` | Add/remove rows from a `data-prototype` |
 | `form-builder-geo-complete` | `address_row` | Google Places autocomplete. The app must load the Maps JS API and dispatch `google-maps:ready` on `document` (or set `window.googleMapsReady`) |
+| `form-builder-condition` | `form_builder_conditional_field_row` | Shows/hides a conditional field from the owner's value (`<select>`, or radio/checkbox container with the owner's id); disables hidden controls so they are not submitted |
 | `form-builder-sign-area` | `signature_row` | `signature_pad` canvas; writes an SVG data URI into the hidden input. Values: `input`, `clear-label`, `modify-label` |
 
 ## Builder sources

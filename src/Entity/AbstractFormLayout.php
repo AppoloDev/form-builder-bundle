@@ -7,6 +7,7 @@ namespace AppoloDev\FormBuilderBundle\Entity;
 use AppoloDev\FormBuilderBundle\Contract\FormLayoutFieldInterface;
 use AppoloDev\FormBuilderBundle\Contract\FormLayoutInterface;
 use AppoloDev\FormBuilderBundle\Enum\FieldKind;
+use AppoloDev\FormBuilderBundle\Service\ConditionalStructure;
 use AppoloDev\FormBuilderBundle\Service\FieldKindResolver;
 use AppoloDev\FormBuilderBundle\Service\FormLayoutFieldHydrator;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
@@ -41,9 +42,9 @@ abstract class AbstractFormLayout implements FormLayoutInterface
      */
     public function getStructure(): array
     {
-        return FormLayoutFieldHydrator::buildContent(
+        return ConditionalStructure::nest(FormLayoutFieldHydrator::buildContent(
             $this->getFields()->filter(static fn (FormLayoutFieldInterface $field): bool => null === $field->getParent())->toArray()
-        );
+        ));
     }
 
     /**

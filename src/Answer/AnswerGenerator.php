@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AppoloDev\FormBuilderBundle\Answer;
 
 use AppoloDev\FormBuilderBundle\Enum\FieldKind;
+use AppoloDev\FormBuilderBundle\Service\ConditionalStructure;
 use AppoloDev\FormBuilderBundle\Service\FieldKindResolver;
 
 class AnswerGenerator
@@ -17,27 +18,79 @@ class AnswerGenerator
      */
     public function generate(array $formBuilderContent, array $formAnswerContent): array
     {
-        return array_map(function (array $item) use ($formAnswerContent): array {
-            $id = $item['id'] ?? null;
-            $children = $this->toArrayList($item['children'] ?? null);
+        // Les blocs conditionnels deviennent des frères de leur propriétaire ; ceux dont la règle n'est
+        // pas satisfaite par la réponse sont ignorés.
+        return $this->generateLevel(ConditionalStructure::flatten($formBuilderContent), $formAnswerContent);
+    }
 
-            if ([] !== $children && \is_string($id) && isset($formAnswerContent[$id])) {
-                $answerChildren = $formAnswerContent[$id];
-                $item['children'] = $this->generate($children, \is_array($answerChildren) ? $answerChildren : []);
+    /**
+     * @param array<int, array<mixed, mixed>> $blocks  blocs d'un même niveau, structure à plat
+     * @param array<mixed, mixed>             $content réponses de ce niveau
+     *
+     * @return array<int, array<mixed, mixed>>
+     */
+    private function generateLevel(array $blocks, array $content): array
+    {
+        return array_values(array_map(
+            fn (array $item): array => $this->generateItem($item, $content),
+            $this->activeBlocks($blocks, $content),
+        ));
+    }
+
+    /**
+     * @param array<int, array<mixed, mixed>> $blocks
+     * @param array<mixed, mixed>             $content
+     *
+     * @return array<int, array<mixed, mixed>>
+     */
+    private function activeBlocks(array $blocks, array $content): array
+    {
+        $byId = [];
+        foreach ($blocks as $block) {
+            if (\is_string($block['id'] ?? null)) {
+                $byId[$block['id']] = $block;
+            }
+        }
+
+        return array_values(array_filter($blocks, static function (array $block) use ($byId, $content): bool {
+            $marker = ConditionalStructure::marker($block);
+            if (null === $marker) {
+                return true;
             }
 
-            $type = $item['type'] ?? '';
-            $kind = FieldKindResolver::resolve(\is_string($type) ? $type : '');
+            $owner = $byId[$marker['owner']] ?? null;
 
-            if (FieldKind::Repeatable === $kind && \is_string($id)) {
-                $answerValue = $formAnswerContent[$id] ?? [];
-                $item['value'] = $this->getRepeatableValues($children, \is_array($answerValue) ? $answerValue : []);
-            } elseif (FieldKind::Value === $kind && \is_string($id)) {
-                $item['value'] = $formAnswerContent[$id] ?? null;
-            }
+            return null !== $owner && ConditionalStructure::isActive($owner, $marker['rule'], $content[$marker['owner']] ?? null);
+        }));
+    }
 
-            return $item;
-        }, $formBuilderContent);
+    /**
+     * @param array<mixed, mixed> $item
+     * @param array<mixed, mixed> $formAnswerContent
+     *
+     * @return array<mixed, mixed>
+     */
+    private function generateItem(array $item, array $formAnswerContent): array
+    {
+        $id = $item['id'] ?? null;
+        $children = $this->toArrayList($item['children'] ?? null);
+
+        if ([] !== $children && \is_string($id) && isset($formAnswerContent[$id])) {
+            $answerChildren = $formAnswerContent[$id];
+            $item['children'] = $this->generateLevel($children, \is_array($answerChildren) ? $answerChildren : []);
+        }
+
+        $type = $item['type'] ?? '';
+        $kind = FieldKindResolver::resolve(\is_string($type) ? $type : '');
+
+        if (FieldKind::Repeatable === $kind && \is_string($id)) {
+            $answerValue = $formAnswerContent[$id] ?? [];
+            $item['value'] = $this->getRepeatableValues($children, \is_array($answerValue) ? $answerValue : []);
+        } elseif (FieldKind::Value === $kind && \is_string($id)) {
+            $item['value'] = $formAnswerContent[$id] ?? null;
+        }
+
+        return $item;
     }
 
     /**
@@ -97,7 +150,7 @@ class AnswerGenerator
      */
     private function getRepeatableValues(array $repeatableDefinition, array $repeatableValues): array
     {
-        return array_map(static function (mixed $values) use ($repeatableDefinition): array {
+        return array_map(function (mixed $values) use ($repeatableDefinition): array {
             $values = \is_array($values) ? $values : [];
 
             return array_map(static function (array $field) use ($values): array {
@@ -105,7 +158,7 @@ class AnswerGenerator
                 $field['value'] = \is_string($id) ? ($values[$id] ?? null) : null;
 
                 return $field;
-            }, $repeatableDefinition);
+            }, $this->activeBlocks($repeatableDefinition, $values));
         }, $repeatableValues);
     }
 

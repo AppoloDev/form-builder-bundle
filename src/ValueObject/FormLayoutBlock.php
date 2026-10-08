@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace AppoloDev\FormBuilderBundle\ValueObject;
 
+use AppoloDev\FormBuilderBundle\Service\ConditionalStructure;
+
 /**
  * Représentation typée d'un noeud du schéma JSON stocké dans
  * `FormLayout::structure` — un champ simple, un bloc structurel
@@ -35,14 +37,7 @@ final readonly class FormLayoutBlock
      */
     public static function fromArray(array $data): self
     {
-        $children = [];
-        if (isset($data['children']) && \is_array($data['children'])) {
-            foreach ($data['children'] as $child) {
-                if (\is_array($child)) {
-                    $children[] = self::fromArray($child);
-                }
-            }
-        }
+        $children = isset($data['children']) && \is_array($data['children']) ? self::listFromArray($data['children']) : [];
 
         $config = [];
         foreach ($data as $key => $value) {
@@ -68,11 +63,10 @@ final readonly class FormLayoutBlock
      */
     public static function listFromArray(array $blocks): array
     {
+        // Les blocs conditionnels du builder (clé `conditions`) deviennent des frères marqués du bloc propriétaire.
         $result = [];
-        foreach ($blocks as $block) {
-            if (\is_array($block)) {
-                $result[] = self::fromArray($block);
-            }
+        foreach (ConditionalStructure::flatten($blocks) as $block) {
+            $result[] = self::fromArray($block);
         }
 
         return $result;

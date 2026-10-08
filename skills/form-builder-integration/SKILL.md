@@ -66,11 +66,15 @@ Never reference host entities from bundle code; use the `Contract\*` interfaces.
   with an unknown `type` throws `UnknownFieldTypeException` in debug and is skipped + logged in production.
   Files of a deleted answer are removed by walking the layout structure (`FileInput`, also inside
   `FieldSet`/`Repeatable`); ids may have any format.
-- FieldSet answers are nested under the fieldset id; Repeatable answers are a list of rows.
+- FieldSet answers are nested under the fieldset id; Repeatable answers are a list of rows. Conditional answers sit
+  at the same level as their owner.
 - Doctrine forbids `OneToMany` in mapped superclasses: that is why the `Has*` traits exist. A missing trait
   or `initialize*()` call gives "uninitialized property $fields/$children/$fieldValues".
 - Do not run the shadcn CLI inside `assets/builder` (generates `@/…` alias imports); keep imports relative.
-- Known gaps: Select/ChoiceGroup `conditions` are not handled by PHP yet (see `Plan.md`); builder UI text is French only; custom PHP field types are not pluggable (see
+- Conditions: `Select`/`ChoiceGroup` `conditions` are stored flat (conditional blocks are marked siblings of their
+  owner) and rendered through `ConditionalFieldType` + the `form-builder-condition` controller; always go through
+  `FormLayoutBlock::listFromArray()` / `getStructure()` instead of reading `conditions` by hand.
+- Known gaps: builder UI text is French only; custom PHP field types are not pluggable (see
   "Known limitations" in `docs/reference.md`).
 - Translation domain `form_builder_bundle` (fr). `FormBuilderType` defaults `translation_domain` to
   `form_builder` — make sure labels from user structures are not unintentionally translated.

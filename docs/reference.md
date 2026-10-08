@@ -34,6 +34,7 @@ The bundle also registers `@FormBuilder/form_theme/structure.html.twig` (the bui
 | `FormType\FormStructureType` | `answers_count` (int, default 0). Data: structure array ⇄ JSON in a hidden input |
 | `FormType\FormBuilderType` | `edit` (bool). Root type used by `FormTypeGenerator` |
 | `FormType\DatePickerType`, `DateTimePickerType` | Wrappers over `DateType` / `DateTimeType` |
+| `FormType\ConditionalFieldType` | Wraps a conditional block (`inherit_data`); options `block`, `owner`, `operator`, `option_label` |
 
 ## Twig
 
@@ -69,6 +70,16 @@ key and must be unique in the layout.
 | Container | `FieldSet` | no, groups `children` |
 | Repeatable | `Repeatable` | rows of its `children` |
 | Value | everything else | yes |
+
+### Conditional blocks
+
+`Select` and `ChoiceGroup` accept `conditions`: rules `{id, operator: "is" | "is_not", optionId, children: [blocks]}`.
+The children are shown only while the rule holds for the owner's answer (`is`: the option is chosen; `is_not`: it
+is not). Internally the structure is stored **flat**: each conditional block is a sibling of its owner, marked
+`condition: {owner, rule}`, and the owner keeps its rules without children. `getStructure()` nests them back, and
+answers stay at the owner's level (also inside a `Repeatable` or `FieldSet`). A conditional block is never
+required, and is skipped when its option no longer exists. `ConditionalStructure::flatten()` / `nest()` convert
+between the two forms; `FormLayoutBlock::listFromArray()` always flattens.
 
 ### Supported field types and config keys
 
@@ -107,7 +118,9 @@ key and must be unique in the layout.
 
 **Form theme** (`form_theme`) must define: `fieldset_row`, `title_row`, `paragraph_row`, `repeatable_row`,
 `repeatable_children_prototype`, `repeatable_child_row`, `add_btn`, `remove_btn`, `address_row`,
-`signature_row`, `file_repeatable_row`, `file_repeatable_children_prototype`, `file_repeatable_child_row`.
+`signature_row`, `file_repeatable_row`, `file_repeatable_children_prototype`, `file_repeatable_child_row`,
+`form_builder_conditional_field_row` (wrapper read by the `form-builder-condition` Stimulus controller:
+`data-form-builder-condition-owner-value`, `-operator-value`, `-option-label-value`; hidden fields are disabled).
 Collection behaviour comes from the `form-builder-collection` Stimulus controller (`data-prototype`,
 `data-collection-child-selector`, `data-remove-btn-target`, `data-add-auto`, `data-max-items`,
 `data-delete-selector`), the add/remove buttons from `<template id="add-btn">` / `<template id="remove-btn">`.
@@ -126,6 +139,5 @@ labels, answers view. Override by providing the same keys in your own `translati
 
 - A block with an unknown type throws `UnknownFieldTypeException` when `kernel.debug` is on, and is skipped
   with a `warning` log otherwise.
-- Select `conditions` (conditional blocks) are stored in `config` but not evaluated server-side (planned).
 - The builder UI text is French only.
 - Custom PHP field types cannot be registered yet (`FieldFactory` resolves types in the bundle namespace).

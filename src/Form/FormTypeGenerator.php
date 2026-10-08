@@ -6,7 +6,9 @@ namespace AppoloDev\FormBuilderBundle\Form;
 
 use AppoloDev\FormBuilderBundle\Exception\UnknownFieldTypeException;
 use AppoloDev\FormBuilderBundle\Field\FieldFactory;
+use AppoloDev\FormBuilderBundle\FormType\ConditionalFieldType;
 use AppoloDev\FormBuilderBundle\FormType\FormBuilderType;
+use AppoloDev\FormBuilderBundle\Service\ConditionalStructure;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -62,15 +64,25 @@ class FormTypeGenerator
     public function addFields(FormBuilderInterface $formBuilder, array $children = []): FormBuilderInterface
     {
         foreach ($children as $block) {
-            $this->addField($formBuilder, $block);
+            $this->addField($formBuilder, $block, $children);
         }
 
         return $formBuilder;
     }
 
-    public function addField(FormBuilderInterface $formBuilder, FormLayoutBlock $block): void
+    /**
+     * @param FormLayoutBlock[] $siblings blocs du même niveau, pour retrouver le propriétaire d'un champ conditionnel
+     */
+    public function addField(FormBuilderInterface $formBuilder, FormLayoutBlock $block, array $siblings = []): void
     {
         if (null === $block->type) {
+            return;
+        }
+
+        $marker = ConditionalStructure::marker($block->config);
+        if (null !== $marker && null !== $block->id) {
+            $this->addConditionalField($formBuilder, $block, $marker, $siblings);
+
             return;
         }
 
@@ -97,5 +109,29 @@ class FormTypeGenerator
         }
 
         $this->logger?->warning('Champ ignoré : type inconnu "{type}" (bloc "{block}").', ['type' => $type, 'block' => $blockId]);
+    }
+
+    /**
+     * @param array{owner: string, rule: string} $marker
+     * @param FormLayoutBlock[]                  $siblings
+     */
+    private function addConditionalField(FormBuilderInterface $formBuilder, FormLayoutBlock $block, array $marker, array $siblings): void
+    {
+        foreach ($siblings as $sibling) {
+            if ($sibling->id === $marker['owner']) {
+                $rule = ConditionalStructure::rule($sibling->config, $marker['rule']);
+                if (null !== $rule) {
+                    $formBuilder->add('condition_'.$block->id, ConditionalFieldType::class, [
+                        'block' => $block,
+                        'owner' => $marker['owner'],
+                        'operator' => $rule['operator'],
+                        'option_label' => $rule['optionLabel'],
+                    ]);
+                }
+
+                // Règle introuvable (option supprimée) : le champ n'est jamais affiché.
+                return;
+            }
+        }
     }
 }

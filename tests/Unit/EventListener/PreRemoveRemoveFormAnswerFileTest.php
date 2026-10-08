@@ -50,6 +50,23 @@ class PreRemoveRemoveFormAnswerFileTest extends TestCase
         self::assertSame([['filename' => 'row1.pdf'], ['filename' => 'row2.pdf']], $removed);
     }
 
+    public function testRemovesFilesOfAConditionalFileInput(): void
+    {
+        $removed = $this->removedFilesFor(
+            [[
+                'id' => 'Select-1',
+                'type' => 'Select',
+                'options' => [['id' => 'o1', 'label' => 'Oui']],
+                'conditions' => [['id' => 'r1', 'operator' => 'is', 'optionId' => 'o1', 'children' => [
+                    ['id' => 'FileInput-1', 'type' => 'FileInput', 'label' => 'Justificatif'],
+                ]]],
+            ]],
+            ['Select-1' => 'Oui', 'FileInput-1' => [['file' => ['filename' => 'cond.pdf']]]],
+        );
+
+        self::assertSame([['filename' => 'cond.pdf']], $removed);
+    }
+
     public function testIgnoresFieldsThatAreNotFileInputs(): void
     {
         $removed = $this->removedFilesFor(

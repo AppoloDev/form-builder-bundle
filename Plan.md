@@ -206,7 +206,11 @@ et `placeHolder` des blocs date et heure.
 4. CI : générer le contrat avant PHPUnit ; échouer si `blocks.json` n'est pas à jour.
 5. Côté OSCAR : ajuster `ResourceAnswer.html.twig`, `FormAnswerCsvExportBuilder`, `ShowDoneControlController` si un nom de type change (aucun avec D1 : ces consommateurs ne citent pas les deux types renommés).
 
-### Phase 6 — Conditions (bloquante pour `v1.0.0`, D5)
+### Phase 6 — Conditions (bloquante pour `v1.0.0`, D5) · **FAIT**
+
+Réalisé avec une conception plus simple que celle prévue ci-dessous : structure **à plat** (blocs conditionnels = frères marqués `condition: {owner, rule}`, propriétaire garde ses règles sans enfants), aplatie à l'entrée par `FormLayoutBlock::listFromArray()` et ré-imbriquée par `getStructure()` ; enveloppe `ConditionalFieldType` (`inherit_data`) + contrôleur `form-builder-condition`. Aucun changement de schéma. La validation « enfant masqué non obligatoire » est obtenue en forçant `required=false` sur les blocs conditionnels et en désactivant les champs masqués côté navigateur.
+
+Conception initiale (conservée pour mémoire) :
 Conception à valider avant code :
 - Stockage : un enfant conditionnel = `FormLayoutField` avec `parent` = le Select/ChoiceGroup et une marque `conditionId` (+ `operator`, `optionLabel`) dans `config` ; `FormLayoutFieldHydrator::buildContent()` reconstitue `conditions[].children`; `SyncFormLayoutStructureUseCase` les synchronise.
 - Formulaire : `Select`/`ChoiceGroup` ajoutent les enfants conditionnels ; contrôleur Stimulus `form-builder-conditions` (affiche/masque selon l'option choisie, `is` / `is_not`).

@@ -97,4 +97,50 @@ class AnswerGeneratorTest extends TestCase
             ['label' => 'Item', 'value' => 'A - B'],
         ], $fields);
     }
+
+    public function testGenerateKeepsConditionalBlocksOnlyWhenTheirRuleIsSatisfied(): void
+    {
+        $structure = [self::selectWithConditions(), ['id' => 'after', 'type' => 'TextInput', 'label' => 'Après']];
+
+        $active = $this->generator->generate($structure, ['sel' => 'Oui', 'detail' => 'précision', 'after' => 'x']);
+        $inactive = $this->generator->generate($structure, ['sel' => 'Non', 'detail' => 'ignoré', 'after' => 'x']);
+
+        self::assertSame(['sel', 'detail', 'after'], array_column($active, 'id'));
+        self::assertSame('précision', $active[1]['value']);
+        self::assertSame(['sel', 'after'], array_column($inactive, 'id'));
+    }
+
+    public function testGenerateEvaluatesConditionsRowByRowInsideARepeatable(): void
+    {
+        $structure = [[
+            'id' => 'rep',
+            'type' => 'Repeatable',
+            'children' => [self::selectWithConditions()],
+        ]];
+
+        $result = $this->generator->generate($structure, ['rep' => [
+            ['sel' => 'Oui', 'detail' => 'A'],
+            ['sel' => 'Non', 'detail' => 'B'],
+        ]]);
+
+        $rows = Options::at($result[0], 'value');
+        self::assertSame(['sel', 'detail'], array_column(Options::at($rows, 0), 'id'));
+        self::assertSame(['sel'], array_column(Options::at($rows, 1), 'id'));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function selectWithConditions(): array
+    {
+        return [
+            'id' => 'sel',
+            'type' => 'Select',
+            'label' => 'Choix',
+            'options' => [['id' => 'o1', 'label' => 'Oui'], ['id' => 'o2', 'label' => 'Non']],
+            'conditions' => [
+                ['id' => 'r1', 'operator' => 'is', 'optionId' => 'o1', 'children' => [['id' => 'detail', 'type' => 'TextInput', 'label' => 'Détail']]],
+            ],
+        ];
+    }
 }
