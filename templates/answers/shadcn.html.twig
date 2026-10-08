@@ -1,0 +1,216 @@
+{#- Rendu des réponses d'un formulaire (bloc `answers_view`), appelé par la fonction Twig
+    form_builder_answers(). Variables : answers (structure + valeurs, cf. AnswerGenerator) et
+    formAnswer. Remplaçable via `form_builder.answers_template`. -#}
+{% block answers_view %}
+    <div id="form_builder" class="w-full">
+        {% for block in answers %}
+            {{ block('renderBlock') }}
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block renderBlock %}
+    {% if block(block.type) is defined %}
+        {{ block(block.type) }}
+    {% endif %}
+{% endblock %}
+
+{% block FieldSet %}
+    <div class="mb-8 rounded-md border border-dashed border-border p-5 md:p-8">
+        {% for child in block.children %}
+            {% with {block: child} %}
+                {{ block('renderBlock') }}
+            {% endwith %}
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block Repeatable %}
+    {% if block.value is not empty %}
+        <div class="mb-8 rounded-md border border-dashed border-border p-5 md:p-8">
+            {% for v in block.value %}
+                <div class="{% if not loop.last %}mb-8 border-b border-dashed border-border pb-8{% endif %}">
+                    {% for child in v %}
+                        {% with {block: child} %}
+                            {{ block('renderBlock') }}
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block Title %}
+    <div class="mb-8"><h2 class="text-xl font-bold text-foreground">{{ block.text }}</h2></div>
+{% endblock %}
+
+{% block Paragraph %}
+    <div class="mb-8"><p class="text-muted-foreground">{{ block.text }}</p></div>
+{% endblock %}
+
+{% block Address %}
+    {% if block.value is not empty %}
+        {% with {value: '<a href="https://www.google.fr/maps/place/'~block.value~'" target="_blank">'~block.value~'</a>'} %}
+            {{ block('labelAndValue') }}
+        {% endwith %}
+    {% else %}
+        {{ block('labelAndValue') }}
+    {% endif %}
+{% endblock %}
+
+{% block TextInput %}
+    {{ block('labelAndValue') }}
+{% endblock %}
+
+{% block NumberInput %}
+    {{ block('labelAndValue') }}
+{% endblock %}
+
+{% block EmailInput %}
+    {% if block.value is not empty %}
+        {% with {value: '<a href="mailto:'~block.value~'">'~block.value~'</a>'} %}
+            {{ block('labelAndValue') }}
+        {% endwith %}
+    {% else %}
+        {{ block('labelAndValue') }}
+    {% endif %}
+{% endblock %}
+
+{% block TelInput %}
+    {% if block.value is not empty %}
+        {% with {value: '<a href="tel:'~block.value~'">'~block.value~'</a>'} %}
+            {{ block('labelAndValue') }}
+        {% endwith %}
+    {% else %}
+        {{ block('labelAndValue') }}
+    {% endif %}
+{% endblock %}
+
+{% block UrlInput %}
+    {% if block.value is not empty %}
+        {% with {value: '<a href="'~block.value~'">'~block.value~'</a>'} %}
+            {{ block('labelAndValue') }}
+        {% endwith %}
+    {% else %}
+        {{ block('labelAndValue') }}
+    {% endif %}
+{% endblock %}
+
+{% block DateTimeInput %}
+    {% set format = 'd/m/Y H:i' %}
+    {% if block.showDate is same as(true) and block.showHour is same as(false) %}
+        {% set format = 'd/m/Y' %}
+    {% elseif block.showDate is same as(false) and block.showHour is same as(true) %}
+        {% set format = 'H:i' %}
+    {% endif %}
+
+    {% if block.value.date is defined and block.value.date is not empty %}
+        <div class="mb-6 grid gap-1 sm:grid-cols-[minmax(0,33%)_1fr] sm:gap-4">
+            <div class="font-bold text-muted-foreground">{{ block.label }}</div>
+            <div class="text-foreground">{{ block.value.date|date(format) }}</div>
+        </div>
+    {% else %}
+        {% with {value: '–'} %}
+            {{ block('labelAndValue') }}
+        {% endwith %}
+    {% endif %}
+{% endblock %}
+
+{% block TextAreaInput %}
+    {{ block('labelAndValue') }}
+{% endblock %}
+
+{% block FileInput %}
+    {% if block.value is iterable and block.value is not empty %}
+        {% with {value: block('fileList')} %}
+            <div class="mb-6 grid gap-1 sm:grid-cols-[minmax(0,33%)_1fr] sm:gap-4">
+                <div class="font-bold text-muted-foreground">{{ 'answers.file_label'|trans({}, 'form_builder_bundle') }}</div>
+                <div>{{ value|raw }}</div>
+            </div>
+        {% endwith %}
+    {% else %}
+        {{ block('labelAndValue') }}
+    {% endif %}
+{% endblock %}
+
+{% block Select %}
+    {% if block.value is iterable and block.value is not empty %}
+        {% with {value: block('optionList')} %}
+            {{ block('labelAndValue') }}
+        {% endwith %}
+    {% else %}
+        {{ block('labelAndValue') }}
+    {% endif %}
+{% endblock %}
+
+{% block Signature %}
+    <div class="mb-8 grid gap-1 sm:grid-cols-[minmax(0,33%)_1fr] sm:gap-4">
+        <div class="font-bold text-muted-foreground">{{ block.label }}</div>
+        <div>
+            {% if block.value %}
+                <div class="inline-block rounded-md border border-border">
+                    <img src="{{ block.value }}" alt="{{ 'answers.signature_alt'|trans({}, 'form_builder_bundle') }}">
+                </div>
+            {% else %}
+                –
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block labelAndValue %}
+    <div class="mb-6 grid gap-1 sm:grid-cols-[minmax(0,33%)_1fr] sm:gap-4">
+        <div class="font-bold text-muted-foreground">{{ block.label }}</div>
+        <div class="text-foreground">
+            {% if block.value is iterable %}
+                {% for v in block.value %}
+                    {{ v|raw }}
+                {% endfor %}
+            {% else %}
+                {% if block.value is not null and block.value is not empty %}
+                    {{ block.value|nl2br }}
+                {% elseif value is defined and value is not null and value is not empty %}
+                    {% if value is not iterable %}
+                        {{ value|raw }}
+                    {% endif %}
+
+                {% else %}
+                    –
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block fileList %}
+    {% for v in block.value %}
+        {% if v.file is defined and v.file is not null %}
+            {% set filePath = form_builder_file_url(formAnswer, v.file.filename) %}
+            {% if v.file.extension is same as('pdf') %}
+                <div class="mb-2 flex items-center gap-3 rounded-md border border-dashed border-border bg-card px-4 py-2">
+                    <div class="flex h-8 w-8 items-center justify-center text-lg text-muted-foreground"><twig:ux:icon name="ph:file-pdf" class="size-5" /></div>
+                    <twig:UI:Shadcn:Button as="a" variant="link" href="{{ filePath }}" download="{{ v.file.originalFilename }}">
+                        {{ v.file.originalFilename }}
+                    </twig:UI:Shadcn:Button>
+                </div>
+            {% else %}
+                <div class="mb-2 flex items-center rounded-md border border-dashed border-border bg-card px-4 py-2">
+                    <a href="{{ filePath }}" download="{{ v.file.originalFilename }}">
+                        <img src="{{ filePath }}" alt="{{ v.file.originalFilename }}" class="max-h-40 rounded">
+                    </a>
+                </div>
+            {% endif %}
+        {% else %}
+            –
+        {% endif %}
+    {% endfor %}
+{% endblock %}
+
+{% block optionList %}
+    <ul class="list-disc pl-5">
+        {% for v in block.value %}
+            <li>{{ v }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

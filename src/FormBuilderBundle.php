@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AppoloDev\FormBuilderBundle;
 
 use AppoloDev\FormBuilderBundle\Contract\FormAnswerFieldValueInterface;
+use AppoloDev\FormBuilderBundle\Contract\FormAnswerFileUrlResolverInterface;
 use AppoloDev\FormBuilderBundle\Contract\FormAnswerInterface;
 use AppoloDev\FormBuilderBundle\Contract\FormLayoutFieldInterface;
 use AppoloDev\FormBuilderBundle\Contract\FormLayoutInterface;
@@ -36,6 +37,19 @@ class FormBuilderBundle extends AbstractBundle
                 ->scalarNode('form_theme')
                     ->info('Thème Twig utilisé pour rendre les types propres au form-builder (remplaçable par un autre thème).')
                     ->defaultValue('@FormBuilder/form_theme/shadcn.html.twig')
+                ->end()
+                ->scalarNode('answers_template')
+                    ->info('Template Twig (bloc `answers_view`) qui affiche les réponses d\'un formulaire.')
+                    ->defaultValue('@FormBuilder/answers/shadcn.html.twig')
+                ->end()
+                ->scalarNode('answers_pdf_template')
+                    ->info('Template Twig utilisé pour les réponses dans un export PDF (par défaut le même que answers_template).')
+                    ->defaultNull()
+                ->end()
+                ->scalarNode('file_url_resolver')
+                    ->info('Id du service (FormAnswerFileUrlResolverInterface) qui fournit l\'URL de téléchargement d\'un fichier de réponse.')
+                    ->isRequired()
+                    ->cannotBeEmpty()
                 ->end()
                 ->arrayNode('classes')
                     ->info('Entités concrètes de l\'application, qui étendent les classes de base du bundle.')
@@ -82,11 +96,15 @@ class FormBuilderBundle extends AbstractBundle
     }
 
     /**
-     * @param array{upload_path: string, form_theme: string, classes: array<string, string>} $config
+     * @param array{upload_path: string, form_theme: string, answers_template: string, answers_pdf_template: ?string, file_url_resolver: string, classes: array<string, string>} $config
      */
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
-        $container->parameters()->set('form_builder.upload_path', $config['upload_path']);
+        $container->parameters()
+            ->set('form_builder.upload_path', $config['upload_path'])
+            ->set('form_builder.answers_template', $config['answers_template'])
+            ->set('form_builder.answers_pdf_template', $config['answers_pdf_template'] ?? $config['answers_template']);
+        $container->services()->alias(FormAnswerFileUrlResolverInterface::class, $config['file_url_resolver']);
         $container->import('../config/services.php');
     }
 }

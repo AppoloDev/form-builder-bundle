@@ -12,3 +12,6 @@ theme:
 signature:
     clear: 'Vider'
     modify: 'Modifier'
+answers:
+    file_label: 'Fichier'
+    signature_alt: 'Signature'
