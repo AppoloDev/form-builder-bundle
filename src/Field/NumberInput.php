@@ -9,6 +9,8 @@ use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
+use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class NumberInput implements FieldInterface
@@ -21,7 +23,11 @@ class NumberInput implements FieldInterface
 
     private string $id = '';
     private string $label = '';
-    private float|int $defaultValue = 0;
+    private string $placeholder = '';
+    private float|int|null $defaultValue = null;
+    private float|int|null $min = null;
+    private float|int|null $max = null;
+    private float|int|null $step = null;
     private bool $required = false;
     private bool $readOnly = false;
     private string $helpText = '';
@@ -31,12 +37,7 @@ class NumberInput implements FieldInterface
     {
         $this->isPrototype = '__name__' === $formBuilder->getName();
 
-        $type = NumberType::class;
-        if (!$this->allowDecimal) {
-            $type = IntegerType::class;
-        }
-
-        $formBuilder->add($this->id, $type, $this->getFieldOptions());
+        $formBuilder->add($this->id, $this->isDecimal() ? NumberType::class : IntegerType::class, $this->getFieldOptions());
 
         return $formBuilder;
     }
@@ -45,16 +46,30 @@ class NumberInput implements FieldInterface
     {
         $this->id = $block->id ?? '';
         $this->label = $block->label ?? '';
+        $this->placeholder = $block->configString('placeHolder') ?? '';
         $this->helpText = $block->configString('helpText') ?? '';
         $this->required = $block->configBool('required') ?? false;
         $this->readOnly = $block->configBool('readOnly') ?? false;
         $this->allowDecimal = $block->configBool('allowDecimal') ?? false;
-
-        $defaultValue = $block->configNumeric('defaultValue');
-        $this->defaultValue = null === $defaultValue ? 0 : (float) $defaultValue;
+        $this->defaultValue = $block->configNumeric('defaultValue');
+        $this->min = $block->configNumeric('min');
+        $this->max = $block->configNumeric('max');
+        $this->step = $block->configNumeric('step');
         $this->formOptions = $formOptions;
 
         return '' !== $this->id;
+    }
+
+    /**
+     * Décimal si le pas n'est pas entier, ou (ancienne config) si `allowDecimal` est activé.
+     */
+    private function isDecimal(): bool
+    {
+        if (null !== $this->step) {
+            return 0.0 !== fmod((float) $this->step, 1.0);
+        }
+
+        return $this->allowDecimal;
     }
 
     /**
@@ -62,24 +77,46 @@ class NumberInput implements FieldInterface
      */
     protected function getFieldOptions(): array
     {
+        $attr = ['formBuilder' => true];
+        if ('' !== $this->placeholder) {
+            $attr['placeholder'] = $this->placeholder;
+        }
+        if (null !== $this->min) {
+            $attr['min'] = $this->min;
+        }
+        if (null !== $this->max) {
+            $attr['max'] = $this->max;
+        }
+        if (null !== $this->step) {
+            $attr['step'] = $this->step;
+        } elseif ($this->isDecimal()) {
+            $attr['step'] = 'any';
+        }
+
         $fieldOptions = [
             'label' => $this->label,
             'required' => $this->required,
             'disabled' => $this->readOnly,
             'help' => $this->helpText,
-            'attr' => [
-                'formBuilder' => true,
-            ],
+            'attr' => $attr,
         ];
 
-        if (!isset($this->formOptions['edit']) || $this->isPrototype) {
+        if (null !== $this->defaultValue && (!isset($this->formOptions['edit']) || $this->isPrototype)) {
             $fieldOptions['data'] = $this->defaultValue;
         }
 
+        $constraints = [];
         if ($this->required) {
-            $fieldOptions['constraints'] = [
-                new NotBlank(),
-            ];
+            $constraints[] = new NotBlank();
+        }
+        if (null !== $this->min) {
+            $constraints[] = new GreaterThanOrEqual($this->min);
+        }
+        if (null !== $this->max) {
+            $constraints[] = new LessThanOrEqual($this->max);
+        }
+        if ([] !== $constraints) {
+            $fieldOptions['constraints'] = $constraints;
         }
 
         return $fieldOptions;

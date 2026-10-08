@@ -75,8 +75,7 @@ class DateTimeInput implements FieldInterface
         $this->helpText = $block->configString('helpText') ?? '';
         $this->required = $block->configBool('required') ?? false;
         $this->readOnly = $block->configBool('readOnly') ?? false;
-        $this->showDate = $block->configBool('showDate') ?? false;
-        $this->showHour = $block->configBool('showHour') ?? false;
+        [$this->showDate, $this->showHour] = DateTimeMode::resolve($block);
         $this->hasCurrentDate = $block->configBool('hasCurrentDate') ?? false;
         $this->formOptions = $formOptions;
 

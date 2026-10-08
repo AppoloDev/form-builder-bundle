@@ -42,7 +42,9 @@
 {% endblock %}
 
 {% block Title %}
-    <div class="mb-8"><h2 class="text-xl font-bold text-foreground">{{ block.text }}</h2></div>
+    {% set headingSizes = {h1: 'text-3xl', h2: 'text-2xl', h3: 'text-xl', h4: 'text-lg', h5: 'text-base', h6: 'text-sm'} %}
+    {% set heading = block.heading is defined and headingSizes[block.heading] is defined ? block.heading : 'h3' %}
+    <div class="mb-8"><{{ heading }} class="{{ headingSizes[heading] }} font-bold text-foreground">{{ block.text }}</{{ heading }}></div>
 {% endblock %}
 
 {% block Paragraph %}
@@ -98,12 +100,7 @@
 {% endblock %}
 
 {% block DateTimeInput %}
-    {% set format = 'd/m/Y H:i' %}
-    {% if block.showDate is same as(true) and block.showHour is same as(false) %}
-        {% set format = 'd/m/Y' %}
-    {% elseif block.showDate is same as(false) and block.showHour is same as(true) %}
-        {% set format = 'H:i' %}
-    {% endif %}
+    {% set format = form_builder_date_format(block) %}
 
     {% if block.value.date is defined and block.value.date is not empty %}
         <div class="mb-6 grid gap-1 sm:grid-cols-[minmax(0,33%)_1fr] sm:gap-4">

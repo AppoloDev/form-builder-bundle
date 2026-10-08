@@ -17,7 +17,9 @@ class FileInput implements FieldInterface
 
     private string $id = '';
     private string $label = '';
-    private int $maxItems = 5;
+    private const DEFAULT_MAX_ITEMS = 5;
+
+    private int $maxItems = self::DEFAULT_MAX_ITEMS;
     private bool $required = false;
     private string $helpText = '';
     private string $acceptedFile = '';
@@ -38,7 +40,9 @@ class FileInput implements FieldInterface
         $this->required = $block->configBool('required') ?? false;
 
         $maxItems = $block->configNumeric('maxItems');
-        $this->maxItems = (null === $maxItems || 0.0 === (float) $maxItems) ? 5 : (int) $maxItems;
+        $configuredMax = (null === $maxItems || 0.0 === (float) $maxItems) ? self::DEFAULT_MAX_ITEMS : (int) $maxItems;
+        // `allowMultiple` (builder) l'emporte sur `maxItems` : un seul fichier, ou le maximum configuré.
+        $this->maxItems = false === $block->configBool('allowMultiple') ? 1 : $configuredMax;
 
         return '' !== $this->id;
     }

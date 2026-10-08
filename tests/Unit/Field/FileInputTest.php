@@ -67,4 +67,36 @@ class FileInputTest extends TestCase
 
         $field->addFieldFromDefinition($formBuilder);
     }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    #[DataProvider('multiplicityProvider')]
+    public function testAllowMultipleControlsTheMaximumNumberOfFiles(array $config, int $expectedMaxItems): void
+    {
+        $field = new FileInput();
+        $field->validateDefinition(FormLayoutBlock::fromArray(['id' => 'file-1', ...$config]), []);
+
+        $formBuilder = $this->createMock(FormBuilderInterface::class);
+        $formBuilder->expects(self::once())->method('add')->with('file-1', FileRepeatableType::class, self::callback(static function (array $options) use ($expectedMaxItems): bool {
+            self::assertSame($expectedMaxItems, Options::at($options, 'attr')['maxItems']);
+
+            return true;
+        }));
+
+        $field->addFieldFromDefinition($formBuilder);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, int}>
+     */
+    public static function multiplicityProvider(): iterable
+    {
+        yield 'single file' => [['allowMultiple' => false], 1];
+        yield 'single file wins over maxItems' => [['allowMultiple' => false, 'maxItems' => 4], 1];
+        yield 'multiple, default maximum' => [['allowMultiple' => true], 5];
+        yield 'multiple, configured maximum' => [['allowMultiple' => true, 'maxItems' => 3], 3];
+        yield 'legacy maxItems only' => [['maxItems' => 2], 2];
+        yield 'nothing configured' => [[], 5];
+    }
 }

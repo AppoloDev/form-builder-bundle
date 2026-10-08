@@ -45,7 +45,29 @@ class TitleTest extends TestCase
         $field->validateDefinition(FormLayoutBlock::fromArray(['id' => 'title-1', 'text' => 'Un titre']), []);
 
         $formBuilder = $this->createMock(FormBuilderInterface::class);
-        $formBuilder->expects(self::once())->method('add')->with('title-1', TitleType::class, ['label' => 'Un titre']);
+        $formBuilder->expects(self::once())->method('add')->with('title-1', TitleType::class, ['label' => 'Un titre', 'heading' => 'h3']);
+
+        $field->addFieldFromDefinition($formBuilder);
+    }
+
+    public function testConfiguredHeadingLevelIsPassedToTheFormType(): void
+    {
+        $field = new Title();
+        $field->validateDefinition(FormLayoutBlock::fromArray(['id' => 'title-1', 'text' => 'Un titre', 'heading' => 'h1']), []);
+
+        $formBuilder = $this->createMock(FormBuilderInterface::class);
+        $formBuilder->expects(self::once())->method('add')->with('title-1', TitleType::class, ['label' => 'Un titre', 'heading' => 'h1']);
+
+        $field->addFieldFromDefinition($formBuilder);
+    }
+
+    public function testAnInvalidHeadingFallsBackToTheDefaultLevel(): void
+    {
+        $field = new Title();
+        $field->validateDefinition(FormLayoutBlock::fromArray(['id' => 'title-1', 'text' => 'Un titre', 'heading' => 'h9']), []);
+
+        $formBuilder = $this->createMock(FormBuilderInterface::class);
+        $formBuilder->expects(self::once())->method('add')->with('title-1', TitleType::class, ['label' => 'Un titre', 'heading' => 'h3']);
 
         $field->addFieldFromDefinition($formBuilder);
     }

@@ -182,10 +182,11 @@ Aucun écart (pas de libellé ni de légende des deux côtés). Réponses stock�
 4. PHP `PreRemoveRemoveFormAnswerFile` : parcours par structure (T3), couvert par test avec ids `FileInput-<uuid>`, fichier dans `FieldSet` et dans `Repeatable`.
 5. Tests : un cas par type avec les blocs **tels qu'émis par le front** (voir phase 5).
 
-### Phase 2 — Options manquantes côté PHP (F→P)
+### Phase 2 — Options manquantes côté PHP (F→P) · **FAIT**
 `Title.heading` ; `NumberInput` min/max/step/placeholder + défaut `null` ; `DateTimeInput.mode` (+ legacy) ;
-`FileInput.allowMultiple` ; `Address.placeHolder` ; `Repeatable` défaut ; formats de date dans `answers/shadcn`,
-`ResourceAnswer.html.twig`.
+`FileInput.allowMultiple` ; `AddressInput.placeHolder` ; formats de date dans `answers/shadcn` et
+`ResourceAnswer.html.twig` (fonction Twig `form_builder_date_format`). `Repeatable` : défaut PHP 5 conservé et
+documenté (le builder envoie toujours `maxItems`).
 
 ### Phase 3 — Nouveaux types et retraits
 `Field\ChoiceGroup` (D3) et `Field\HourMinuteInput` (D2) ; blocs `ChoiceGroup` et `HourMinuteInput` dans `answers/shadcn`,

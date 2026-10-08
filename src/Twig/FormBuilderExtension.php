@@ -14,6 +14,7 @@ class FormBuilderExtension extends AbstractExtension
         return [
             new TwigFunction('form_builder_answers', [FormBuilderRuntime::class, 'renderAnswers'], ['is_safe' => ['html']]),
             new TwigFunction('form_builder_file_url', [FormBuilderRuntime::class, 'fileUrl']),
+            new TwigFunction('form_builder_date_format', [FormBuilderRuntime::class, 'dateFormat']),
         ];
     }
 }

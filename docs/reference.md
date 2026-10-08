@@ -43,6 +43,7 @@ The bundle also registers `@FormBuilder/form_theme/structure.html.twig` (the bui
 | `form_builder_file_url` | `(FormAnswerInterface $formAnswer, string $filename)` → URL from your resolver |
 | `formImageFileUri` | `(string $filename)` → `file://…` path or `null` |
 | `convertToBase64` | `(string $filename)` → data URI or `null` |
+| `form_builder_date_format` | `(array $block)` → PHP `date` format for a `DateTimeInput` answer (`d/m/Y`, `H:i`, `d/m/Y H:i`) |
 
 ## Structure format
 
@@ -75,14 +76,16 @@ key and must be unique in the layout.
 |---|---|
 | `TextInput`, `EmailInput`, `TelInput`, `UrlInput` | `required`, `readOnly`, `placeHolder`, `helpText`, `defaultValue` |
 | `TextareaInput` | same + `rows` |
-| `NumberInput` | `required`, `readOnly`, `helpText`, `defaultValue`, `allowDecimal` |
-| `DateTimeInput` | `required`, `readOnly`, `helpText`, `showDate`, `showHour`, `hasCurrentDate` |
+| `NumberInput` | `required`, `readOnly`, `helpText`, `placeHolder`, `defaultValue`, `min`, `max`, `step` (a non-integer `step` selects the decimal type); legacy `allowDecimal` |
+| `DateTimeInput` | `required`, `readOnly`, `helpText`, `mode` (`date`, `time`, `datetime-local`), `hasCurrentDate`; legacy `showDate` / `showHour` when `mode` is absent |
 | `Select` | `options` (`[{label, isSelected?}]`, extra keys such as `id` ignored), `multiple`, `checkCases` (radio/checkbox), `customOption`, `required`, `readOnly`, `helpText` |
-| `FileInput` | `acceptedFile`, `maxItems`, `required`, `helpText` |
-| `AddressInput`, `Signature` | `required`, `helpText` |
+| `FileInput` | `acceptedFile`, `allowMultiple` (`false` ⇒ one file; otherwise up to `maxItems`, default 5), `required`, `helpText` |
+| `AddressInput` | `required`, `helpText`, `placeHolder` |
+| `Signature` | `required`, `helpText` |
 | `FieldSet` | `children` |
-| `Repeatable` | `children`, `maxItems` |
-| `Title`, `Paragraph` | `text` |
+| `Repeatable` | `children`, `maxItems` (default 5; `0` = unlimited) |
+| `Title` | `text`, `heading` (`h1`…`h6`, default `h3`) |
+| `Paragraph` | `text` |
 
 ## Answer data
 

@@ -25,11 +25,17 @@ abstract class AbstractDisplayOnlyField implements FieldInterface
 
     public function addFieldFromDefinition(FormBuilderInterface $formBuilder): FormBuilderInterface
     {
-        $formBuilder->add($this->id, $this->getFormType(), [
-            'label' => $this->text,
-        ]);
+        $formBuilder->add($this->id, $this->getFormType(), $this->getFieldOptions());
 
         return $formBuilder;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function getFieldOptions(): array
+    {
+        return ['label' => $this->text];
     }
 
     public function validateDefinition(FormLayoutBlock $block, array $formOptions): bool

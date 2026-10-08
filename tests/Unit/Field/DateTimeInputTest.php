@@ -26,6 +26,19 @@ class DateTimeInputTest extends TestCase
         self::assertSame(DatePickerType::class, $addedType());
     }
 
+    public function testModeSelectsTheFormType(): void
+    {
+        foreach (['date' => DatePickerType::class, 'time' => TimeType::class, 'datetime-local' => DateTimePickerType::class] as $mode => $expectedType) {
+            $field = new DateTimeInput();
+            $field->validateDefinition(FormLayoutBlock::fromArray(['id' => 'dt-1', 'mode' => $mode]), []);
+
+            [$formBuilder, $addedType] = $this->buildFormBuilderStub('dt-1');
+            $field->addFieldFromDefinition($formBuilder);
+
+            self::assertSame($expectedType, $addedType(), $mode);
+        }
+    }
+
     public function testUsesTimeTypeWhenOnlyShowHourIsConfigured(): void
     {
         $field = new DateTimeInput();

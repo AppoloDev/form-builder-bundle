@@ -6,6 +6,8 @@ namespace AppoloDev\FormBuilderBundle\Twig;
 
 use AppoloDev\FormBuilderBundle\Contract\FormAnswerFileUrlResolverInterface;
 use AppoloDev\FormBuilderBundle\Contract\FormAnswerInterface;
+use AppoloDev\FormBuilderBundle\Field\DateTimeMode;
+use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Twig\Environment;
 use Twig\Extension\RuntimeExtensionInterface;
@@ -33,6 +35,16 @@ class FormBuilderRuntime implements RuntimeExtensionInterface
         return $this->twig
             ->load($pdf ? $this->answersPdfTemplate : $this->answersTemplate)
             ->renderBlock('answers_view', ['answers' => $answers, 'formAnswer' => $formAnswer]);
+    }
+
+    /**
+     * Format PHP `date` pour afficher la réponse d'un bloc DateTimeInput (selon son `mode`).
+     *
+     * @param array<mixed> $block bloc de la structure (cf. AnswerGenerator::generate())
+     */
+    public function dateFormat(array $block): string
+    {
+        return DateTimeMode::displayFormat(FormLayoutBlock::fromArray($block));
     }
 
     public function fileUrl(FormAnswerInterface $formAnswer, string $filename): string

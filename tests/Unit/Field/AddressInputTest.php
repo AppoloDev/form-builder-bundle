@@ -6,6 +6,7 @@ namespace AppoloDev\FormBuilderBundle\Tests\Unit\Field;
 
 use AppoloDev\FormBuilderBundle\Field\AddressInput;
 use AppoloDev\FormBuilderBundle\FormType\AddressType;
+use AppoloDev\FormBuilderBundle\Tests\Support\Options;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -33,6 +34,21 @@ class AddressInputTest extends TestCase
                 return true;
             })
         );
+
+        $field->addFieldFromDefinition($formBuilder);
+    }
+
+    public function testThePlaceholderIsPassedAsAnAttribute(): void
+    {
+        $field = new AddressInput();
+        $field->validateDefinition(FormLayoutBlock::fromArray(['id' => 'addr-1', 'placeHolder' => 'Indiquez un lieu…']), []);
+
+        $formBuilder = $this->createMock(FormBuilderInterface::class);
+        $formBuilder->expects(self::once())->method('add')->with('addr-1', AddressType::class, self::callback(static function (array $options): bool {
+            self::assertSame('Indiquez un lieu…', Options::at($options, 'attr')['placeholder']);
+
+            return true;
+        }));
 
         $field->addFieldFromDefinition($formBuilder);
     }
