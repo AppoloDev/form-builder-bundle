@@ -6,6 +6,7 @@ namespace AppoloDev\FormBuilderBundle\Tests\Unit\EventListener;
 
 use AppoloDev\FormBuilderBundle\EventListener\PreRemoveRemoveFormAnswerFile;
 use AppoloDev\FormBuilderBundle\File\FormFileUploader;
+use AppoloDev\FormBuilderBundle\Service\AnswerFiles;
 use AppoloDev\FormBuilderBundle\Tests\Fixtures\TestFormAnswer;
 use AppoloDev\FormBuilderBundle\Tests\Fixtures\TestFormLayout;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
@@ -85,7 +86,7 @@ class PreRemoveRemoveFormAnswerFileTest extends TestCase
         $args = self::createStub(LifecycleEventArgs::class);
         $args->method('getObject')->willReturn(new \stdClass());
 
-        (new PreRemoveRemoveFormAnswerFile($uploader))->preRemove($args);
+        (new PreRemoveRemoveFormAnswerFile($uploader, new AnswerFiles()))->preRemove($args);
     }
 
     /**
@@ -109,7 +110,7 @@ class PreRemoveRemoveFormAnswerFileTest extends TestCase
         $args = self::createStub(LifecycleEventArgs::class);
         $args->method('getObject')->willReturn($answer);
 
-        (new PreRemoveRemoveFormAnswerFile($uploader))->preRemove($args);
+        (new PreRemoveRemoveFormAnswerFile($uploader, new AnswerFiles()))->preRemove($args);
 
         return $removed;
     }

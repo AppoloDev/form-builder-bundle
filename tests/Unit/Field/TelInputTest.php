@@ -33,4 +33,44 @@ class TelInputTest extends TestCase
 
         $field->addFieldFromDefinition($formBuilder);
     }
+
+    /**
+     * @return iterable<string, array{string, int<0, max>, int<1, max>, string, bool}>
+     */
+    public static function phoneValues(): iterable
+    {
+        yield 'default range, valid' => ['0612345678', 6, 15, '/^\\+?[0-9]+$/', true];
+        yield 'default range, international' => ['+33612345678', 6, 15, '/^\\+?[0-9]+$/', true];
+        yield 'too short' => ['12345', 6, 15, '/^\\+?[0-9]+$/', false];
+        yield 'too long' => ['1234567890123456', 6, 15, '/^\\+?[0-9]+$/', false];
+        yield 'letters' => ['06abcdefgh', 6, 15, '/^\\+?[0-9]+$/', false];
+        yield 'exact length, valid' => ['0612345678', 10, 10, '/^\\+?[0-9]+$/', true];
+        yield 'exact length, 9 digits' => ['061234567', 10, 10, '/^\\+?[0-9]+$/', false];
+        yield 'custom pattern' => ['06 12 34 56 78', 6, 15, '/^[0-9 ]+$/', true];
+    }
+
+    /**
+     * @param int<0, max> $min
+     * @param int<1, max> $max
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('phoneValues')]
+    public function testLengthAndPatternAreConfigurable(string $value, int $min, int $max, string $pattern, bool $valid): void
+    {
+        $field = new TelInput($pattern, $min, $max);
+        $field->validateDefinition(FormLayoutBlock::fromArray(['id' => 't-1']), []);
+
+        $constraints = [];
+        $formBuilder = $this->createMock(FormBuilderInterface::class);
+        $formBuilder->method('getName')->willReturn('t-1');
+        $formBuilder->expects(self::once())->method('add')->willReturnCallback(static function (string $name, string $type, array $options) use (&$constraints, $formBuilder): FormBuilderInterface {
+            $constraints = Options::at($options, 'constraints');
+
+            return $formBuilder;
+        });
+        $field->addFieldFromDefinition($formBuilder);
+
+        $violations = \Symfony\Component\Validator\Validation::createValidator()->validate($value, Options::constraints($constraints));
+
+        self::assertSame($valid, 0 === \count($violations));
+    }
 }

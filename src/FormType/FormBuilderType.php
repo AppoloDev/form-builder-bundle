@@ -14,7 +14,8 @@ class FormBuilderType extends AbstractType
     {
         $resolver->setDefaults([
             'edit' => false,
-            'translation_domain' => 'form_builder',
+            // Les libellés viennent de la structure saisie par l'utilisateur : ils ne se traduisent pas.
+            'translation_domain' => false,
         ]);
 
         $resolver->setAllowedTypes('edit', ['bool']);

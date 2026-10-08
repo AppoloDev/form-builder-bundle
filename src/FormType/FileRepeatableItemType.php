@@ -17,8 +17,12 @@ class FileRepeatableItemType extends AbstractType
         /** @var array<string, mixed> $fileOptions */
         $fileOptions = $options['file_options'] ?? [];
 
+        // Libellé saisi par l'utilisateur : non traduit ; à défaut, libellé par défaut du bundle.
+        $customLabel = \is_string($fileOptions['label'] ?? null) && '' !== $fileOptions['label'];
+
         $builder->add('file', FileType::class, [
-            'label' => $fileOptions['label'] ?? 'form_builder.answers_view.file_label',
+            'label' => $customLabel ? $fileOptions['label'] : 'answers.file_label',
+            'translation_domain' => $customLabel ? false : 'form_builder_bundle',
             'label_attr' => $fileOptions['label_attr'] ?? [],
             'help' => $fileOptions['help'] ?? null,
             'required' => $fileOptions['required'] ?? false,
@@ -40,7 +44,7 @@ class FileRepeatableItemType extends AbstractType
     {
         $resolver->setDefaults([
             'file_options' => [],
-            'translation_domain' => 'form_builder',
+            'translation_domain' => false,
         ]);
 
         $resolver->setAllowedTypes('file_options', ['array']);

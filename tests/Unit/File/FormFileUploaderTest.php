@@ -87,12 +87,78 @@ class FormFileUploaderTest extends TestCase
         self::assertSame('bonjour', file_get_contents($file->getPathname()));
     }
 
-    private function buildUploadedFile(string $content): UploadedFile
+    private function buildUploadedFile(string $content, string $clientName = 'original.txt'): UploadedFile
     {
         $path = tempnam(sys_get_temp_dir(), 'form_file_uploader_source_');
         self::assertNotFalse($path);
         file_put_contents($path, $content);
 
-        return new UploadedFile($path, 'original.txt', null, null, true);
+        return new UploadedFile($path, $clientName, null, null, true);
+    }
+
+    public function testTheStoredNameIsUnpredictableAndKeepsASafeExtension(): void
+    {
+        $first = $this->uploader->upload($this->buildUploadedFile('un'));
+        $second = $this->uploader->upload($this->buildUploadedFile('deux'));
+
+        self::assertMatchesRegularExpression('/^[0-9a-f]{32}\.[a-z0-9]{1,10}$/', $first['filename']);
+        self::assertNotSame($first['filename'], $second['filename']);
+    }
+
+    public function testTheExtensionComesFromTheContentNotFromTheClientName(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'form_file_uploader_source_');
+        self::assertNotFalse($path);
+        file_put_contents($path, "%PDF-1.4\n%\xE2\xE3\xCF\xD3\n1 0 obj\n<< >>\nendobj\ntrailer\n<< >>\n%%EOF");
+
+        $result = $this->uploader->upload(new UploadedFile($path, 'shell.php', null, null, true));
+
+        self::assertSame('pdf', $result['extension']);
+        self::assertStringEndsWith('.pdf', $result['filename']);
+    }
+
+    public function testAnUnguessableDangerousClientExtensionIsSanitized(): void
+    {
+        $result = $this->uploader->upload($this->buildUploadedFile('plain text', 'evil.p/h*p'));
+
+        self::assertMatchesRegularExpression('/^[a-z0-9]+$/', $result['extension']);
+        self::assertStringNotContainsString('/', $result['filename']);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function traversalProvider(): iterable
+    {
+        yield 'parent directory' => ['../secret.txt'];
+        yield 'nested path' => ['sub/dir.txt'];
+        yield 'absolute path' => ['/etc/passwd'];
+        yield 'windows separator' => ['..\\secret.txt'];
+        yield 'dot dot' => ['..'];
+        yield 'null byte' => ["a.txt\0.pdf"];
+        yield 'empty' => [''];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('traversalProvider')]
+    public function testFilenamesThatEscapeTheUploadDirectoryAreRefused(string $filename): void
+    {
+        // Un fichier réel juste au-dessus du dossier d'envoi ne doit jamais être atteignable.
+        $this->filesystem->mkdir($this->uploadPath);
+        file_put_contents(\dirname(rtrim($this->uploadPath, '/')).'/secret.txt', 'secret');
+
+        self::assertNull($this->uploader->getFile($filename));
+        self::assertNull($this->uploader->hydrate(['filename' => $filename, 'originalFilename' => 'x.txt']));
+
+        $this->uploader->removeFile(['filename' => $filename]);
+        self::assertFileExists(\dirname(rtrim($this->uploadPath, '/')).'/secret.txt');
+        unlink(\dirname(rtrim($this->uploadPath, '/')).'/secret.txt');
+    }
+
+    public function testAMissingTrailingSlashInTheConfiguredPathIsTolerated(): void
+    {
+        $uploader = new FormFileUploader(rtrim($this->uploadPath, '/'));
+        $uploaded = $uploader->upload($this->buildUploadedFile('bonjour'));
+
+        self::assertNotNull($uploader->getFile($uploaded['filename']));
     }
 }

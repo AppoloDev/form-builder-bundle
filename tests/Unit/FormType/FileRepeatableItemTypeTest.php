@@ -18,7 +18,8 @@ class FileRepeatableItemTypeTest extends TestCase
         $formBuilder = $this->createMock(FormBuilderInterface::class);
         $formBuilder->expects(self::exactly(2))->method('add')->willReturnMap([
             ['file', FileType::class, [
-                'label' => 'form_builder.answers_view.file_label',
+                'label' => 'answers.file_label',
+                'translation_domain' => 'form_builder_bundle',
                 'label_attr' => [],
                 'help' => null,
                 'required' => false,
@@ -41,6 +42,7 @@ class FileRepeatableItemTypeTest extends TestCase
         $formBuilder->expects(self::exactly(2))->method('add')->willReturnMap([
             ['file', FileType::class, [
                 'label' => 'Justificatif',
+                'translation_domain' => false,
                 'label_attr' => ['class' => 'sr-only'],
                 'help' => 'PDF uniquement',
                 'required' => true,

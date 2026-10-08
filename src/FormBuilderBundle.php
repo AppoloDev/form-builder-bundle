@@ -51,6 +51,15 @@ class FormBuilderBundle extends AbstractBundle
                     ->isRequired()
                     ->cannotBeEmpty()
                 ->end()
+                ->arrayNode('tel')
+                    ->info('Validation des champs téléphone.')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('pattern')->defaultValue('/^\\+?[0-9]+$/')->info('Expression régulière du numéro.')->end()
+                        ->integerNode('min_length')->defaultValue(6)->min(0)->end()
+                        ->integerNode('max_length')->defaultValue(15)->min(1)->end()
+                    ->end()
+                ->end()
                 ->arrayNode('classes')
                     ->info('Entités concrètes de l\'application, qui étendent les classes de base du bundle.')
                     ->isRequired()
@@ -106,9 +115,26 @@ class FormBuilderBundle extends AbstractBundle
         $container->parameters()
             ->set('form_builder.upload_path', self::stringOption($config, 'upload_path'))
             ->set('form_builder.answers_template', $answersTemplate)
+            ->set('form_builder.tel_pattern', self::telOption($config, 'pattern'))
+            ->set('form_builder.tel_min_length', self::telOption($config, 'min_length'))
+            ->set('form_builder.tel_max_length', self::telOption($config, 'max_length'))
             ->set('form_builder.answers_pdf_template', \is_string($answersPdfTemplate) ? $answersPdfTemplate : $answersTemplate);
         $container->services()->alias(FormAnswerFileUrlResolverInterface::class, self::stringOption($config, 'file_url_resolver'));
         $container->import('../config/services.php');
+    }
+
+    /**
+     * @param array<mixed> $config
+     */
+    private static function telOption(array $config, string $key): string|int
+    {
+        $tel = $config['tel'] ?? null;
+        $value = \is_array($tel) ? ($tel[$key] ?? null) : null;
+        if (!\is_string($value) && !\is_int($value)) {
+            throw new \InvalidArgumentException(\sprintf('La configuration "form_builder.tel.%s" est invalide.', $key));
+        }
+
+        return $value;
     }
 
     /**

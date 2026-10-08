@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AppoloDev\FormBuilderBundle\Tests\Support;
 
 use PHPUnit\Framework\Assert;
+use Symfony\Component\Validator\Constraint;
 
 /**
  * Accès typé aux options capturées par les mocks de FormBuilderInterface::add().
@@ -27,5 +28,24 @@ final class Options
         }
 
         return $current;
+    }
+
+    /**
+     * Ne garde que les contraintes de validation d'une liste.
+     *
+     * @param array<mixed> $values
+     *
+     * @return list<Constraint>
+     */
+    public static function constraints(array $values): array
+    {
+        $constraints = [];
+        foreach ($values as $value) {
+            if ($value instanceof Constraint) {
+                $constraints[] = $value;
+            }
+        }
+
+        return $constraints;
     }
 }

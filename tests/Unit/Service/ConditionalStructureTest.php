@@ -72,9 +72,6 @@ class ConditionalStructureTest extends TestCase
         self::assertSame($blocks, ConditionalStructure::nest($blocks));
     }
 
-    /**
-     * @param mixed $value
-     */
     #[\PHPUnit\Framework\Attributes\DataProvider('activityProvider')]
     public function testIsActiveEvaluatesTheRuleAgainstTheOwnerValue(string $rule, mixed $value, bool $expected): void
     {

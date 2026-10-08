@@ -53,12 +53,9 @@
 
 {% block AddressInput %}
     {% if block.value is not empty %}
-        {% with {value: '<a href="https://www.google.fr/maps/place/'~block.value~'" target="_blank">'~block.value~'</a>'} %}
-            {{ block('labelAndValue') }}
-        {% endwith %}
-    {% else %}
-        {{ block('labelAndValue') }}
+        {% set rendered %}<a href="https://www.google.com/maps/search/?api=1&amp;query={{ block.value|url_encode }}" target="_blank" rel="noopener noreferrer">{{ block.value }}</a>{% endset %}
     {% endif %}
+    {{ block('labelAndValue') }}
 {% endblock %}
 
 {% block TextInput %}
@@ -71,32 +68,24 @@
 
 {% block EmailInput %}
     {% if block.value is not empty %}
-        {% with {value: '<a href="mailto:'~block.value~'">'~block.value~'</a>'} %}
-            {{ block('labelAndValue') }}
-        {% endwith %}
-    {% else %}
-        {{ block('labelAndValue') }}
+        {% set rendered %}<a href="mailto:{{ block.value|url_encode }}">{{ block.value }}</a>{% endset %}
     {% endif %}
+    {{ block('labelAndValue') }}
 {% endblock %}
 
 {% block TelInput %}
     {% if block.value is not empty %}
-        {% with {value: '<a href="tel:'~block.value~'">'~block.value~'</a>'} %}
-            {{ block('labelAndValue') }}
-        {% endwith %}
-    {% else %}
-        {{ block('labelAndValue') }}
+        {% set rendered %}<a href="tel:{{ block.value|url_encode }}">{{ block.value }}</a>{% endset %}
     {% endif %}
+    {{ block('labelAndValue') }}
 {% endblock %}
 
 {% block UrlInput %}
-    {% if block.value is not empty %}
-        {% with {value: '<a href="'~block.value~'">'~block.value~'</a>'} %}
-            {{ block('labelAndValue') }}
-        {% endwith %}
-    {% else %}
-        {{ block('labelAndValue') }}
+    {#- Lien seulement pour http(s) : jamais de schéma javascript: ou data: dans un href. -#}
+    {% if block.value is not empty and block.value matches '#^https?://#i' %}
+        {% set rendered %}<a href="{{ block.value }}" target="_blank" rel="noopener noreferrer">{{ block.value }}</a>{% endset %}
     {% endif %}
+    {{ block('labelAndValue') }}
 {% endblock %}
 
 {% block DateTimeInput %}
@@ -108,9 +97,7 @@
             <div class="text-foreground">{{ block.value.date|date(format) }}</div>
         </div>
     {% else %}
-        {% with {value: '–'} %}
-            {{ block('labelAndValue') }}
-        {% endwith %}
+        {{ block('labelAndValue') }}
     {% endif %}
 {% endblock %}
 
@@ -120,12 +107,11 @@
 
 {% block FileInput %}
     {% if block.value is iterable and block.value is not empty %}
-        {% with {value: block('fileList')} %}
-            <div class="mb-6 grid gap-1 sm:grid-cols-[minmax(0,33%)_1fr] sm:gap-4">
-                <div class="font-bold text-muted-foreground">{{ 'answers.file_label'|trans({}, 'form_builder_bundle') }}</div>
-                <div>{{ value|raw }}</div>
-            </div>
-        {% endwith %}
+        {% set files %}{{ block('fileList') }}{% endset %}
+        <div class="mb-6 grid gap-1 sm:grid-cols-[minmax(0,33%)_1fr] sm:gap-4">
+            <div class="font-bold text-muted-foreground">{{ 'answers.file_label'|trans({}, 'form_builder_bundle') }}</div>
+            <div>{{ files }}</div>
+        </div>
     {% else %}
         {{ block('labelAndValue') }}
     {% endif %}
@@ -133,12 +119,9 @@
 
 {% block Select %}
     {% if block.value is iterable and block.value is not empty %}
-        {% with {value: block('optionList')} %}
-            {{ block('labelAndValue') }}
-        {% endwith %}
-    {% else %}
-        {{ block('labelAndValue') }}
+        {% set rendered %}{{ block('optionList') }}{% endset %}
     {% endif %}
+    {{ block('labelAndValue') }}
 {% endblock %}
 
 {% block ChoiceGroup %}
@@ -153,7 +136,8 @@
     <div class="mb-8 grid gap-1 sm:grid-cols-[minmax(0,33%)_1fr] sm:gap-4">
         <div class="font-bold text-muted-foreground">{{ block.label }}</div>
         <div>
-            {% if block.value %}
+            {#- Seules les images en data URI sont affichées (jamais d'URL distante ou locale, y compris en PDF). -#}
+            {% if block.value is not iterable and block.value is not empty and (block.value ~ '') starts with 'data:image/' %}
                 <div class="inline-block rounded-md border border-border">
                     <img src="{{ block.value }}" alt="{{ 'answers.signature_alt'|trans({}, 'form_builder_bundle') }}">
                 </div>
@@ -165,24 +149,18 @@
 {% endblock %}
 
 {% block labelAndValue %}
+    {#- `rendered` : HTML déjà échappé par le bloc appelant (lien, liste...). Toute autre valeur est échappée ici. -#}
     <div class="mb-6 grid gap-1 sm:grid-cols-[minmax(0,33%)_1fr] sm:gap-4">
         <div class="font-bold text-muted-foreground">{{ block.label }}</div>
         <div class="text-foreground">
-            {% if block.value is iterable %}
-                {% for v in block.value %}
-                    {{ v|raw }}
-                {% endfor %}
+            {% if rendered is defined and rendered is not empty %}
+                {{ rendered }}
+            {% elseif block.value is iterable %}
+                {{ block.value is empty ? '–' : block.value|join(', ') }}
+            {% elseif block.value is not null and block.value is not same as('') %}
+                {{ (block.value ~ '')|nl2br }}
             {% else %}
-                {% if block.value is not null and block.value is not empty %}
-                    {{ block.value|nl2br }}
-                {% elseif value is defined and value is not null and value is not empty %}
-                    {% if value is not iterable %}
-                        {{ value|raw }}
-                    {% endif %}
-
-                {% else %}
-                    –
-                {% endif %}
+                –
             {% endif %}
         </div>
     </div>

@@ -139,7 +139,7 @@ final class ConditionalStructure
     }
 
     /**
-     * @param array<string, mixed>                                        $block
+     * @param array<string, mixed>                                     $block
      * @param array<string, array<string, list<array<string, mixed>>>> $conditional
      *
      * @return array<string, mixed>
@@ -188,7 +188,7 @@ final class ConditionalStructure
      */
     private static function stringKeyed(array $values): array
     {
-        return array_filter($values, \is_string(...), ARRAY_FILTER_USE_KEY);
+        return array_filter($values, \is_string(...), \ARRAY_FILTER_USE_KEY);
     }
 
     /**

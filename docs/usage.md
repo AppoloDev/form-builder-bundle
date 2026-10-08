@@ -77,20 +77,23 @@ $answers = $answerGenerator->generate($layout->getStructure(), $answer->getAnswe
 - `FileInput` rows are stored as `['file' => ['filename', 'originalFilename', 'extension']]`; the file lives in
   `form_builder.upload_path`.
 - Deleting an answer entity removes its files (Doctrine `preRemove` listener, active automatically).
-- Serve files from your own route and voter:
+- Serve files from your own route and voter, and check that the file belongs to the answer (a voter on the answer
+  alone would let anyone who can read answer A download the files of answer B):
 
 ```php
 #[Route('/answers/{id}/files/{filePath}', name: 'answer_file_download', requirements: ['filePath' => '.+'])]
-public function download(string $filePath, FormAnswer $answer, FormFileUploader $uploader): Response
+public function download(string $filePath, FormAnswer $answer, FormFileUploader $uploader, AnswerFiles $answerFiles): Response
 {
     $this->denyAccessUnlessGranted('VIEW', $answer);
-    return new BinaryFileResponse($uploader->getFile($filePath) ?? throw $this->createNotFoundException());
+    $file = $answerFiles->owns($answer, $filePath) ? $uploader->getFile($filePath) : null;
+    return new BinaryFileResponse($file ?? throw $this->createNotFoundException());
 }
 ```
 
 - For PDF engines (wkhtmltopdf), Twig functions `formImageFileUri(filename)` (`file://` path) and
   `convertToBase64(filename)` are available.
-- A signature is stored as a data URI (SVG) in the answer value.
+- A signature is stored as a data URI (`data:image/png|jpeg|svg+xml;base64,…`, max 1 MB); anything else is rejected
+  by validation and never rendered as an image.
 
 ## Duplicate a layout
 

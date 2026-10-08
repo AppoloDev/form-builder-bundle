@@ -1,0 +1,11 @@
+validators:
+    form_builder:
+        file_only_pdf: 'Only PDF files are allowed.'
+        file_only_image: 'Only images are allowed.'
+        file_pdf_or_image: 'Only images or PDF files are allowed.'
+        tel_digits_only: 'The phone number format is not valid.'
+        tel_exact_length: 'The phone number must contain exactly {{ limit }} characters.'
+        tel_too_short: 'The phone number must contain at least {{ limit }} characters.'
+        tel_too_long: 'The phone number must contain at most {{ limit }} characters.'
+        signature_invalid: 'The signature is not a valid image.'
+        signature_too_long: 'The signature is too large.'

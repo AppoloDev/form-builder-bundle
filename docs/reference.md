@@ -10,6 +10,8 @@
 | `classes.form_answer_field_value` | **required** | Concrete value entity |
 | `file_url_resolver` | **required** | Service id implementing `FormAnswerFileUrlResolverInterface` |
 | `upload_path` | `%kernel.project_dir%/uploads/form-files/` | Where uploaded answer files are stored |
+| `tel.pattern` | `/^\+?[0-9]+$/` | Regular expression a `TelInput` value must match |
+| `tel.min_length` / `tel.max_length` | `6` / `15` | Length bounds of a `TelInput` value (equal values ⇒ exact length) |
 | `form_theme` | `@FormBuilder/form_theme/shadcn.html.twig` | Twig theme for the bundle's own form types |
 | `answers_template` | `@FormBuilder/answers/shadcn.html.twig` | Template whose `answers_view` block renders answers |
 | `answers_pdf_template` | same as `answers_template` | Same, when `form_builder_answers(…, true)` |
@@ -23,7 +25,8 @@ The bundle also registers `@FormBuilder/form_theme/structure.html.twig` (the bui
 |---|---|
 | `Form\FormTypeGenerator` | `buildForm(array $structure, array $data = [], array $options = [])`, `buildNamedForm($name, …)` |
 | `Answer\AnswerGenerator` | `generate($structure, $answerData)` → structure enriched with `value`s; `flattenToFields()` |
-| `File\FormFileUploader` | `upload()`, `getFile($filename)`, `removeFile(?array)`, `hydrate()` |
+| `File\FormFileUploader` | `upload()`, `getFile($filename)`, `removeFile(?array)`, `hydrate()`. Stored names are random (`<32 hex>.<ext>`), the extension is guessed from the content, and any name that is not a plain file name (`..`, `/`, NUL…) is refused |
+| `Service\AnswerFiles` | `of($answer)`, `filenames($answer)`, `owns($answer, $filename)` — the files an answer actually contains (also inside `FieldSet`, `Repeatable`, conditional blocks) |
 | `UseCase\SyncFormLayoutStructureUseCase` | Merge a structure into a layout that may already have answers |
 | `UseCase\DeleteRemovedFormLayoutFieldValuesUseCase` | Delete values of removed fields, returns the count |
 
@@ -132,8 +135,10 @@ only what you need (e.g. `FileInput`, `fileList` for PDF).
 
 ## Translations
 
-Domain `form_builder_bundle` (French only for now): builder-widget confirmation, theme buttons, signature
-labels, answers view. Override by providing the same keys in your own `translations/` directory.
+Domain `form_builder_bundle` (`fr`, `en`): builder-widget confirmation, theme buttons, signature labels, answers
+view. Validation messages are in the `validators` domain under `validators.form_builder.*` (`fr`, `en`). Override
+by providing the same keys in your own `translations/` directory. Labels, help and placeholders coming from a
+layout structure are user text and are never translated.
 
 ## Known limitations
 

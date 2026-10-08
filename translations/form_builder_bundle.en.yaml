@@ -1,0 +1,17 @@
+structure:
+    confirm:
+        template: "Warning: {fields} will erase answer data ({answers}).\n\nConfirm saving?"
+        fields_one: '1 removed field'
+        fields_many: '{count} removed fields'
+        answers_one: '1 existing answer affected'
+        answers_many: '{count} existing answers affected'
+theme:
+    add_item: 'Add an item'
+    add_file: 'Add a file'
+    attached_files: 'Attached files'
+signature:
+    clear: 'Clear'
+    modify: 'Edit'
+answers:
+    file_label: 'File'
+    signature_alt: 'Signature'
