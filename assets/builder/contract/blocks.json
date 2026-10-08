@@ -1,0 +1,272 @@
+{
+  "types": {
+    "AddressInput": {
+      "defaults": {
+        "type": "AddressInput",
+        "label": "Libellé",
+        "placeHolder": "Indiquez un lieu…",
+        "required": false,
+        "helpText": ""
+      },
+      "keys": [
+        "helpText",
+        "label",
+        "placeHolder",
+        "required"
+      ]
+    },
+    "ChoiceGroup": {
+      "defaults": {
+        "type": "ChoiceGroup",
+        "label": "Libellé",
+        "helpText": "",
+        "required": false,
+        "multiple": false,
+        "options": [],
+        "conditions": []
+      },
+      "keys": [
+        "conditions",
+        "helpText",
+        "label",
+        "multiple",
+        "options",
+        "readOnly",
+        "required"
+      ]
+    },
+    "DateTimeInput": {
+      "defaults": {
+        "type": "DateTimeInput",
+        "label": "Libellé",
+        "required": false,
+        "helpText": "",
+        "mode": "datetime-local"
+      },
+      "keys": [
+        "hasCurrentDate",
+        "helpText",
+        "label",
+        "mode",
+        "readOnly",
+        "required"
+      ]
+    },
+    "EmailInput": {
+      "defaults": {
+        "type": "EmailInput",
+        "label": "Libellé",
+        "placeHolder": "",
+        "required": false,
+        "helpText": ""
+      },
+      "keys": [
+        "defaultValue",
+        "helpText",
+        "label",
+        "placeHolder",
+        "readOnly",
+        "required"
+      ]
+    },
+    "FieldSet": {
+      "defaults": {
+        "type": "FieldSet",
+        "children": []
+      },
+      "keys": [
+        "children"
+      ]
+    },
+    "FileInput": {
+      "defaults": {
+        "type": "FileInput",
+        "label": "Libellé",
+        "required": false,
+        "helpText": "",
+        "acceptedFile": "image",
+        "allowMultiple": false
+      },
+      "keys": [
+        "acceptedFile",
+        "allowMultiple",
+        "helpText",
+        "label",
+        "required"
+      ]
+    },
+    "HourMinuteInput": {
+      "defaults": {
+        "type": "HourMinuteInput",
+        "label": "Libellé",
+        "required": false,
+        "helpText": ""
+      },
+      "keys": [
+        "defaultValue",
+        "helpText",
+        "label",
+        "readOnly",
+        "required"
+      ]
+    },
+    "NumberInput": {
+      "defaults": {
+        "type": "NumberInput",
+        "label": "Libellé",
+        "placeHolder": "",
+        "required": false,
+        "helpText": "",
+        "min": "",
+        "max": "",
+        "step": ""
+      },
+      "keys": [
+        "defaultValue",
+        "helpText",
+        "label",
+        "max",
+        "min",
+        "placeHolder",
+        "readOnly",
+        "required",
+        "step"
+      ]
+    },
+    "Paragraph": {
+      "defaults": {
+        "type": "Paragraph",
+        "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+      },
+      "keys": [
+        "text"
+      ]
+    },
+    "Repeatable": {
+      "defaults": {
+        "type": "Repeatable",
+        "children": [],
+        "maxItems": 1
+      },
+      "keys": [
+        "children",
+        "maxItems"
+      ]
+    },
+    "Select": {
+      "defaults": {
+        "type": "Select",
+        "label": "Libellé",
+        "helpText": "",
+        "required": false,
+        "multiple": false,
+        "options": [],
+        "conditions": []
+      },
+      "keys": [
+        "conditions",
+        "customOption",
+        "helpText",
+        "label",
+        "multiple",
+        "options",
+        "readOnly",
+        "required"
+      ]
+    },
+    "Signature": {
+      "defaults": {
+        "type": "Signature",
+        "label": "Libellé",
+        "helpText": "",
+        "required": false
+      },
+      "keys": [
+        "helpText",
+        "label",
+        "required"
+      ]
+    },
+    "TelInput": {
+      "defaults": {
+        "type": "TelInput",
+        "label": "Libellé",
+        "placeHolder": "",
+        "required": false,
+        "helpText": ""
+      },
+      "keys": [
+        "defaultValue",
+        "helpText",
+        "label",
+        "placeHolder",
+        "readOnly",
+        "required"
+      ]
+    },
+    "TextareaInput": {
+      "defaults": {
+        "type": "TextareaInput",
+        "label": "Libellé",
+        "placeHolder": "",
+        "required": false,
+        "helpText": "",
+        "rows": 5
+      },
+      "keys": [
+        "defaultValue",
+        "helpText",
+        "label",
+        "placeHolder",
+        "readOnly",
+        "required",
+        "rows"
+      ]
+    },
+    "TextInput": {
+      "defaults": {
+        "type": "TextInput",
+        "label": "Libellé",
+        "placeHolder": "",
+        "required": false,
+        "helpText": ""
+      },
+      "keys": [
+        "defaultValue",
+        "helpText",
+        "label",
+        "placeHolder",
+        "readOnly",
+        "required"
+      ]
+    },
+    "Title": {
+      "defaults": {
+        "type": "Title",
+        "text": "Titre",
+        "heading": "h1"
+      },
+      "keys": [
+        "heading",
+        "text"
+      ]
+    },
+    "UrlInput": {
+      "defaults": {
+        "type": "UrlInput",
+        "label": "Libellé",
+        "placeHolder": "",
+        "required": false,
+        "helpText": ""
+      },
+      "keys": [
+        "defaultValue",
+        "helpText",
+        "label",
+        "placeHolder",
+        "readOnly",
+        "required"
+      ]
+    }
+  }
+}
