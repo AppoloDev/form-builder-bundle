@@ -5,3 +5,4 @@
 /.php-cs-fixer.dist.php export-ignore
 /phpstan.dist.neon export-ignore
 /phpunit.dist.xml export-ignore
+/Plan.md export-ignore
