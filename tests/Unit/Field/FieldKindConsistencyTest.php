@@ -41,9 +41,9 @@ class FieldKindConsistencyTest extends TestCase
     public static function typeProvider(): iterable
     {
         foreach ([
-            'Address', 'DateTimeInput', 'EmailInput', 'FieldSet', 'FileInput',
+            'AddressInput', 'DateTimeInput', 'EmailInput', 'FieldSet', 'FileInput',
             'GenericTextInput', 'NumberInput', 'Paragraph', 'Repeatable',
-            'Select', 'Signature', 'TelInput', 'TextAreaInput', 'TextInput',
+            'Select', 'Signature', 'TelInput', 'TextareaInput', 'TextInput',
             'Title', 'UrlInput',
         ] as $type) {
             yield $type => [$type];

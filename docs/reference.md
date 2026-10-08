@@ -74,12 +74,12 @@ key and must be unique in the layout.
 | Type | Config keys (besides `id`, `label`) |
 |---|---|
 | `TextInput`, `EmailInput`, `TelInput`, `UrlInput` | `required`, `readOnly`, `placeHolder`, `helpText`, `defaultValue` |
-| `TextAreaInput` | same + `rows` |
+| `TextareaInput` | same + `rows` |
 | `NumberInput` | `required`, `readOnly`, `helpText`, `defaultValue`, `allowDecimal` |
 | `DateTimeInput` | `required`, `readOnly`, `helpText`, `showDate`, `showHour`, `hasCurrentDate` |
-| `Select` | `options` (`[{label, isSelected}]`), `multiple`, `checkCases` (radio/checkbox), `customOption`, `required`, `readOnly`, `helpText` |
+| `Select` | `options` (`[{label, isSelected?}]`, extra keys such as `id` ignored), `multiple`, `checkCases` (radio/checkbox), `customOption`, `required`, `readOnly`, `helpText` |
 | `FileInput` | `acceptedFile`, `maxItems`, `required`, `helpText` |
-| `Address`, `Signature` | `required`, `helpText` |
+| `AddressInput`, `Signature` | `required`, `helpText` |
 | `FieldSet` | `children` |
 | `Repeatable` | `children`, `maxItems` |
 | `Title`, `Paragraph` | `text` |
@@ -118,9 +118,9 @@ labels, answers view. Override by providing the same keys in your own `translati
 
 ## Known limitations
 
-- The bundled builder emits some block types the PHP side does not handle yet: `ChoiceGroup`,
-  `HourMinuteInput`, and the names `AddressInput` / `TextareaInput` (PHP types are `Address` / `TextAreaInput`).
-  Blocks with an unknown type are silently skipped when generating the form.
-- Select `conditions` (conditional blocks) are stored in `config` but not evaluated server-side.
+- The bundled builder emits block types the PHP side does not handle yet: `ChoiceGroup` and `HourMinuteInput`
+  (planned, see `Plan.md`). A block with an unknown type throws `UnknownFieldTypeException` when
+  `kernel.debug` is on, and is skipped with a `warning` log otherwise.
+- Select `conditions` (conditional blocks) are stored in `config` but not evaluated server-side (planned).
 - The builder UI text is French only.
 - Custom PHP field types cannot be registered yet (`FieldFactory` resolves types in the bundle namespace).

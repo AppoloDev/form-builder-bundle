@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace AppoloDev\FormBuilderBundle\Form;
 
+use AppoloDev\FormBuilderBundle\Exception\UnknownFieldTypeException;
 use AppoloDev\FormBuilderBundle\Field\FieldFactory;
 use AppoloDev\FormBuilderBundle\FormType\FormBuilderType;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
@@ -19,6 +22,9 @@ class FormTypeGenerator
     public function __construct(
         private readonly FormFactoryInterface $formFactory,
         private readonly FieldFactory $fieldFactory,
+        #[Autowire(param: 'kernel.debug')]
+        private readonly bool $debug = false,
+        private readonly ?LoggerInterface $logger = null,
     ) {
     }
 
@@ -64,12 +70,32 @@ class FormTypeGenerator
 
     public function addField(FormBuilderInterface $formBuilder, FormLayoutBlock $block): void
     {
-        if (null !== $block->type) {
-            $field = $this->fieldFactory->getField($block->type);
-
-            if (null !== $field && $field->validateDefinition($block, $this->formOptions)) {
-                $field->addFieldFromDefinition($formBuilder);
-            }
+        if (null === $block->type) {
+            return;
         }
+
+        $field = $this->fieldFactory->getField($block->type);
+
+        if (null === $field) {
+            $this->reportUnknownType($block->type, $block->id);
+
+            return;
+        }
+
+        if ($field->validateDefinition($block, $this->formOptions)) {
+            $field->addFieldFromDefinition($formBuilder);
+        }
+    }
+
+    /**
+     * En debug le type inconnu fait échouer le rendu ; en production le champ est ignoré et tracé.
+     */
+    private function reportUnknownType(string $type, ?string $blockId): void
+    {
+        if ($this->debug) {
+            throw UnknownFieldTypeException::forBlock($type, $blockId);
+        }
+
+        $this->logger?->warning('Champ ignoré : type inconnu "{type}" (bloc "{block}").', ['type' => $type, 'block' => $blockId]);
     }
 }

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace AppoloDev\FormBuilderBundle\Tests\Unit\Form;
 
+use AppoloDev\FormBuilderBundle\Exception\UnknownFieldTypeException;
 use AppoloDev\FormBuilderBundle\Field\FieldFactory;
 use AppoloDev\FormBuilderBundle\Field\FieldInterface;
 use AppoloDev\FormBuilderBundle\Form\FormTypeGenerator;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 
@@ -61,6 +63,33 @@ class FormTypeGeneratorTest extends TestCase
         $generator = new FormTypeGenerator(self::createStub(FormFactoryInterface::class), $fieldFactory);
 
         $generator->addField($formBuilder, $block);
+    }
+
+    public function testAddFieldThrowsOnAnUnknownTypeInDebug(): void
+    {
+        $fieldFactory = self::createStub(FieldFactory::class);
+        $fieldFactory->method('getField')->willReturn(null);
+        $generator = new FormTypeGenerator(self::createStub(FormFactoryInterface::class), $fieldFactory, true);
+
+        $this->expectException(UnknownFieldTypeException::class);
+        $this->expectExceptionMessage('"UnknownType"');
+
+        $generator->addField(self::createStub(FormBuilderInterface::class), FormLayoutBlock::fromArray(['id' => 'field-a', 'type' => 'UnknownType']));
+    }
+
+    public function testAddFieldLogsAndSkipsAnUnknownTypeInProduction(): void
+    {
+        $fieldFactory = self::createStub(FieldFactory::class);
+        $fieldFactory->method('getField')->willReturn(null);
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())->method('warning')->with(self::stringContains('type inconnu'), ['type' => 'UnknownType', 'block' => 'field-a']);
+
+        $generator = new FormTypeGenerator(self::createStub(FormFactoryInterface::class), $fieldFactory, false, $logger);
+        $formBuilder = $this->createMock(FormBuilderInterface::class);
+        $formBuilder->expects(self::never())->method('add');
+
+        $generator->addField($formBuilder, FormLayoutBlock::fromArray(['id' => 'field-a', 'type' => 'UnknownType']));
     }
 
     public function testAddFieldDoesNothingWhenBlockHasNoType(): void

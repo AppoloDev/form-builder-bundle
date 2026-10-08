@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * Base commune aux champs "valeur simple" dont le rendu ne dépend que de
  * id/label/required/helpText — un unique FormType englobant tout le reste
- * (validation côté client, widget, etc.). Ex. Address, Signature.
+ * (validation côté client, widget, etc.). Ex. AddressInput, Signature.
  */
 abstract class AbstractSimpleValueField implements FieldInterface
 {

@@ -62,15 +62,17 @@ Never reference host entities from bundle code; use the `Contract\*` interfaces.
 - Extra keys in `setAnswerData()` are ignored; extra form fields you add (reference, etc.) must be handled
   and removed from the array by the host.
 - Without the `edit` option, each field's default (or "current date") replaces the data you pass.
-- Field ids (`id`) are the answer keys: unique per layout. Blocks without `id`/`type` are skipped; blocks
-  with an unknown `type` are silently dropped from the generated form.
+- Field ids (`id`) are the answer keys: unique per layout. Blocks without `id`/`type` are skipped; a block
+  with an unknown `type` throws `UnknownFieldTypeException` in debug and is skipped + logged in production.
+  Files of a deleted answer are removed by walking the layout structure (`FileInput`, also inside
+  `FieldSet`/`Repeatable`); ids may have any format.
 - FieldSet answers are nested under the fieldset id; Repeatable answers are a list of rows.
 - Doctrine forbids `OneToMany` in mapped superclasses: that is why the `Has*` traits exist. A missing trait
   or `initialize*()` call gives "uninitialized property $fields/$children/$fieldValues".
 - Do not run the shadcn CLI inside `assets/builder` (generates `@/…` alias imports); keep imports relative.
-- Known gaps: builder blocks `ChoiceGroup`, `HourMinuteInput`, names `AddressInput`/`TextareaInput`, and Select
-  `conditions` are not handled by PHP; builder UI text is French only; custom PHP field types are not
-  pluggable (see "Known limitations" in `docs/reference.md`).
+- Known gaps: builder blocks `ChoiceGroup` and `HourMinuteInput`, and Select `conditions`, are not handled by
+  PHP yet (see `Plan.md`); builder UI text is French only; custom PHP field types are not pluggable (see
+  "Known limitations" in `docs/reference.md`).
 - Translation domain `form_builder_bundle` (fr). `FormBuilderType` defaults `translation_domain` to
   `form_builder` — make sure labels from user structures are not unintentionally translated.
 

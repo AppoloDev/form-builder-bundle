@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * Base commune aux champs "valeur simple avec valeur par défaut" : gestion du prototype
  * (`__name__`, cf. GenericTextInput), inclusion conditionnelle de `data` selon le mode
  * édition, contrainte `NotBlank` si requis. Contrairement à AbstractSimpleValueField
- * (Address/Signature/Paragraph/Title), ces champs ont une valeur par défaut éditable.
+ * (AddressInput/Signature/Paragraph/Title), ces champs ont une valeur par défaut éditable.
  */
 abstract class AbstractValueFieldWithDefault implements FieldInterface
 {

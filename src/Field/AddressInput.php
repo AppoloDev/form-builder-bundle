@@ -6,7 +6,7 @@ namespace AppoloDev\FormBuilderBundle\Field;
 
 use AppoloDev\FormBuilderBundle\FormType\AddressType;
 
-class Address extends AbstractSimpleValueField
+class AddressInput extends AbstractSimpleValueField
 {
     protected function getFormType(): string
     {

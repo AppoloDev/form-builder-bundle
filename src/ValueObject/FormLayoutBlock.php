@@ -125,8 +125,8 @@ final readonly class FormLayoutBlock
 
         $options = [];
         foreach ($value as $option) {
-            if (\is_array($option) && \is_string($option['label'] ?? null) && \is_bool($option['isSelected'] ?? null)) {
-                $options[] = ['label' => $option['label'], 'isSelected' => $option['isSelected']];
+            if (\is_array($option) && \is_string($option['label'] ?? null)) {
+                $options[] = ['label' => $option['label'], 'isSelected' => true === ($option['isSelected'] ?? false)];
             }
         }
 

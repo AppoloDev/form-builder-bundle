@@ -175,7 +175,7 @@ Aucun écart (pas de libellé ni de légende des deux côtés). Réponses stock�
 
 ## 3. Phases d'exécution
 
-### Phase 1 — Débloquer (T1, T2, T3) · petit
+### Phase 1 — Débloquer (T1, T2, T3) · petit · **FAIT**
 1. PHP : renommer `Field\TextAreaInput` → `TextareaInput` et `Field\Address` → `AddressInput` (classes, tests, blocs de `answers/shadcn.html.twig`, docs) ; type inconnu ⇒ comportement D7. OSCAR : exécuter `migrations.sql` (racine du dépôt OSCAR) avec le déploiement.
 2. PHP `FormLayoutBlock::configOptions` : accepter `{id?, label, isSelected?}`.
 3. Front : rien à renommer (noms de référence).

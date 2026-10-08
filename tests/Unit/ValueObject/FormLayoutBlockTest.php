@@ -156,6 +156,25 @@ class FormLayoutBlockTest extends TestCase
         ], $block->configOptions('options'));
     }
 
+    public function testConfigOptionsAcceptsBuilderOptionsWithoutIsSelected(): void
+    {
+        $block = FormLayoutBlock::fromArray([
+            'id' => 'a',
+            'type' => 'Select',
+            'options' => [
+                ['id' => 'o1', 'label' => 'Un'],
+                ['id' => 'o2', 'label' => 'Deux', 'isSelected' => true],
+                ['id' => 'o3', 'label' => 'Trois', 'isSelected' => 'oui'],
+            ],
+        ]);
+
+        self::assertSame([
+            ['label' => 'Un', 'isSelected' => false],
+            ['label' => 'Deux', 'isSelected' => true],
+            ['label' => 'Trois', 'isSelected' => false],
+        ], $block->configOptions('options'));
+    }
+
     public function testConfigOptionsReturnsEmptyArrayWhenNotAnArray(): void
     {
         $block = FormLayoutBlock::fromArray(['id' => 'a', 'type' => 'Select']);

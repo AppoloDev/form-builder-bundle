@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace AppoloDev\FormBuilderBundle\Tests\Unit\Field;
 
-use AppoloDev\FormBuilderBundle\Field\Address;
+use AppoloDev\FormBuilderBundle\Field\AddressInput;
 use AppoloDev\FormBuilderBundle\FormType\AddressType;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormBuilderInterface;
 
-class AddressTest extends TestCase
+class AddressInputTest extends TestCase
 {
     public function testAddFieldFromDefinitionAddsAddressTypeWithLabelAndHelp(): void
     {
-        $field = new Address();
+        $field = new AddressInput();
         $field->validateDefinition(FormLayoutBlock::fromArray([
             'id' => 'addr-1',
             'label' => 'Adresse',

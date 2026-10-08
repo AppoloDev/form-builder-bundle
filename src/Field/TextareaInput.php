@@ -7,7 +7,7 @@ namespace AppoloDev\FormBuilderBundle\Field;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
-class TextAreaInput extends AbstractValueFieldWithDefault
+class TextareaInput extends AbstractValueFieldWithDefault
 {
     private int $rows = 5;
 
