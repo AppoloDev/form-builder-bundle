@@ -41,9 +41,13 @@ Then follow [docs/installation.md](docs/installation.md).
 ```bash
 composer install
 composer qa        # php-cs-fixer + PHPStan (max, strict rules) + PHPUnit
+pnpm install
+pnpm run typecheck # tsc --noEmit on assets/builder
+pnpm run test      # vitest, including the front/PHP contract check
+pnpm run export-contract   # regenerate assets/builder/contract/blocks.json after changing a block
 ```
 
-CI runs the same on PHP 8.4 and 8.5. Tests are standalone unit tests; host entities are simulated by
+CI runs the same on PHP 8.4 and 8.5, plus the front checks. Tests are standalone unit tests; host entities are simulated by
 `tests/Fixtures`.
 
 ## License

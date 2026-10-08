@@ -47,3 +47,27 @@ jobs:
 
       - name: PHPUnit
         run: vendor/bin/phpunit --coverage-text
+
+  front:
+    name: Front (typecheck, tests)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: TypeScript
+        run: pnpm run typecheck
+
+      - name: Vitest (includes the front/PHP contract check)
+        run: pnpm run test

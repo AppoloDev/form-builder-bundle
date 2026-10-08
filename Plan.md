@@ -192,11 +192,11 @@ documenté (le builder envoie toujours `maxItems`).
 `Field\ChoiceGroup` (D3) et `Field\HourMinuteInput` (D2) ; blocs `ChoiceGroup` et `HourMinuteInput` dans `answers/shadcn`,
 `ResourceAnswer.html.twig`, `FormAnswerCsvExportBuilder` (formatage de valeur).
 
-### Phase 4 — Exposer le PHP dans le front (P→F)
+### Phase 4 — Exposer le PHP dans le front (P→F) · **FAIT** (hors rendu visuel, non testé dans un navigateur)
 `readOnly` + `defaultValue` (D4) ; `hasCurrentDate` ; `isSelected` et `customOption` pour `Select` ; retirer `name` (T4)
 et `placeHolder` des blocs date et heure.
 
-### Phase 5 — Garde-fous anti-dérive (T9) · **condition du tag `v1.0.0`**
+### Phase 5 — Garde-fous anti-dérive (T9) · **FAIT** · condition du tag `v1.0.0`
 1. Script `pnpm run export-contract` : dumpe `blockDefinitions` en `assets/builder/contract/blocks.json`
    (type, clés de `defaultProps`, clés de `editionSchema`).
 2. Test PHPUnit qui, pour **chaque type du contrat** : (a) `FieldFactory` le résout, (b) un bloc généré à partir de
