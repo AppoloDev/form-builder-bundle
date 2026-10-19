@@ -72,7 +72,7 @@ const Title = ({id, type, text, heading, preview}: Props) => {
                         // shadcn's Input hardcodes `md:text-sm`, which otherwise silently
                         // shrinks the title back down on desktop widths — repeat the size
                         // under `md:` too so it actually wins over Input's own default.
-                        className={`h-auto py-1 ${renderClass(headingLevel)} md:${renderClass(headingLevel)}`}
+                        className={`h-auto py-1 placeholder:text-muted-foreground ${renderClass(headingLevel)} md:${renderClass(headingLevel)}`}
                     />
                 )}
             </div>
