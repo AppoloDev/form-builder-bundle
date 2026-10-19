@@ -29,7 +29,7 @@ class FileRepeatableItemTypeTest extends TestCase
             ['delete', CheckboxType::class, [
                 'attr' => ['class' => 'input-delete'],
                 'required' => false,
-                'row_attr' => ['class' => 'd-none'],
+                'row_attr' => ['hidden' => true],
             ], $formBuilder],
         ]);
 
@@ -52,7 +52,7 @@ class FileRepeatableItemTypeTest extends TestCase
             ['delete', CheckboxType::class, [
                 'attr' => ['class' => 'input-delete'],
                 'required' => false,
-                'row_attr' => ['class' => 'd-none'],
+                'row_attr' => ['hidden' => true],
             ], $formBuilder],
         ]);
 

@@ -34,8 +34,9 @@ class FileRepeatableItemType extends AbstractType
                 'class' => 'input-delete',
             ],
             'required' => false,
+            // Attribut HTML natif plutôt qu'une classe de framework (`d-none` n'existe pas sous Tailwind).
             'row_attr' => [
-                'class' => 'd-none',
+                'hidden' => true,
             ],
         ]);
     }
