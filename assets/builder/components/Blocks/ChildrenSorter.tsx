@@ -32,9 +32,9 @@ const ConditionalChildrenContext = createContext(false);
 const FollowUpRenderer: React.FC<{ child: Block; conditional: boolean }> = ({child, conditional}) => {
     const Comp = BLOCK_COMPONENTS[child.type];
     if (!Comp) return null;
-    // `isChildBlock` retire l'option « Requis » : réservé aux champs conditionnels (un groupe ou un répétable
-    // classique garde son option).
-    return <Comp {...child} useContionnalField={false} isChildBlock={conditional} />;
+    // Un groupe ou un répétable garde « Requis » et les conditions de ses champs. Les champs d'une règle de
+    // condition n'ont ni l'un ni l'autre : ils ne sont jamais obligatoires et les conditions ne s'imbriquent pas.
+    return <Comp {...child} useContionnalField={!conditional} isChildBlock={conditional} />;
 };
 
 const SortableChildBlock: React.FC<{
