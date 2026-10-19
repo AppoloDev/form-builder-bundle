@@ -169,8 +169,9 @@ export const FormBuilder = ({onChange, json = [], categories, types}: Props) => 
                                 <SortableItem key={block.id} id={block.id}>
                                     <div className="group relative">
 
+                                        {/* Centré sous le bloc : l'ajout se fait à la suite de celui-ci */}
                                         <div
-                                            className="absolute -right-3 -bottom-3 z-10">
+                                            className="absolute left-1/2 -bottom-3 z-10 -translate-x-1/2">
                                             <AddMenu
                                                 onPick={(def, overrides) => handleAddAt(idx, def, overrides)}
                                                 placeholder={t("builder.searchType")}
