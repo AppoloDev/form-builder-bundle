@@ -19,7 +19,8 @@ final class ArrayTranslator implements TranslatorInterface
     {
         $path = __DIR__.'/../../translations/form_builder_bundle.'.$locale.'.yaml';
         $stack = [];
-        foreach (file($path, \FILE_IGNORE_NEW_LINES | \FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
+        $lines = file($path, \FILE_IGNORE_NEW_LINES | \FILE_SKIP_EMPTY_LINES);
+        foreach (false === $lines ? [] : $lines as $line) {
             if (1 !== preg_match('/^( *)([A-Za-z_]+):(?: (.*))?$/', $line, $m)) {
                 continue;
             }
@@ -32,9 +33,12 @@ final class ArrayTranslator implements TranslatorInterface
         }
     }
 
+    /**
+     * @param array<mixed> $parameters
+     */
     public function trans(string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
     {
-        return strtr($this->messages[$id] ?? $id, $parameters);
+        return $this->messages[$id] ?? $id;
     }
 
     public function getLocale(): string

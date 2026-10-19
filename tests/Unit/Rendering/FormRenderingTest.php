@@ -60,6 +60,22 @@ class FormRenderingTest extends TestCase
         self::assertGreaterThan(0, FormRenderingHarness::count($xpath, "//select[@id='form_builder_select']/option[@value=''][normalize-space()='Aucun']"));
     }
 
+    public function testAnEmptyFileFieldWithoutLabelFallsBackToTheAttachedFilesTitle(): void
+    {
+        $html = (new FormRenderingHarness())->render((new FormHarness())->form([['id' => 'f', 'type' => 'FileInput', 'label' => '']]));
+
+        self::assertStringContainsString('<h3>Fichiers joints</h3>', $html);
+        self::assertStringNotContainsString('<label', $html);
+    }
+
+    public function testCollectionErrorsOfAFileFieldAreRendered(): void
+    {
+        $form = (new FormHarness())->form([['id' => 'f', 'type' => 'FileInput', 'label' => 'Pièce', 'required' => true]]);
+        $form->submit([]);
+
+        self::assertStringContainsString('validators.form_builder.file_required', (new FormRenderingHarness())->render($form));
+    }
+
     public function testEveryTypeOfTheBuilderContractHasARenderingCase(): void
     {
         $contract = json_decode((string) file_get_contents(__DIR__.'/../../../assets/builder/contract/blocks.json'), true, 512, \JSON_THROW_ON_ERROR);
@@ -164,8 +180,11 @@ class FormRenderingTest extends TestCase
         yield 'FileInput' => [
             ['type' => 'FileInput', 'label' => 'Pièce', 'helpText' => 'Aide', 'required' => true, 'acceptedFile' => 'image', 'allowMultiple' => true, 'maxItems' => 3],
             [
+                // Libellé, aide et marque « requis » au niveau du bloc, avant tout ajout de fichier.
+                "//label[@class='required'][normalize-space()='Pièce']",
+                "//*[@id='form_builder_f_help'][normalize-space()='Aide']",
                 "//div[@data-controller='form-builder-collection'][@data-max-items='3']",
-                "//div[@data-controller='form-builder-collection'][contains(@data-prototype,'type=\"file\"')][contains(@data-prototype,'Pièce')]",
+                "//div[@data-controller='form-builder-collection'][contains(@data-prototype,'type=\"file\"')]",
             ],
         ];
         yield 'AddressInput' => [

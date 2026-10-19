@@ -53,10 +53,10 @@ class FileInput implements FieldInterface
      */
     protected function getFieldOptions(): array
     {
+        // Libellé et aide appartiennent à la collection (visibles même sans fichier ajouté) : les lignes gardent
+        // leur libellé par défaut au lieu de les répéter.
         $fileOptions = [
             'required' => $this->required,
-            'help' => $this->helpText,
-            'label' => $this->label,
         ];
 
         $fileOptions['constraints'] = match ($this->acceptedFile) {
@@ -96,6 +96,9 @@ class FileInput implements FieldInterface
 
         return [
             'constraints' => $collectionConstraints,
+            'label' => '' === $this->label ? false : $this->label,
+            'help' => '' === $this->helpText ? null : $this->helpText,
+            'required' => $this->required,
             'allow_add' => true,
             'allow_delete' => true,
             'entry_type' => FileRepeatableItemType::class,

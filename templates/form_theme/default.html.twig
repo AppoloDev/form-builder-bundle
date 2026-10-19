@@ -126,7 +126,14 @@
         <hr class="fb-separator">
 
         <div class="fb-file-group">
-            <h3>{{ 'theme.attached_files'|trans({}, 'form_builder_bundle') }}</h3>
+            {#- Libellé, aide et marque « requis » du champ ; « Fichiers joints » seulement à défaut de libellé. -#}
+            {% if label is same as(false) %}
+                <h3>{{ 'theme.attached_files'|trans({}, 'form_builder_bundle') }}</h3>
+            {% else %}
+                {{ form_label(form) }}
+            {% endif %}
+            {{ form_help(form) }}
+            {{ form_errors(form) }}
 
             <div
                 data-controller="form-builder-collection"
