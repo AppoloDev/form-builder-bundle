@@ -173,9 +173,9 @@
             {% if v.file.extension is same as('pdf') %}
                 <div class="mb-2 flex items-center gap-3 rounded-md border border-dashed border-border bg-card px-4 py-2">
                     <div class="flex h-8 w-8 items-center justify-center text-lg text-muted-foreground"><twig:ux:icon name="ph:file-pdf" class="size-5" /></div>
-                    <twig:UI:Shadcn:Button as="a" variant="link" href="{{ filePath }}" download="{{ v.file.originalFilename }}">
+                    <a href="{{ filePath }}" download="{{ v.file.originalFilename }}" class="text-sm font-medium underline-offset-4 hover:underline">
                         {{ v.file.originalFilename }}
-                    </twig:UI:Shadcn:Button>
+                    </a>
                 </div>
             {% else %}
                 <div class="mb-2 flex items-center rounded-md border border-dashed border-border bg-card px-4 py-2">

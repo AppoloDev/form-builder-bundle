@@ -27,6 +27,7 @@
         "symfony/http-kernel": "^8.1",
         "symfony/mime": "^8.1",
         "symfony/uid": "^8.1",
+        "symfony/ux-icons": "^2.0",
         "symfony/validator": "^8.1",
         "twig/twig": "^3.0"
     },
@@ -39,9 +40,6 @@
         "phpunit/phpunit": "^13.1"
     },
     "suggest": {
-        "symfony/ux-twig-component": "Requis par le template de réponses par défaut (composants UI:Shadcn:*)",
-        "symfony/ux-icons": "Requis par le template de réponses par défaut (<twig:ux:icon>)",
-        "symfony/ux-toolkit": "Kit shadcn (composants UI:Shadcn:*) utilisé par le template de réponses par défaut",
         "symfony/stimulus-bundle": "Requis pour les contrôleurs Stimulus du bundle"
     },
     "autoload": {

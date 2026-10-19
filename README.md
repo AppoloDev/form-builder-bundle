@@ -16,9 +16,8 @@ No controllers, routes, voters or migrations are shipped.
 ## Requirements
 
 - PHP ≥ 8.4, Symfony 8.1, Doctrine ORM 3, `symfony/uid` (entity ids are `Uuid`)
-- The default form theme is neutral (plain HTML, generic `fb-*` classes) and needs no application component.
-  The default *answers* template still uses `symfony/ux-twig-component`, `symfony/ux-icons` and the shadcn kit of
-  `symfony/ux-toolkit`; configure `answers_template` to avoid them.
+- The default form theme and answers template are neutral (plain HTML, generic classes); the only UI dependency is
+  `symfony/ux-icons` (`<twig:ux:icon>` for the PDF icon in answers).
 - Front: Vite (or any bundler handling TSX), Tailwind 4, Stimulus.
 
 ## Install
