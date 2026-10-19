@@ -38,8 +38,9 @@ final class FormRenderingHarness
         $renderer = new FormRenderer($engine);
 
         $this->twig->addExtension(new FormExtension());
-        // Sans symfony/translation : les clés sont rendues telles quelles.
-        $this->twig->addFilter(new TwigFilter('trans', static fn (mixed $message): mixed => $message));
+        // Sans symfony/translation : filtre `trans` minimal sur les traductions du bundle.
+        $translator = new ArrayTranslator();
+        $this->twig->addFilter(new TwigFilter('trans', static fn (string $message, array $parameters = [], ?string $domain = null): string => $translator->trans($message, $parameters, $domain)));
         $this->twig->addRuntimeLoader(new FactoryRuntimeLoader([FormRenderer::class => static fn (): FormRendererInterface => $renderer]));
     }
 

@@ -9,6 +9,7 @@ use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Base des champs à choix parmi des options : la valeur stockée est le libellé de l'option choisie
@@ -30,6 +31,10 @@ abstract class AbstractChoiceField implements FieldInterface
     protected bool $readOnly = false;
     protected bool $multiple = false;
     protected string $helpText = '';
+
+    public function __construct(private readonly ?TranslatorInterface $translator = null)
+    {
+    }
 
     public function addFieldFromDefinition(FormBuilderInterface $formBuilder): FormBuilderInterface
     {
@@ -69,6 +74,15 @@ abstract class AbstractChoiceField implements FieldInterface
     }
 
     /**
+     * Libellé de l'option vide, traduit ici : le formulaire a `translation_domain => false` et, pour des radios,
+     * Symfony ne traduit pas le placeholder avec un autre domaine.
+     */
+    private function emptyChoiceLabel(): string
+    {
+        return $this->translator?->trans('choice.empty', [], 'form_builder_bundle') ?? '—';
+    }
+
+    /**
      * Options ajoutées en bout de chaîne (liste déroulante : saisie libre, etc.).
      *
      * @param array<string, mixed> $fieldOptions
@@ -89,10 +103,7 @@ abstract class AbstractChoiceField implements FieldInterface
         $choices = array_combine($choices, $choices);
 
         $fieldOptions = [
-            'placeholder' => $this->hasEmptyChoice() ? 'choice.empty' : false,
-            // Domaine du bundle pour le seul libellé de l'option vide ; les libellés saisis restent tels quels.
-            'translation_domain' => 'form_builder_bundle',
-            'choice_translation_domain' => false,
+            'placeholder' => $this->hasEmptyChoice() ? $this->emptyChoiceLabel() : false,
             'label' => $this->label,
             'choices' => $choices,
             'required' => $this->required,

@@ -44,6 +44,22 @@ class FormRenderingTest extends TestCase
         }
     }
 
+    public function testNoRawTranslationKeyIsRendered(): void
+    {
+        $form = (new FormHarness())->form([
+            ['id' => 'select', 'type' => 'Select', 'label' => 'Liste', 'options' => self::OPTIONS],
+            ['id' => 'radios', 'type' => 'ChoiceGroup', 'label' => 'Radios', 'options' => self::OPTIONS],
+            ['id' => 'files', 'type' => 'FileInput', 'label' => 'Pièces'],
+            ['id' => 'rows', 'type' => 'Repeatable', 'children' => [['id' => 'c', 'type' => 'TextInput', 'label' => 'Ligne']]],
+        ]);
+        $html = html_entity_decode((new FormRenderingHarness())->render($form));
+
+        self::assertSame(0, preg_match('/>\s*[a-z_]+(?:\.[a-z_]+)+\s*</', $html, $match), 'Clé de traduction brute : '.($match[0] ?? ''));
+        $xpath = FormRenderingHarness::dom($html);
+        self::assertGreaterThan(0, $xpath->query("//label[@for='form_builder_radios_placeholder'][normalize-space()='Aucun']")?->length);
+        self::assertGreaterThan(0, $xpath->query("//select[@id='form_builder_select']/option[@value=''][normalize-space()='Aucun']")?->length);
+    }
+
     public function testEveryTypeOfTheBuilderContractHasARenderingCase(): void
     {
         $contract = json_decode((string) file_get_contents(__DIR__.'/../../../assets/builder/contract/blocks.json'), true, 512, \JSON_THROW_ON_ERROR);
@@ -120,7 +136,7 @@ class FormRenderingTest extends TestCase
             ['type' => 'Select', 'label' => 'Réponse', 'helpText' => 'Aide', 'options' => self::OPTIONS],
             [
                 "//label[normalize-space()='Réponse']",
-                "//select[@id='form_builder_f']/option[@value=''][normalize-space()='choice.empty']",
+                "//select[@id='form_builder_f']/option[@value=''][normalize-space()='Aucun']",
                 "//select[@id='form_builder_f']/option[@value='Oui'][normalize-space()='Oui']",
                 "//select[@id='form_builder_f']/option[@value='Non'][normalize-space()='Non']",
                 "//*[@id='form_builder_f_help'][normalize-space()='Aide']",

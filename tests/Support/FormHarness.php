@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AppoloDev\FormBuilderBundle\Tests\Support;
 
+use AppoloDev\FormBuilderBundle\Field\AbstractChoiceField;
 use AppoloDev\FormBuilderBundle\Field\FieldFactory;
 use AppoloDev\FormBuilderBundle\Field\FieldInterface;
 use AppoloDev\FormBuilderBundle\File\FormFileUploader;
@@ -31,10 +32,11 @@ final class FormHarness
     public function __construct()
     {
         $fields = [];
+        $translator = new ArrayTranslator();
         foreach (self::files('Field') as $file) {
             $class = self::FIELD_NAMESPACE.basename($file, '.php');
             if (class_exists($class) && is_subclass_of($class, FieldInterface::class) && !(new \ReflectionClass($class))->isAbstract()) {
-                $fields[$class] = static fn (): FieldInterface => new $class();
+                $fields[$class] = static fn (): FieldInterface => is_subclass_of($class, AbstractChoiceField::class) ? new $class($translator) : new $class();
             }
         }
 
