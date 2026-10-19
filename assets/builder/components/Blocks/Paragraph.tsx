@@ -33,7 +33,7 @@ const Paragraph = ({id, type, text, preview}: Props) => {
                         }}
                         placeholder={t("paragraph.text")}
                         multiline
-                        className="placeholder:text-muted-foreground"
+                        className="placeholder:text-muted-foreground/50"
                     />
                 )}
             </div>
