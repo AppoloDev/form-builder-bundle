@@ -6,12 +6,15 @@ import { AddMenu } from "../AddMenu";
 import { ChildrenSorter } from "./ChildrenSorter";
 import { createBlockFromTemplate } from "../../utilities/block.utiles";
 import { Button } from "../ui/button";
+import { ContainerContext, containerFrameClasses } from "./ContainerContext";
 import { t } from "../../i18n";
+import { useContext } from "react";
 
 type Props = FieldSetProps & { preview?: boolean };
 
 const FieldSet = ({id, type, children, preview}: Props) => {
     const {updateBlock} = useFormBuilderStore();
+    const nested = useContext(ContainerContext);
 
     const addChild = (def: BlockDefinition, overrides?: Record<string, any>) => {
         const newBlock = createBlockFromTemplate(def, overrides);
@@ -24,14 +27,15 @@ const FieldSet = ({id, type, children, preview}: Props) => {
 
     return (
         <EditableBlock id={id} type={type} preview={preview}>
-            <div className={preview ? "space-y-3" : "space-y-3 rounded-lg p-2 transition-colors"}>
+            <ContainerContext.Provider value={true}>
+            <div className={preview ? "flex flex-col gap-5" : containerFrameClasses(nested)}>
                 {children.length === 0 ? (
                     <Empty onPick={addChild}/>
                 ) : (
                     <>
                         <ChildrenSorter childrenBlocks={children} onReorder={handleReorder}/>
 
-                        <div className="pt-1">
+                        <div>
                             <AddMenu onPick={addChild}>
                                 <Button type="button" size="sm">
                                     {t("builder.addBlock")}
@@ -41,6 +45,7 @@ const FieldSet = ({id, type, children, preview}: Props) => {
                     </>
                 )}
             </div>
+            </ContainerContext.Provider>
         </EditableBlock>
     );
 };
