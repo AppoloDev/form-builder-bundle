@@ -56,8 +56,8 @@ class FormRenderingTest extends TestCase
 
         self::assertSame(0, preg_match('/>\s*[a-z_]+(?:\.[a-z_]+)+\s*</', $html, $match), 'Clé de traduction brute : '.($match[0] ?? ''));
         $xpath = FormRenderingHarness::dom($html);
-        self::assertGreaterThan(0, $xpath->query("//label[@for='form_builder_radios_placeholder'][normalize-space()='Aucun']")?->length);
-        self::assertGreaterThan(0, $xpath->query("//select[@id='form_builder_select']/option[@value=''][normalize-space()='Aucun']")?->length);
+        self::assertGreaterThan(0, FormRenderingHarness::count($xpath, "//label[@for='form_builder_radios_placeholder'][normalize-space()='Aucun']"));
+        self::assertGreaterThan(0, FormRenderingHarness::count($xpath, "//select[@id='form_builder_select']/option[@value=''][normalize-space()='Aucun']"));
     }
 
     public function testEveryTypeOfTheBuilderContractHasARenderingCase(): void

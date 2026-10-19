@@ -59,4 +59,11 @@ final class FormRenderingHarness
 
         return new \DOMXPath($document);
     }
+
+    public static function count(\DOMXPath $xpath, string $query): int
+    {
+        $nodes = $xpath->query($query);
+
+        return false === $nodes ? 0 : $nodes->length;
+    }
 }
