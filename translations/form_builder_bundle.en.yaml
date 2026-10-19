@@ -5,6 +5,8 @@ structure:
         fields_many: '{count} removed fields'
         answers_one: '1 existing answer affected'
         answers_many: '{count} existing answers affected'
+choice:
+    empty: 'None'
 theme:
     add_item: 'Add an item'
     add_file: 'Add a file'

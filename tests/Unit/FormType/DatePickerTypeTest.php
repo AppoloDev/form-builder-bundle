@@ -6,17 +6,17 @@ namespace AppoloDev\FormBuilderBundle\Tests\Unit\FormType;
 
 use AppoloDev\FormBuilderBundle\Field\DateTimeInput;
 use AppoloDev\FormBuilderBundle\FormType\DatePickerType;
+use AppoloDev\FormBuilderBundle\Tests\Support\TestForms;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
-use Symfony\Component\Form\Forms;
 
 class DatePickerTypeTest extends TestCase
 {
     public function testDatePickerIsASingleNativeInput(): void
     {
-        $form = Forms::createFormFactory()->create(DatePickerType::class);
+        $form = TestForms::factory()->create(DatePickerType::class);
 
         self::assertSame('single_text', $form->getConfig()->getOption('widget'));
         self::assertCount(0, $form);
@@ -25,7 +25,7 @@ class DatePickerTypeTest extends TestCase
     #[DataProvider('modes')]
     public function testEveryDateTimeModeIsRenderedWithoutChoiceFields(string $mode, int $expectedChildren): void
     {
-        $builder = Forms::createFormFactory()->createBuilder(FormType::class);
+        $builder = TestForms::factory()->createBuilder(FormType::class);
         $field = new DateTimeInput();
         $field->validateDefinition(FormLayoutBlock::fromArray(['id' => 'when', 'mode' => $mode, 'hasCurrentDate' => true]), []);
         $field->addFieldFromDefinition($builder);

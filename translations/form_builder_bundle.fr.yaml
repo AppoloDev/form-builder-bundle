@@ -5,6 +5,8 @@ structure:
         fields_many: '{count} champs supprimés'
         answers_one: '1 réponse existante impactée'
         answers_many: '{count} réponses existantes impactées'
+choice:
+    empty: 'Aucun'
 theme:
     add_item: 'Ajouter un élément'
     add_file: 'Ajouter un fichier'

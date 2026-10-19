@@ -59,6 +59,16 @@ abstract class AbstractChoiceField implements FieldInterface
     abstract protected function isExpanded(): bool;
 
     /**
+     * Un champ à choix unique non requis propose une valeur vide (liste : option vide ; radios : « Aucun »),
+     * sinon le navigateur présélectionne et soumet la première option. Sans objet pour un choix multiple
+     * (aucune case cochée = vide) et pour un champ requis.
+     */
+    private function hasEmptyChoice(): bool
+    {
+        return !$this->required && !$this->multiple;
+    }
+
+    /**
      * Options ajoutées en bout de chaîne (liste déroulante : saisie libre, etc.).
      *
      * @param array<string, mixed> $fieldOptions
@@ -79,7 +89,10 @@ abstract class AbstractChoiceField implements FieldInterface
         $choices = array_combine($choices, $choices);
 
         $fieldOptions = [
-            'placeholder' => false,
+            'placeholder' => $this->hasEmptyChoice() ? 'choice.empty' : false,
+            // Domaine du bundle pour le seul libellé de l'option vide ; les libellés saisis restent tels quels.
+            'translation_domain' => 'form_builder_bundle',
+            'choice_translation_domain' => false,
             'label' => $this->label,
             'choices' => $choices,
             'required' => $this->required,
