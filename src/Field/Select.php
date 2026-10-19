@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace AppoloDev\FormBuilderBundle\Field;
 
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
+use Symfony\UX\Autocomplete\Form\AutocompleteChoiceTypeExtension;
 
 /**
- * Liste déroulante (autocomplétion), à choix unique ou multiple. `checkCases` (ancienne config) l'affiche
+ * Liste déroulante (autocomplétion si symfony/ux-autocomplete est installé), à choix unique ou multiple. `checkCases` (ancienne config) l'affiche
  * en radios / cases : le builder propose désormais le bloc ChoiceGroup pour cela.
  */
 class Select extends AbstractChoiceField
@@ -31,11 +32,21 @@ class Select extends AbstractChoiceField
 
     protected function decorateFieldOptions(array $fieldOptions): array
     {
-        if (!$this->checkCases) {
+        if (!$this->checkCases && self::autocompleteAvailable()) {
             $fieldOptions['autocomplete'] = true;
             $fieldOptions['allow_options_create'] = $this->customOption;
         }
 
         return $fieldOptions;
+    }
+
+    /**
+     * `autocomplete` et `allow_options_create` n'existent que si symfony/ux-autocomplete est installé ;
+     * sans lui la liste reste un ChoiceType natif (et `customOption` est ignoré) au lieu de lever
+     * une UndefinedOptionsException.
+     */
+    private static function autocompleteAvailable(): bool
+    {
+        return class_exists(AutocompleteChoiceTypeExtension::class);
     }
 }

@@ -37,9 +37,11 @@
         "phpstan/phpstan": "^2",
         "phpstan/phpstan-phpunit": "^2",
         "phpstan/phpstan-strict-rules": "^2",
-        "phpunit/phpunit": "^13.1"
+        "phpunit/phpunit": "^13.1",
+        "symfony/ux-autocomplete": "^3.6"
     },
     "suggest": {
+        "symfony/ux-autocomplete": "Autocomplétion et saisie libre (`customOption`) des listes déroulantes ; sans lui, liste native",
         "symfony/stimulus-bundle": "Requis pour les contrôleurs Stimulus du bundle"
     },
     "autoload": {
