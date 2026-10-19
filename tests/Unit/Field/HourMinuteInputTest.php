@@ -41,7 +41,7 @@ class HourMinuteInputTest extends TestCase
 
     public function testAValidDefaultValueIsPrefilledOutsideEditMode(): void
     {
-        self::assertSame('08:30', $this->addedOptions(['id' => 'h', 'defaultValue' => '08:30'])['data']);
+        self::assertSame('08:30:00', $this->addedOptions(['id' => 'h', 'defaultValue' => '08:30'])['data']);
         self::assertArrayNotHasKey('data', $this->addedOptions(['id' => 'h', 'defaultValue' => '08:30'], ['edit' => true]));
     }
 

@@ -7,7 +7,7 @@ namespace AppoloDev\FormBuilderBundle\Field;
 use Symfony\Component\Form\Extension\Core\Type\TimeType;
 
 /**
- * Saisie d'une heure (HH:MM). La valeur est stockée sous forme de chaîne "HH:MM".
+ * Saisie d'une heure (HH:MM). La valeur est stockée sous forme de chaîne "HH:MM:SS" (secondes à 00), format du TimeType en entrée `string`.
  */
 class HourMinuteInput extends AbstractValueFieldWithDefault
 {
@@ -27,6 +27,9 @@ class HourMinuteInput extends AbstractValueFieldWithDefault
 
         if (1 !== preg_match(self::TIME_PATTERN, $this->defaultValue)) {
             unset($fieldOptions['data']);
+        } elseif (isset($fieldOptions['data'])) {
+            // TimeType (input `string`) lit et écrit "HH:MM:SS" : la valeur par défaut saisie en "HH:MM" doit suivre.
+            $fieldOptions['data'] = $this->defaultValue.':00';
         }
 
         return $fieldOptions;

@@ -94,7 +94,7 @@ between the two forms; `FormLayoutBlock::listFromArray()` always flattens.
 | `DateTimeInput` | `required`, `readOnly`, `helpText`, `mode` (`date`, `time`, `datetime-local`), `hasCurrentDate`; legacy `showDate` / `showHour` when `mode` is absent |
 | `Select` | `options` (`[{label, isSelected?}]`, extra keys such as `id` ignored), `multiple`, `checkCases` (radio/checkbox), `customOption`, `required`, `readOnly`, `helpText` |
 | `ChoiceGroup` | `options` (`[{label}]`), `multiple` (checkboxes instead of radios), `required`, `readOnly`, `helpText`. Always expanded. Value: the option label (list if `multiple`) |
-| `HourMinuteInput` | `required`, `readOnly`, `helpText`, `defaultValue` (`HH:MM`). Value: string `HH:MM` |
+| `HourMinuteInput` | `required`, `readOnly`, `helpText`, `defaultValue` (`HH:MM`). Value: string `HH:MM:SS` (seconds `00`) |
 | `FileInput` | `acceptedFile`, `allowMultiple` (`false` ⇒ one file; otherwise up to `maxItems`, default 5), `required`, `helpText` |
 | `AddressInput` | `required`, `helpText`, `placeHolder` |
 | `Signature` | `required`, `helpText` |
@@ -110,7 +110,7 @@ between the two forms; `FormLayoutBlock::listFromArray()` always flattens.
 | Field | Value |
 |---|---|
 | Simple fields | scalar, or list of labels for multiple `Select` / `ChoiceGroup` |
-| `HourMinuteInput` | string `HH:MM` |
+| `HourMinuteInput` | string `HH:MM:SS` (seconds `00`) |
 | `DateTimeInput` | JSON form of a `DateTime` (`date`, `timezone_type`, `timezone`) |
 | `Repeatable` | list of rows: `[{childId: value}, …]` (stored per row index) |
 | `FieldSet` | nested map under the fieldset id |
