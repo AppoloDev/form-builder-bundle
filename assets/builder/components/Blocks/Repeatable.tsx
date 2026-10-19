@@ -7,7 +7,7 @@ import { ChildrenSorter } from "./ChildrenSorter";
 import { createBlockFromTemplate } from "../../utilities/block.utiles";
 import { TextEdition } from "../Edition/TextEdition";
 import { Button } from "../ui/button";
-import { ContainerContext, containerFrameClasses } from "./ContainerContext";
+import { ContainerContext, containerFrameClasses, repeatableCardClasses } from "./ContainerContext";
 import { t } from "../../i18n";
 import { useContext } from "react";
 
@@ -42,13 +42,13 @@ const Repeatable = ({id, type, children, maxItems, preview}: Props) => {
             />,
         ]}>
             <ContainerContext.Provider value={true}>
-            <div className={preview ? "flex flex-col gap-5" : containerFrameClasses(nested)}>
+            <div className={preview ? "flex flex-col gap-5" : containerFrameClasses(nested, false)}>
                 {children.length === 0 ? (
                     <Empty onPick={addChild}/>
                 ) : (
                     <>
                         {/* Élément répété : une carte dans le cadre du conteneur */}
-                        <div className={preview ? undefined : "rounded-lg border border-border bg-background p-4"}>
+                        <div className={preview ? undefined : repeatableCardClasses}>
                             {/* Sur la carte (fond « background »), un conteneur imbriqué repasse en fond teinté */}
                             <ContainerContext.Provider value={false}>
                                 <ChildrenSorter childrenBlocks={children} onReorder={handleReorder}/>

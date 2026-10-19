@@ -64,7 +64,7 @@ export const EditableBlock = (
             {/* Invisible bridge so the cursor doesn't lose hover crossing the gap to the floating toolbar */}
             <div className="absolute top-0 right-full h-full w-24" aria-hidden="true"/>
 
-            <div className="absolute right-full mr-2 z-10 flex items-center gap-0.5 p-0.5 opacity-0 transition-opacity pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto">
+            <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 z-10 flex items-center gap-0.5 p-0.5 opacity-0 transition-opacity pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto">
                 {items.length > 0 && (
                     <Tooltip content={t("block.settings")}>
                         <Button
