@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace AppoloDev\FormBuilderBundle\Tests\Unit\FormType;
 
+use AppoloDev\FormBuilderBundle\Enum\FieldCategory;
 use AppoloDev\FormBuilderBundle\FormType\FormStructureType;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Forms;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
+use Twig\Environment;
+use Twig\Loader\ArrayLoader;
+use Twig\TwigFilter;
 
 class FormStructureTypeTest extends TestCase
 {
@@ -67,5 +73,91 @@ class FormStructureTypeTest extends TestCase
         $invalid = Forms::createFormFactory()->create(FormStructureType::class);
         $invalid->submit('not json');
         self::assertNull($invalid->getData());
+    }
+
+    public function testEverythingIsOfferedByDefault(): void
+    {
+        $view = Forms::createFormFactory()->create(FormStructureType::class)->createView();
+
+        self::assertNull($view->vars['allowed_categories']);
+        self::assertNull($view->vars['allowed_types']);
+    }
+
+    public function testCategoriesAndTypesAreExposedToTheView(): void
+    {
+        $view = Forms::createFormFactory()
+            ->create(FormStructureType::class, null, ['categories' => ['text', 'choice'], 'types' => ['Signature']])
+            ->createView();
+
+        self::assertSame(['text', 'choice'], $view->vars['allowed_categories']);
+        self::assertSame(['Signature'], $view->vars['allowed_types']);
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    #[DataProvider('invalidRestrictions')]
+    public function testAnInvalidRestrictionIsRejectedWithAClearMessage(array $options, string $message): void
+    {
+        $this->expectException(InvalidOptionsException::class);
+        $this->expectExceptionMessage($message);
+
+        Forms::createFormFactory()->create(FormStructureType::class, null, $options);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, string}>
+     */
+    public static function invalidRestrictions(): iterable
+    {
+        yield 'unknown category' => [['categories' => ['text', 'nope']], '"nope" in the "categories" option'];
+        yield 'unknown type' => [['types' => ['Foo']], '"Foo" in the "types" option'];
+        yield 'empty categories' => [['categories' => []], 'cannot be empty'];
+        yield 'empty types' => [['types' => []], 'cannot be empty'];
+    }
+
+    public function testCategoriesAreAlignedWithTheBuilderContract(): void
+    {
+        $contract = json_decode((string) file_get_contents(__DIR__.'/../../../assets/builder/contract/blocks.json'), true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($contract);
+        self::assertIsArray($contract['types']);
+
+        $fromContract = [];
+        foreach ($contract['types'] as $type => $definition) {
+            self::assertIsArray($definition);
+            self::assertIsString($definition['category'] ?? null, \sprintf('Le type "%s" n\'a pas de catégorie dans blocks.json.', $type));
+            $fromContract[$definition['category']][] = $type;
+        }
+
+        $fromEnum = [];
+        foreach (FieldCategory::cases() as $category) {
+            $types = $category->types();
+            sort($types);
+            $fromEnum[$category->value] = $types;
+        }
+        foreach ($fromContract as &$types) {
+            sort($types);
+        }
+        unset($types);
+        ksort($fromContract);
+        ksort($fromEnum);
+
+        self::assertSame($fromContract, $fromEnum);
+    }
+
+    public function testTheRestrictionReachesTheBuilderElement(): void
+    {
+        $twig = new Environment(new ArrayLoader([
+            'structure' => (string) file_get_contents(__DIR__.'/../../../templates/form_theme/structure.html.twig').'{{ block("form_builder_structure_widget") }}',
+        ]));
+        $twig->addFilter(new TwigFilter('trans', static fn (string $m): string => $m));
+        $render = static fn (array $vars): string => $twig->createTemplate(
+            '{% extends "structure" %}'
+        )->render($vars);
+
+        $base = ['value' => '', 'id' => 'x', 'full_name' => 'x', 'answers_count' => 0, 'builder_locale' => 'en', 'has_structure' => false];
+
+        self::assertStringContainsString('<form-builder locale="en"></form-builder>', $render([...$base, 'allowed_categories' => null, 'allowed_types' => null]));
+        self::assertStringContainsString('<form-builder locale="en" categories="text,choice" types="Signature"></form-builder>', $render([...$base, 'allowed_categories' => ['text', 'choice'], 'allowed_types' => ['Signature']]));
     }
 }

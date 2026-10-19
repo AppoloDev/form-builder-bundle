@@ -15,6 +15,26 @@ $form = $this->createFormBuilder($layout)
     ->getForm();
 ```
 
+### Restrict the fields offered
+
+By default the builder offers every field type. `categories` and `types` restrict what can be **added**:
+
+```php
+->add('content', FormStructureType::class, [
+    'categories' => ['text', 'choice'],   // every type of these categories…
+    'types' => ['Signature'],             // …plus these exact types
+])
+```
+
+- both `null` (default): everything is offered, exactly as before;
+- only one set: it applies alone; both set: the **union** (categories ∪ types);
+- an unknown category or type, or an empty list, throws an `InvalidOptionsException` (use `null` for "everything");
+- the restriction applies in every "Add a block" menu, including inside groups and repeatables;
+- it only limits additions: a block of a non-offered type that is already in the structure stays displayed,
+  editable and deletable. Rendering answers (`FormTypeGenerator`) is not affected.
+
+Categories and their types: see [reference.md](reference.md#field-categories).
+
 **Create** — the layout has no fields yet:
 
 ```php

@@ -34,7 +34,7 @@ The bundle also registers `@FormBuilder/form_theme/structure.html.twig` (the bui
 
 | Type | Options |
 |---|---|
-| `FormType\FormStructureType` | `answers_count` (int, default 0), `locale` (string, default: request locale; the builder UI is available in `fr` and `en`, any other locale falls back to English). Data: structure array ⇄ JSON in a hidden input |
+| `FormType\FormStructureType` | `answers_count` (int, default 0), `locale` (string, default: request locale; the builder UI is available in `fr` and `en`, any other locale falls back to English), `categories` / `types` (`null|list<string>`, default `null` = everything; fields offered when adding a block, union of both, see [Field categories](#field-categories)). Data: structure array ⇄ JSON in a hidden input |
 | `FormType\FormBuilderType` | `edit` (bool). Root type used by `FormTypeGenerator` |
 | `FormType\DatePickerType`, `DateTimePickerType` | Wrappers over `DateType` / `DateTimeType` |
 | `FormType\ConditionalFieldType` | Wraps a conditional block (`inherit_data`); options `block`, `owner`, `operator`, `option_label` |
@@ -102,6 +102,22 @@ between the two forms; `FormLayoutBlock::listFromArray()` always flattens.
 | `Repeatable` | `children`, `maxItems` (default 5; `0` = unlimited) |
 | `Title` | `text`, `heading` (`h1`…`h6`, default `h3`) |
 | `Paragraph` | `text` |
+
+### Field categories
+
+Categories group the types in the builder's "Add a block" menu and drive the `FormStructureType` restriction
+(`categories` option). They are a builder concept: they are **not** stored in a structure. The `category` of each
+type is exposed in `assets/builder/contract/blocks.json` and mirrored by `Enum\FieldCategory` (checked by a test).
+
+| Category | Types |
+|---|---|
+| `text` | `TextInput`, `TextareaInput`, `EmailInput`, `TelInput`, `UrlInput` |
+| `choice` | `Select`, `ChoiceGroup` |
+| `number` | `NumberInput` |
+| `datetime` | `DateTimeInput`, `HourMinuteInput` |
+| `file` | `FileInput` |
+| `advanced` | `AddressInput`, `Signature` |
+| `layout` | `Title`, `Paragraph`, `FieldSet`, `Repeatable` |
 
 ## Answer data
 

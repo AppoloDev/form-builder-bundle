@@ -53,6 +53,10 @@
 5. **Vite**: React plugin (`@vitejs/plugin-react`) is required for TSX. No alias is needed (imports in
    `assets/builder` are relative).
 
+The `<form-builder>` element also accepts `categories` and `types` attributes (comma-separated lists, absent =
+everything), set by the `categories` / `types` options of `FormStructureType`. They only restrict the blocks that can be
+added; blocks already in the structure are kept.
+
 ## Controllers
 
 | Identifier | Used by | Notes |

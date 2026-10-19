@@ -1,5 +1,6 @@
 import React, { PropsWithChildren, useMemo, useRef, useState } from "react";
-import { BlockDefinition, DefinitionEditionItem, getAllBlockDefinitions } from "./Blocks/Definition";
+import { BlockDefinition, DefinitionEditionItem } from "./Blocks/Definition";
+import { useAddableDefinitions } from "./AllowedTypesContext";
 import { TextEdition } from "./Edition/TextEdition";
 import { CheckboxEdition } from "./Edition/CheckboxEdition";
 import { SelectEdition } from "./Edition/SelectEdition";
@@ -23,12 +24,7 @@ export const AddMenu: React.FC<AddMenuProps> = (
         allowTypes,
         children
     }) => {
-    const ALL = useMemo(() => getAllBlockDefinitions(), []);
-    const items = useMemo(() => {
-        if (!allowTypes || allowTypes.length === 0) return ALL;
-        const allow = new Set(allowTypes);
-        return ALL.filter(d => allow.has(d.type));
-    }, [ALL, allowTypes]);
+    const items = useAddableDefinitions(allowTypes);
 
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");

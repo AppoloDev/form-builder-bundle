@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import FormBuilder from './builder/FormBuilder'
 import { setBuilderLocale } from './builder/i18n'
+import { parseList } from './builder/utilities/allowedTypes'
 
 export class FormBuilderElement extends HTMLElement {
     connectedCallback() {
@@ -12,6 +13,10 @@ export class FormBuilderElement extends HTMLElement {
             switch (item.name) {
                 case 'json':
                     attrs[item.name] = JSON.parse(item.value)
+                    break;
+                case 'categories':
+                case 'types':
+                    attrs[item.name] = parseList(item.value)
                     break;
                 default:
                     attrs[item.name] = item.value;

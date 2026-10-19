@@ -27,10 +27,16 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { AddMenu } from "./components/AddMenu";
 import { t } from "./i18n";
+import { AllowedTypesContext } from "./components/AllowedTypesContext";
+import { resolveAllowedTypes } from "./utilities/allowedTypes";
 
 type Props = {
     onChange: (blocks: Block[]) => void;
     json: Block[];
+    /** Catégories de champs proposées à l'ajout (absent = toutes). */
+    categories?: string[];
+    /** Types de champs proposés à l'ajout, en plus des catégories (absent = tous). */
+    types?: string[];
 };
 
 export const DragHandleContext = createContext<{
@@ -76,7 +82,8 @@ const SortableItem: React.FC<{ id: UniqueIdentifier; children: React.ReactNode }
     );
 };
 
-export const FormBuilder = ({onChange, json = []}: Props) => {
+export const FormBuilder = ({onChange, json = [], categories, types}: Props) => {
+    const allowedTypes = useMemo(() => resolveAllowedTypes(categories, types), [categories, types]);
     const {blocks, addBlock, setBlocks} = useFormBuilderStore();
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
     const [activeSize, setActiveSize] = useState<{ width: number; height: number } | null>(null);
@@ -139,6 +146,7 @@ export const FormBuilder = ({onChange, json = []}: Props) => {
     };
 
     return (
+        <AllowedTypesContext.Provider value={allowedTypes}>
         <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -209,6 +217,7 @@ export const FormBuilder = ({onChange, json = []}: Props) => {
                 ) : null}
             </DragOverlay>
         </DndContext>
+        </AllowedTypesContext.Provider>
     );
 };
 

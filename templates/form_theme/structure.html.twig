@@ -12,10 +12,15 @@
         data-answers-many="{{ 'structure.confirm.answers_many'|trans({}, 'form_builder_bundle') }}"
     >
         <input type="hidden" id="{{ id }}" name="{{ full_name }}" value="{{ structureJson }}">
+        {#- `categories` / `types` : champs proposés à l'ajout (listes séparées par des virgules, absent = tout). -#}
+        {%- set restriction -%}
+            {%- if allowed_categories is not null %} categories="{{ allowed_categories|join(',') }}"{% endif -%}
+            {%- if allowed_types is not null %} types="{{ allowed_types|join(',') }}"{% endif -%}
+        {%- endset -%}
         {%- if has_structure -%}
-            <form-builder locale="{{ builder_locale }}" json="{{ structureJson }}"></form-builder>
+            <form-builder locale="{{ builder_locale }}" json="{{ structureJson }}"{{ restriction|raw }}></form-builder>
         {%- else -%}
-            <form-builder locale="{{ builder_locale }}"></form-builder>
+            <form-builder locale="{{ builder_locale }}"{{ restriction|raw }}></form-builder>
         {%- endif -%}
     </form-builder-manager>
 {%- endblock -%}
