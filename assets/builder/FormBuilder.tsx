@@ -25,7 +25,7 @@ import {
 } from "@dnd-kit/sortable";
 
 import { CSS } from "@dnd-kit/utilities";
-import { AddMenu } from "./components/AddMenu";
+import { AddAfterButton } from "./components/AddAfterButton";
 import { t } from "./i18n";
 import { AllowedTypesContext } from "./components/AllowedTypesContext";
 import { resolveAllowedTypes } from "./utilities/allowedTypes";
@@ -169,27 +169,10 @@ export const FormBuilder = ({onChange, json = [], categories, types}: Props) => 
                                 <SortableItem key={block.id} id={block.id}>
                                     <div className="group relative">
 
-                                        {/* Centré sous le bloc : l'ajout se fait à la suite de celui-ci */}
-                                        <div
-                                            className="absolute left-1/2 -bottom-3 z-10 -translate-x-1/2">
-                                            <AddMenu
-                                                onPick={(def, overrides) => handleAddAt(idx, def, overrides)}
-                                                placeholder={t("builder.searchType")}
-                                            >
-                                                <button
-                                                    type="button"
-                                                    className="rounded-full border border-input bg-primary shadow-sm p-2 hover:bg-primary/80 cursor-pointer transition-colors"
-                                                    title={t("builder.addBlock")}
-                                                >
-                                                    <svg width="16" height="16" viewBox="0 0 24 24"
-                                                         className="text-primary-foreground">
-                                                        <path fill="currentColor"
-                                                              d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z"/>
-                                                    </svg>
-                                                </button>
-                                            </AddMenu>
-
-                                        </div>
+                                        <AddAfterButton
+                                            onPick={(def, overrides) => handleAddAt(idx, def, overrides)}
+                                            placeholder={t("builder.searchType")}
+                                        />
 
                                         <Component {...block} />
                                     </div>

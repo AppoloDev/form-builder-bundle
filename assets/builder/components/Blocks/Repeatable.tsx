@@ -2,11 +2,9 @@ import { RepeatableProps, Block, BlockDefinition } from "./Definition";
 import { useFormBuilderStore } from "../../stores/block.store";
 import { EditableBlock } from "./EditableBlock";
 import { Empty } from "../Empty";
-import { AddMenu } from "../AddMenu";
 import { ChildrenSorter } from "./ChildrenSorter";
 import { createBlockFromTemplate } from "../../utilities/block.utiles";
 import { TextEdition } from "../Edition/TextEdition";
-import { Button } from "../ui/button";
 import { ContainerContext, containerFrameClasses, repeatableCardClasses } from "./ContainerContext";
 import { t } from "../../i18n";
 import { useContext } from "react";
@@ -20,6 +18,12 @@ const Repeatable = ({id, type, children, maxItems, preview}: Props) => {
     const addChild = (def: BlockDefinition, overrides?: Record<string, any>) => {
         const newBlock = createBlockFromTemplate(def, overrides);
         updateBlock(id, {children: [...children, newBlock]});
+    };
+
+    const addChildAfter = (index: number, def: BlockDefinition, overrides?: Record<string, any>) => {
+        const next = [...children];
+        next.splice(index + 1, 0, createBlockFromTemplate(def, overrides));
+        updateBlock(id, {children: next});
     };
 
     const handleReorder = (next: Block[]) => {
@@ -50,16 +54,8 @@ const Repeatable = ({id, type, children, maxItems, preview}: Props) => {
                         {/* Élément répété : une carte dans le cadre du conteneur */}
                         <div className={preview ? undefined : repeatableCardClasses}>
                             <ContainerContext.Provider value={false}>
-                                <ChildrenSorter childrenBlocks={children} onReorder={handleReorder}/>
+                                <ChildrenSorter childrenBlocks={children} onReorder={handleReorder} onAddAfter={addChildAfter}/>
                             </ContainerContext.Provider>
-                        </div>
-
-                        <div>
-                            <AddMenu onPick={addChild}>
-                                <Button type="button" size="sm">
-                                    {t("builder.addBlock")}
-                                </Button>
-                            </AddMenu>
                         </div>
                     </>
                 )}

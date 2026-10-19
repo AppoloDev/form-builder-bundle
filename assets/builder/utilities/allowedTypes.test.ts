@@ -67,7 +67,7 @@ describe("la restriction ne limite que les ajouts", () => {
         walk(root);
 
         const usages = files.filter((file) => /<AddMenu[\s>]/.test(readFileSync(file, "utf8")));
-        expect(usages.length).toBeGreaterThanOrEqual(4); // racine, FieldSet, Repeatable, Empty
+        expect(usages.length).toBeGreaterThanOrEqual(3); // AddAfterButton (racine, groupes, répétables), Empty, ConditionRules
         for (const file of usages) {
             expect(/<AddMenu[^>]*allowTypes/s.test(readFileSync(file, "utf8")), file).toBe(false);
         }
