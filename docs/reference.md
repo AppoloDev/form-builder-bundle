@@ -12,7 +12,7 @@
 | `upload_path` | `%kernel.project_dir%/uploads/form-files/` | Where uploaded answer files are stored |
 | `tel.pattern` | `/^\+?[0-9]+$/` | Regular expression a `TelInput` value must match |
 | `tel.min_length` / `tel.max_length` | `6` / `15` | Length bounds of a `TelInput` value (equal values ⇒ exact length) |
-| `form_theme` | `@FormBuilder/form_theme/shadcn.html.twig` | Twig theme for the bundle's own form types |
+| `form_theme` | `@FormBuilder/form_theme/default.html.twig` | Twig theme for the bundle's own form types |
 | `answers_template` | `@FormBuilder/answers/shadcn.html.twig` | Template whose `answers_view` block renders answers |
 | `answers_pdf_template` | same as `answers_template` | Same, when `form_builder_answers(…, true)` |
 

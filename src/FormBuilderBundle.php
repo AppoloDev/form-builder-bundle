@@ -36,7 +36,7 @@ class FormBuilderBundle extends AbstractBundle
                 ->end()
                 ->scalarNode('form_theme')
                     ->info('Twig form theme used to render the form-builder\'s own types (replace it to use another design system).')
-                    ->defaultValue('@FormBuilder/form_theme/shadcn.html.twig')
+                    ->defaultValue('@FormBuilder/form_theme/default.html.twig')
                 ->end()
                 ->scalarNode('answers_template')
                     ->info('Twig template (block `answers_view`) that renders the answers of a form.')
@@ -76,7 +76,7 @@ class FormBuilderBundle extends AbstractBundle
     public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
     {
         $classes = [];
-        $formTheme = '@FormBuilder/form_theme/shadcn.html.twig';
+        $formTheme = '@FormBuilder/form_theme/default.html.twig';
         foreach ($builder->getExtensionConfig('form_builder') as $config) {
             if (\is_array($config['classes'] ?? null)) {
                 $classes = array_merge($classes, $config['classes']);

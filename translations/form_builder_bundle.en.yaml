@@ -8,6 +8,7 @@ structure:
 theme:
     add_item: 'Add an item'
     add_file: 'Add a file'
+    remove: 'Remove'
     attached_files: 'Attached files'
 signature:
     clear: 'Clear'

@@ -39,9 +39,9 @@
         "phpunit/phpunit": "^13.1"
     },
     "suggest": {
-        "symfony/ux-twig-component": "Requis par le thème et les templates par défaut (composants UI:Shadcn:*)",
-        "symfony/ux-icons": "Requis par le thème et les templates par défaut (<twig:ux:icon>)",
-        "symfony/ux-toolkit": "Kit shadcn (composants UI:Shadcn:*) utilisé par le thème par défaut",
+        "symfony/ux-twig-component": "Requis par le template de réponses par défaut (composants UI:Shadcn:*)",
+        "symfony/ux-icons": "Requis par le template de réponses par défaut (<twig:ux:icon>)",
+        "symfony/ux-toolkit": "Kit shadcn (composants UI:Shadcn:*) utilisé par le template de réponses par défaut",
         "symfony/stimulus-bundle": "Requis pour les contrôleurs Stimulus du bundle"
     },
     "autoload": {

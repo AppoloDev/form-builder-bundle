@@ -16,8 +16,9 @@ No controllers, routes, voters or migrations are shipped.
 ## Requirements
 
 - PHP ≥ 8.4, Symfony 8.1, Doctrine ORM 3, `symfony/uid` (entity ids are `Uuid`)
-- Default theme and templates use `symfony/ux-twig-component`, `symfony/ux-icons` (Phosphor `ph:` icons)
-  and the shadcn kit of `symfony/ux-toolkit` (`UI:Shadcn:*` components). Other themes can be configured.
+- The default form theme is neutral (plain HTML, generic `fb-*` classes) and needs no application component.
+  The default *answers* template still uses `symfony/ux-twig-component`, `symfony/ux-icons` and the shadcn kit of
+  `symfony/ux-toolkit`; configure `answers_template` to avoid them.
 - Front: Vite (or any bundler handling TSX), Tailwind 4, Stimulus.
 
 ## Install
@@ -27,6 +28,17 @@ composer require appolodev/form-builder-bundle
 ```
 
 Then follow [docs/installation.md](docs/installation.md).
+
+## Form theme
+
+The default theme (`@FormBuilder/form_theme/default.html.twig`) is neutral. For a design system, create a theme in
+the application and declare it via `form_builder.form_theme`. Blocks to override: `fieldset_row`, `title_row`,
+`paragraph_row`, `repeatable_row`, `repeatable_child_row`, `add_btn`, `remove_btn`, `address_row`, `signature_row`,
+`file_repeatable_row`, `file_repeatable_child_row`, `form_builder_conditional_field_row` (plus the
+`*_children_prototype` helper blocks). `structure.html.twig` is always loaded by the bundle. Keep the `data-*`
+attributes and the classes read by the Stimulus controllers (`repeatable`, `repeatable--item`, `collec_child`,
+`repeatable_child`, `file_child`, `file-name`, `remove-container`, `input-delete`). The former
+`form_theme/shadcn.html.twig` name remains as an alias of the default theme.
 
 ## Documentation
 

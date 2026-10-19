@@ -90,8 +90,8 @@ add the Tailwind `@source`, install the JS dependencies.
 ## 6. Check the form theme
 
 Your global form theme must render standard types (text, choice, date…). The bundle only themes its own
-types (fieldset, title, paragraph, repeatable, address, signature, file list). The default theme needs the
-`UI:Shadcn:Button` component and Phosphor icons `ph:plus`, `ph:x`, `ph:file-pdf`. To use another design system:
+types (fieldset, title, paragraph, repeatable, address, signature, file list). The default theme is neutral
+(plain HTML, no application component). To use a design system:
 
 ```yaml
 form_builder:
