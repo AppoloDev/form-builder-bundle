@@ -27,7 +27,7 @@
         "symfony/http-kernel": "^8.1",
         "symfony/mime": "^8.1",
         "symfony/uid": "^8.1",
-        "symfony/ux-icons": "^2.0",
+        "symfony/ux-icons": "^3.0",
         "symfony/validator": "^8.1",
         "twig/twig": "^3.0"
     },
