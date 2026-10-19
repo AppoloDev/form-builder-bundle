@@ -101,6 +101,12 @@ class DateTimeInput implements FieldInterface
             $fieldOptions['data'] = $this->hasCurrentDate ? new \DateTime() : null;
         }
 
+        // Heure seule : même rendu que HourMinuteInput (champ natif HH:MM, sans secondes).
+        if ($this->showHour && !$this->showDate) {
+            $fieldOptions['widget'] = 'single_text';
+            $fieldOptions['with_seconds'] = false;
+        }
+
         if ($this->required) {
             $fieldOptions['constraints'] = [
                 new NotBlank(),
