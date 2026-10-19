@@ -18,6 +18,14 @@ export const en: Record<MessageKey, string> = {
     "field.multipleGroup": "Multiple selections",
     "field.addressPlaceholder": "Enter a place…",
 
+    "category.text": "Text",
+    "category.choice": "Choices",
+    "category.number": "Number",
+    "category.datetime": "Date and time",
+    "category.file": "File",
+    "category.advanced": "Advanced",
+    "category.layout": "Layout",
+
     "builder.addBlock": "Add a block",
     "builder.empty": "No block yet!",
     "builder.searchType": "Search a type…",

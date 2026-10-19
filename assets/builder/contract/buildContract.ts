@@ -1,6 +1,8 @@
 import { blockDefinitions } from "../components/Blocks/Definition";
 
 export type BlockContract = {
+    /** Catégorie du type dans le builder (additif : absente de la structure JSON des formulaires). */
+    category: string;
     /** Valeurs initiales d'un bloc fraîchement ajouté (sans l'id). */
     defaults: Record<string, unknown>;
     /** Clés que le builder peut émettre pour ce type (hors `id` et `type`). */
@@ -27,6 +29,7 @@ export const buildContract = (): Contract => {
         keys.delete("type");
 
         types[definition.type] = {
+            category: definition.category,
             defaults: JSON.parse(JSON.stringify(definition.defaultProps)) as Record<string, unknown>,
             keys: [...keys].sort(),
         };

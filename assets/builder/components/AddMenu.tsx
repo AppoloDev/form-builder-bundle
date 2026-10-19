@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 import { BLOCK_COMPONENTS } from "./BlockRegistry";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
+import { categoryDefinitions } from "./Blocks/Categories";
 import { t } from "../i18n";
 
 type AddMenuProps = {
@@ -44,6 +45,11 @@ export const AddMenu: React.FC<AddMenuProps> = (
             d.type.toLowerCase().includes(q)
         );
     }, [query, items]);
+
+    // Types regroupés par catégorie (ordre fixe) ; les catégories sans résultat sont masquées.
+    const groups = useMemo(() => categoryDefinitions
+        .map(category => ({category, defs: filtered.filter(d => d.category === category.id)}))
+        .filter(group => group.defs.length > 0), [filtered]);
 
     const handleClose = () => {
         setOpen(false);
@@ -178,29 +184,41 @@ export const AddMenu: React.FC<AddMenuProps> = (
                         {filtered.length === 0 ? (
                             <div className="p-3 text-sm text-muted-foreground">{t("common.noResult")}</div>
                         ) : (
-                            <ul className="p-2 space-y-1">
-                                {filtered.map(def => (
-                                    <li key={def.id}>
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                handleSelectDef(def);
-                                            }}
-                                            className={`w-full justify-start ${
-                                                selectedDef?.id === def.id
-                                                    ? "bg-accent border border-accent ring-1 ring-accent"
-                                                    : ""
-                                            }`}
-                                            title={def.description}
-                                        >
-                                            {def.title}
-                                        </Button>
-                                    </li>
+                            <div className="p-2 space-y-3">
+                                {groups.map(({category, defs}) => (
+                                    <section key={category.id} aria-label={t(category.titleKey)}>
+                                        {groups.length > 1 && (
+                                            <h4 className="flex items-center gap-1.5 px-2 pb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                                <category.icon className="size-3.5" aria-hidden="true"/>
+                                                {t(category.titleKey)}
+                                            </h4>
+                                        )}
+                                        <ul className="space-y-1">
+                                            {defs.map(def => (
+                                                <li key={def.id}>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            handleSelectDef(def);
+                                                        }}
+                                                        className={`w-full justify-start ${
+                                                            selectedDef?.id === def.id
+                                                                ? "bg-accent border border-accent ring-1 ring-accent"
+                                                                : ""
+                                                        }`}
+                                                        title={def.description}
+                                                    >
+                                                        {def.title}
+                                                    </Button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </section>
                                 ))}
-                            </ul>
+                            </div>
                         )}
                     </div>
                 </div>

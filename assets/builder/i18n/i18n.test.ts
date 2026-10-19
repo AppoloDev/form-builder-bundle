@@ -3,6 +3,7 @@ import { fr } from "./fr";
 import { en } from "./en";
 import { getBuilderLocale, setBuilderLocale, t } from "./index";
 import { blockDefinitions } from "../components/Blocks/Definition";
+import { categoryDefinitions } from "../components/Blocks/Categories";
 
 describe("builder i18n", () => {
     it("has the same keys in both catalogs", () => {
@@ -13,6 +14,13 @@ describe("builder i18n", () => {
         const placeholders = (message: string) => (message.match(/\{\w+\}/g) ?? []).sort();
         for (const key of Object.keys(fr) as (keyof typeof fr)[]) {
             expect(placeholders(en[key]), key).toEqual(placeholders(fr[key]));
+        }
+    });
+
+    it("translates every block category in both catalogs", () => {
+        for (const category of categoryDefinitions) {
+            expect(fr[category.titleKey], category.id).toBeTruthy();
+            expect(en[category.titleKey], category.id).toBeTruthy();
         }
     });
 

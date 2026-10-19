@@ -13,6 +13,7 @@ import {
     Clock,
 } from "lucide-react";
 import { onBuilderLocaleChange, t } from "../../i18n";
+import type { BlockCategory } from "./Categories";
 
 export type BlockId = UniqueIdentifier;
 
@@ -232,6 +233,8 @@ export interface BlockDefinition<T extends BlockType = BlockType> {
     type: T;
     title: string;
     description: string;
+    // Rangement dans le menu d'ajout et restriction par catégorie ; jamais sérialisé dans la structure.
+    category: BlockCategory;
     defaultProps: Omit<BlockOf<T>, 'id'>;
     editionSchema?: DefinitionEditionItem[];
     // Shown on the actual field preview (not the label) so visually similar
@@ -269,6 +272,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     Title: {
         id: "drag-title",
         type: "Title",
+        category: "layout",
         title: t("def.Title.title"),
         description: t("def.Title.description"),
         defaultProps: {
@@ -293,6 +297,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     Paragraph: {
         id: "drag-paragraph",
         type: "Paragraph",
+        category: "layout",
         title: t("def.Paragraph.title"),
         description: t("def.Paragraph.description"),
         defaultProps: {
@@ -306,6 +311,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     TextInput: {
         id: "drag-textinput",
         type: "TextInput",
+        category: "text",
         title: t("def.TextInput.title"),
         icon: TypeIcon,
         description: t("def.TextInput.description"),
@@ -321,6 +327,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     TextareaInput: {
         id: "drag-textareainput",
         type: "TextareaInput",
+        category: "text",
         title: t("def.TextareaInput.title"),
         icon: AlignLeft,
         description: t("def.TextareaInput.description"),
@@ -340,6 +347,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     ChoiceGroup: {
         id: "drag-choicegroup",
         type: "ChoiceGroup",
+        category: "choice",
         title: t("def.ChoiceGroup.title"),
         description: t("def.ChoiceGroup.description"),
         defaultProps: {
@@ -362,6 +370,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     NumberInput: {
         id: "drag-numberinput",
         type: "NumberInput",
+        category: "number",
         title: t("def.NumberInput.title"),
         icon: Hash,
         description: t("def.NumberInput.description"),
@@ -387,6 +396,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     EmailInput: {
         id: "drag-emailinput",
         type: "EmailInput",
+        category: "text",
         title: t("def.EmailInput.title"),
         icon: Mail,
         description: t("def.EmailInput.description"),
@@ -402,6 +412,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     TelInput: {
         id: "drag-telinput",
         type: "TelInput",
+        category: "text",
         title: t("def.TelInput.title"),
         icon: Phone,
         description: t("def.TelInput.description"),
@@ -417,6 +428,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     UrlInput: {
         id: "drag-urlinput",
         type: "UrlInput",
+        category: "text",
         title: t("def.UrlInput.title"),
         icon: Link,
         description: t("def.UrlInput.description"),
@@ -432,6 +444,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     DateTimeInput: {
         id: "drag-datetimeinput",
         type: "DateTimeInput",
+        category: "datetime",
         title: t("def.DateTimeInput.title"),
         icon: Calendar,
         description: t("def.DateTimeInput.description"),
@@ -458,6 +471,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     AddressInput: {
         id: "drag-addressinput",
         type: "AddressInput",
+        category: "advanced",
         title: t("def.AddressInput.title"),
         icon: MapPin,
         description: t("def.AddressInput.description"),
@@ -473,6 +487,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     FileInput: {
         id: "drag-fileinput",
         type: "FileInput",
+        category: "file",
         title: t("def.FileInput.title"),
         icon: Paperclip,
         description: t("def.FileInput.description"),
@@ -499,6 +514,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     HourMinuteInput: {
         id: "drag-hourminuteinput",
         type: "HourMinuteInput",
+        category: "datetime",
         title: t("def.HourMinuteInput.title"),
         icon: Clock,
         description: t("def.HourMinuteInput.description"),
@@ -517,6 +533,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     Select: {
         id: "drag-select",
         type: "Select",
+        category: "choice",
         title: t("def.Select.title"),
         description: t("def.Select.description"),
         defaultProps: {
@@ -540,6 +557,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     Signature: {
         id: "drag-signature",
         type: "Signature",
+        category: "advanced",
         title: t("def.Signature.title"),
         description: t("def.Signature.description"),
         defaultProps: {
@@ -553,6 +571,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     FieldSet: {
         id: "drag-fieldset",
         type: "FieldSet",
+        category: "layout",
         title: t("def.FieldSet.title"),
         description: t("def.FieldSet.description"),
         defaultProps: {
@@ -563,6 +582,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     Repeatable: {
         id: "drag-repeatable",
         type: "Repeatable",
+        category: "layout",
         title: t("def.Repeatable.title"),
         description: t("def.Repeatable.description"),
         defaultProps: {

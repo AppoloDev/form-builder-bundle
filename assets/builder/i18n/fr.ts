@@ -16,6 +16,14 @@ export const fr = {
     "field.multipleGroup": "Sélections multiples",
     "field.addressPlaceholder": "Indiquez un lieu…",
 
+    "category.text": "Texte",
+    "category.choice": "Choix",
+    "category.number": "Nombre",
+    "category.datetime": "Date et heure",
+    "category.file": "Fichier",
+    "category.advanced": "Avancé",
+    "category.layout": "Mise en page",
+
     "builder.addBlock": "Ajouter un bloc",
     "builder.empty": "Aucun bloc pour le moment !",
     "builder.searchType": "Rechercher un type…",

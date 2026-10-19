@@ -1,6 +1,7 @@
 {
   "types": {
     "AddressInput": {
+      "category": "advanced",
       "defaults": {
         "type": "AddressInput",
         "label": "Libellé",
@@ -16,6 +17,7 @@
       ]
     },
     "ChoiceGroup": {
+      "category": "choice",
       "defaults": {
         "type": "ChoiceGroup",
         "label": "Libellé",
@@ -36,6 +38,7 @@
       ]
     },
     "DateTimeInput": {
+      "category": "datetime",
       "defaults": {
         "type": "DateTimeInput",
         "label": "Libellé",
@@ -53,6 +56,7 @@
       ]
     },
     "EmailInput": {
+      "category": "text",
       "defaults": {
         "type": "EmailInput",
         "label": "Libellé",
@@ -70,6 +74,7 @@
       ]
     },
     "FieldSet": {
+      "category": "layout",
       "defaults": {
         "type": "FieldSet",
         "children": []
@@ -79,6 +84,7 @@
       ]
     },
     "FileInput": {
+      "category": "file",
       "defaults": {
         "type": "FileInput",
         "label": "Libellé",
@@ -96,6 +102,7 @@
       ]
     },
     "HourMinuteInput": {
+      "category": "datetime",
       "defaults": {
         "type": "HourMinuteInput",
         "label": "Libellé",
@@ -111,6 +118,7 @@
       ]
     },
     "NumberInput": {
+      "category": "number",
       "defaults": {
         "type": "NumberInput",
         "label": "Libellé",
@@ -134,6 +142,7 @@
       ]
     },
     "Paragraph": {
+      "category": "layout",
       "defaults": {
         "type": "Paragraph",
         "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
@@ -143,6 +152,7 @@
       ]
     },
     "Repeatable": {
+      "category": "layout",
       "defaults": {
         "type": "Repeatable",
         "children": [],
@@ -154,6 +164,7 @@
       ]
     },
     "Select": {
+      "category": "choice",
       "defaults": {
         "type": "Select",
         "label": "Libellé",
@@ -175,6 +186,7 @@
       ]
     },
     "Signature": {
+      "category": "advanced",
       "defaults": {
         "type": "Signature",
         "label": "Libellé",
@@ -188,6 +200,7 @@
       ]
     },
     "TelInput": {
+      "category": "text",
       "defaults": {
         "type": "TelInput",
         "label": "Libellé",
@@ -205,6 +218,7 @@
       ]
     },
     "TextareaInput": {
+      "category": "text",
       "defaults": {
         "type": "TextareaInput",
         "label": "Libellé",
@@ -224,6 +238,7 @@
       ]
     },
     "TextInput": {
+      "category": "text",
       "defaults": {
         "type": "TextInput",
         "label": "Libellé",
@@ -241,6 +256,7 @@
       ]
     },
     "Title": {
+      "category": "layout",
       "defaults": {
         "type": "Title",
         "text": "Titre",
@@ -252,6 +268,7 @@
       ]
     },
     "UrlInput": {
+      "category": "text",
       "defaults": {
         "type": "UrlInput",
         "label": "Libellé",
