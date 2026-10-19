@@ -35,6 +35,22 @@ the theme list to the constructor).
 Common to every value field: label (`label`), help text (`help`), `required` mark, `disabled`, and the errors.
 `formBuilder="formBuilder"` is an `attr` marker added to every generated field (an application theme may ignore it).
 
+## Titles and paragraphs
+
+The default theme is neutral (`fb-title`, `fb-paragraph`). The builder shows these blocks with the classes below
+(`assets/builder/utilities/typography.tsx`), so an application theme should use the same ones to keep the builder
+WYSIWYG. `title_row` must output the requested `h1`…`h6` tag, and `paragraph_row` keeps line breaks (`nl2br`).
+
+| Block | Classes |
+|---|---|
+| `Title` `h1` | `text-3xl font-bold text-foreground` |
+| `Title` `h2` | `text-2xl font-bold text-foreground` |
+| `Title` `h3` | `text-xl font-bold text-foreground` |
+| `Title` `h4` | `text-lg font-bold text-foreground` |
+| `Title` `h5` | `text-base font-bold text-foreground` |
+| `Title` `h6` | `text-sm font-bold text-foreground` |
+| `Paragraph` | `text-base text-muted-foreground` |
+
 ## Behaviour decisions
 
 - **`readOnly` → `disabled`.** A disabled field is not posted by the browser, but Symfony keeps its initial data:

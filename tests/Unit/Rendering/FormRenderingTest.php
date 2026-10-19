@@ -76,6 +76,18 @@ class FormRenderingTest extends TestCase
         self::assertStringContainsString('validators.form_builder.file_required', (new FormRenderingHarness())->render($form));
     }
 
+    public function testTitleRowRendersTheRequestedHeadingLevelAndParagraphRowKeepsLineBreaks(): void
+    {
+        foreach (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as $level) {
+            $html = (new FormRenderingHarness())->render((new FormHarness())->form([['id' => 'f', 'type' => 'Title', 'text' => 'Titre', 'heading' => $level]]));
+
+            self::assertStringContainsString(\sprintf('<%1$s id="form_builder_f">Titre</%1$s>', $level), $html);
+        }
+
+        $html = (new FormRenderingHarness())->render((new FormHarness())->form([['id' => 'f', 'type' => 'Paragraph', 'text' => "Ligne 1\nLigne 2"]]));
+        self::assertMatchesRegularExpression('#<p id="form_builder_f">Ligne 1<br />\s*Ligne 2</p>#', $html);
+    }
+
     public function testEveryTypeOfTheBuilderContractHasARenderingCase(): void
     {
         $contract = json_decode((string) file_get_contents(__DIR__.'/../../../assets/builder/contract/blocks.json'), true, 512, \JSON_THROW_ON_ERROR);

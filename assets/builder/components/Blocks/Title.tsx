@@ -5,6 +5,7 @@ import { EditableBlock } from "./EditableBlock";
 import { SelectEdition } from "../Edition/SelectEdition";
 import { InlineEditableText } from "../InlineEditableText";
 import { t } from "../../i18n";
+import { TITLE_CLASSES, TITLE_INPUT_CLASSES, headingLevelOf } from "../../utilities/typography";
 
 type Props = TitleProps & { preview?: boolean };
 
@@ -12,6 +13,7 @@ const Title = ({id, type, text, heading, preview}: Props) => {
     const {updateBlock} = useFormBuilderStore();
     const [label, setLabel] = useState(text);
     const [headingLevel, setHeadingLevel] = useState(heading);
+    const level = headingLevelOf(headingLevel);
 
     useEffect(() => {
         setLabel(text);
@@ -21,23 +23,6 @@ const Title = ({id, type, text, heading, preview}: Props) => {
     const handleChange = <K extends keyof Omit<TitleProps, "id">>(field: K, value: TitleProps[K]) => {
         updateBlock(id, {[field]: value} as Partial<TitleProps>);
     };
-
-    const renderClass = (headingLevel: string) => {
-        switch (headingLevel) {
-            case 'h1':
-                return 'text-4xl';
-            case 'h2':
-                return 'text-3xl';
-            case 'h3':
-                return 'text-2xl';
-            case 'h4':
-                return 'text-xl';
-            case 'h5':
-                return 'text-lg';
-            case 'h6':
-                return 'text-base';
-        }
-    }
 
     return (
         <EditableBlock id={id} type={type} preview={preview} editionItems={[
@@ -60,7 +45,7 @@ const Title = ({id, type, text, heading, preview}: Props) => {
         ]}>
             <div className={preview ? "" : "rounded-lg p-2 transition-colors"}>
                 {preview ? (
-                    React.createElement(headingLevel, {className: renderClass(headingLevel)}, label)
+                    React.createElement(level, {className: TITLE_CLASSES[level]}, label)
                 ) : (
                     <InlineEditableText
                         value={label}
@@ -69,10 +54,8 @@ const Title = ({id, type, text, heading, preview}: Props) => {
                             handleChange('text', v);
                         }}
                         placeholder={t("title.placeholder")}
-                        // shadcn's Input hardcodes `md:text-sm`, which otherwise silently
-                        // shrinks the title back down on desktop widths — repeat the size
-                        // under `md:` too so it actually wins over Input's own default.
-                        className={`h-auto py-1 placeholder:text-muted-foreground/50 ${renderClass(headingLevel)} md:${renderClass(headingLevel)}`}
+                        // Taille répétée sous `md:` (cf. TITLE_INPUT_CLASSES) ; graisse et couleur comme dans le formulaire.
+                        className={`h-auto py-1 placeholder:text-muted-foreground/50 ${TITLE_INPUT_CLASSES[level]}`}
                     />
                 )}
             </div>

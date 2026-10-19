@@ -4,6 +4,7 @@ import { useFormBuilderStore } from "../../stores/block.store";
 import { EditableBlock } from "./EditableBlock";
 import { InlineEditableText } from "../InlineEditableText";
 import { t } from "../../i18n";
+import { PARAGRAPH_CLASSES, PARAGRAPH_TEXTAREA_CLASSES } from "../../utilities/typography";
 
 type Props = ParagraphProps & { preview?: boolean };
 
@@ -23,7 +24,7 @@ const Paragraph = ({id, type, text, preview}: Props) => {
         <EditableBlock id={id} type={type} preview={preview}>
             <div className={preview ? "" : "rounded-lg p-2 transition-colors"}>
                 {preview ? (
-                    <p>{label}</p>
+                    <p className={PARAGRAPH_CLASSES}>{label}</p>
                 ) : (
                     <InlineEditableText
                         value={label}
@@ -33,7 +34,7 @@ const Paragraph = ({id, type, text, preview}: Props) => {
                         }}
                         placeholder={t("paragraph.text")}
                         multiline
-                        className="placeholder:text-muted-foreground/50"
+                        className={`placeholder:text-muted-foreground/50 ${PARAGRAPH_TEXTAREA_CLASSES}`}
                     />
                 )}
             </div>
