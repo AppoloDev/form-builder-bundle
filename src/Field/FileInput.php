@@ -9,6 +9,7 @@ use AppoloDev\FormBuilderBundle\FormType\FileRepeatableItemType;
 use AppoloDev\FormBuilderBundle\FormType\FileRepeatableType;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\File;
 
 class FileInput implements FieldInterface
@@ -86,7 +87,15 @@ class FileInput implements FieldInterface
             default => [],
         };
 
+        // Le `required` des entrées ne s'applique qu'aux fichiers ajoutés : sans contrainte sur la collection,
+        // un champ requis passe la validation sans aucun fichier, et `maxItems` ne vivrait que côté JS.
+        $collectionConstraints = [new Count(max: max(0, $this->maxItems), maxMessage: 'validators.form_builder.too_many_items')];
+        if ($this->required) {
+            array_unshift($collectionConstraints, new Count(min: 1, minMessage: 'validators.form_builder.file_required'));
+        }
+
         return [
+            'constraints' => $collectionConstraints,
             'allow_add' => true,
             'allow_delete' => true,
             'entry_type' => FileRepeatableItemType::class,

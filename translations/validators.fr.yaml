@@ -1,5 +1,7 @@
 validators:
     form_builder:
+        file_required: 'Veuillez ajouter au moins un fichier.'
+        too_many_items: 'Vous ne pouvez pas ajouter plus de {{ limit }} élément(s).'
         file_only_pdf: 'Les fichiers autorisés sont exclusivement des pdf.'
         file_only_image: 'Les fichiers autorisés sont exclusivement des images.'
         file_pdf_or_image: 'Les fichiers autorisés sont exclusivement des images ou des pdf.'

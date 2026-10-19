@@ -9,6 +9,7 @@ use AppoloDev\FormBuilderBundle\FormType\RepeatableItemType;
 use AppoloDev\FormBuilderBundle\FormType\RepeatableType;
 use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Constraints\Count;
 
 class Repeatable implements FieldInterface
 {
@@ -47,6 +48,8 @@ class Repeatable implements FieldInterface
     {
         return [
             'label' => false,
+            // `maxItems` est aussi lu par le JS (0 = illimité) : on le fait respecter côté serveur.
+            'constraints' => $this->maxItems > 0 ? [new Count(max: $this->maxItems, maxMessage: 'validators.form_builder.too_many_items')] : [],
             'allow_add' => true,
             'allow_delete' => true,
             'entry_type' => RepeatableItemType::class,
