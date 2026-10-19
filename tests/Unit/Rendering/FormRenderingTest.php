@@ -27,17 +27,19 @@ class FormRenderingTest extends TestCase
     #[DataProvider('cases')]
     public function testEveryBuilderTypeIsRenderedWithItsOptions(array $block, array $expected): void
     {
+        $type = $block['type'] ?? null;
+        self::assertIsString($type);
         $html = (new FormRenderingHarness())->render((new FormHarness())->form([['id' => 'f', ...$block]]));
         $xpath = FormRenderingHarness::dom($html);
 
         foreach ($expected as $query) {
             $nodes = $xpath->query($query);
             self::assertNotFalse($nodes, $query);
-            self::assertGreaterThan(0, $nodes->length, \sprintf("%s : « %s » introuvable dans\n%s", $block['type'], $query, $html));
+            self::assertGreaterThan(0, $nodes->length, \sprintf("%s : « %s » introuvable dans\n%s", $type, $query, $html));
         }
 
         // Aucun champ date / heure ne retombe sur des listes déroulantes.
-        if (str_starts_with((string) $block['type'], 'Date') || 'HourMinuteInput' === $block['type']) {
+        if (str_starts_with($type, 'Date') || 'HourMinuteInput' === $type) {
             self::assertStringNotContainsString('<select', $html);
         }
     }
@@ -48,8 +50,13 @@ class FormRenderingTest extends TestCase
         self::assertIsArray($contract);
         self::assertIsArray($contract['types']);
 
-        $covered = array_unique(array_map(static fn (array $case): string => (string) $case[0]['type'], iterator_to_array(self::cases(), false)));
-        $missing = array_values(array_diff(array_keys($contract['types']), $covered));
+        $covered = [];
+        foreach (self::cases() as [$block]) {
+            if (\is_string($block['type'] ?? null)) {
+                $covered[] = $block['type'];
+            }
+        }
+        $missing = array_values(array_diff(array_keys($contract['types']), array_unique($covered)));
 
         self::assertSame([], $missing, 'Types du builder sans cas de rendu : ajoutez-les à FormRenderingTest::cases().');
     }
