@@ -49,7 +49,6 @@ const Repeatable = ({id, type, children, maxItems, preview}: Props) => {
                     <>
                         {/* Élément répété : une carte dans le cadre du conteneur */}
                         <div className={preview ? undefined : repeatableCardClasses}>
-                            {/* Sur la carte (fond « background »), un conteneur imbriqué repasse en fond teinté */}
                             <ContainerContext.Provider value={false}>
                                 <ChildrenSorter childrenBlocks={children} onReorder={handleReorder}/>
                             </ContainerContext.Provider>
