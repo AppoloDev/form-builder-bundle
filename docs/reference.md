@@ -119,6 +119,8 @@ between the two forms; `FormLayoutBlock::listFromArray()` always flattens.
 
 ## Overriding rendering
 
+What the application's own form theme must render for the other types: [rendering-contract.md](rendering-contract.md).
+
 **Form theme** (`form_theme`) must define: `fieldset_row`, `title_row`, `paragraph_row`, `repeatable_row`,
 `repeatable_children_prototype`, `repeatable_child_row`, `add_btn`, `remove_btn`, `address_row`,
 `signature_row`, `file_repeatable_row`, `file_repeatable_children_prototype`, `file_repeatable_child_row`,

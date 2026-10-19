@@ -18,6 +18,7 @@ No controllers, routes, voters or migrations are shipped.
 - PHP ≥ 8.4, Symfony 8.1, Doctrine ORM 3, `symfony/uid` (entity ids are `Uuid`)
 - The default form theme and answers template are neutral (plain HTML, generic classes); the only UI dependency is
   `symfony/ux-icons` (`<twig:ux:icon>` for the PDF icon in answers).
+- Optional: `symfony/ux-autocomplete` (searchable lists and free entry for `Select`; native lists without it).
 - Front: Vite (or any bundler handling TSX), Tailwind 4, Stimulus.
 
 ## Install
