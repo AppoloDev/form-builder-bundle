@@ -21,8 +21,9 @@ export const fr = {
     "category.number": "Nombre",
     "category.datetime": "Date et heure",
     "category.file": "Fichier",
-    "category.advanced": "Avancé",
+    "category.special": "Champs spéciaux",
     "category.layout": "Mise en page",
+    "category.group": "Groupes",
 
     "builder.addBlock": "Ajouter un bloc",
     "builder.empty": "Aucun bloc pour le moment !",

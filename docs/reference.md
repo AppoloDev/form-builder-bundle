@@ -116,8 +116,9 @@ type is exposed in `assets/builder/contract/blocks.json` and mirrored by `Enum\F
 | `number` | `NumberInput` |
 | `datetime` | `DateTimeInput`, `HourMinuteInput` |
 | `file` | `FileInput` |
-| `advanced` | `AddressInput`, `Signature` |
-| `layout` | `Title`, `Paragraph`, `FieldSet`, `Repeatable` |
+| `special` | `AddressInput`, `Signature` |
+| `layout` | `Title`, `Paragraph` |
+| `group` | `FieldSet`, `Repeatable` |
 
 ## Answer data
 

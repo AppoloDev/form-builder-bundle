@@ -16,8 +16,9 @@ enum FieldCategory: string
     case Number = 'number';
     case DateTime = 'datetime';
     case File = 'file';
-    case Advanced = 'advanced';
+    case Special = 'special';
     case Layout = 'layout';
+    case Group = 'group';
 
     /**
      * @return list<string> types du builder de la catégorie
@@ -30,8 +31,9 @@ enum FieldCategory: string
             self::Number => ['NumberInput'],
             self::DateTime => ['DateTimeInput', 'HourMinuteInput'],
             self::File => ['FileInput'],
-            self::Advanced => ['AddressInput', 'Signature'],
-            self::Layout => ['Title', 'Paragraph', 'FieldSet', 'Repeatable'],
+            self::Special => ['AddressInput', 'Signature'],
+            self::Layout => ['Title', 'Paragraph'],
+            self::Group => ['FieldSet', 'Repeatable'],
         };
     }
 

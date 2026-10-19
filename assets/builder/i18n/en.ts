@@ -23,8 +23,9 @@ export const en: Record<MessageKey, string> = {
     "category.number": "Number",
     "category.datetime": "Date and time",
     "category.file": "File",
-    "category.advanced": "Advanced",
+    "category.special": "Special fields",
     "category.layout": "Layout",
+    "category.group": "Groups",
 
     "builder.addBlock": "Add a block",
     "builder.empty": "No block yet!",

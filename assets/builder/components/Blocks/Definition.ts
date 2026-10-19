@@ -471,7 +471,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     AddressInput: {
         id: "drag-addressinput",
         type: "AddressInput",
-        category: "advanced",
+        category: "special",
         title: t("def.AddressInput.title"),
         icon: MapPin,
         description: t("def.AddressInput.description"),
@@ -557,7 +557,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     Signature: {
         id: "drag-signature",
         type: "Signature",
-        category: "advanced",
+        category: "special",
         title: t("def.Signature.title"),
         description: t("def.Signature.description"),
         defaultProps: {
@@ -571,7 +571,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     FieldSet: {
         id: "drag-fieldset",
         type: "FieldSet",
-        category: "layout",
+        category: "group",
         title: t("def.FieldSet.title"),
         description: t("def.FieldSet.description"),
         defaultProps: {
@@ -582,7 +582,7 @@ const buildDefinitions = (): BlockDefinitions => ({
     Repeatable: {
         id: "drag-repeatable",
         type: "Repeatable",
-        category: "layout",
+        category: "group",
         title: t("def.Repeatable.title"),
         description: t("def.Repeatable.description"),
         defaultProps: {

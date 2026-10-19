@@ -1,7 +1,7 @@
 {
   "types": {
     "AddressInput": {
-      "category": "advanced",
+      "category": "special",
       "defaults": {
         "type": "AddressInput",
         "label": "Libellé",
@@ -74,7 +74,7 @@
       ]
     },
     "FieldSet": {
-      "category": "layout",
+      "category": "group",
       "defaults": {
         "type": "FieldSet",
         "children": []
@@ -152,7 +152,7 @@
       ]
     },
     "Repeatable": {
-      "category": "layout",
+      "category": "group",
       "defaults": {
         "type": "Repeatable",
         "children": [],
@@ -186,7 +186,7 @@
       ]
     },
     "Signature": {
-      "category": "advanced",
+      "category": "special",
       "defaults": {
         "type": "Signature",
         "label": "Libellé",

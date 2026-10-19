@@ -1,11 +1,11 @@
-import { type LucideIcon, Hash, ListChecks, CalendarClock, Paperclip, LayoutGrid, Sparkles, TextCursorInput } from "lucide-react";
+import { type LucideIcon, Hash, ListChecks, CalendarClock, Paperclip, LayoutGrid, Layers, Sparkles, TextCursorInput } from "lucide-react";
 import type { MessageKey } from "../../i18n";
 
 /**
  * Catégories de types de champs. Notion du builder (présentation du menu d'ajout et restriction des champs
  * proposés) : elle n'est jamais écrite dans la structure JSON d'un formulaire.
  */
-export const BLOCK_CATEGORIES = ["text", "choice", "number", "datetime", "file", "advanced", "layout"] as const;
+export const BLOCK_CATEGORIES = ["text", "choice", "number", "datetime", "file", "special", "layout", "group"] as const;
 
 export type BlockCategory = (typeof BLOCK_CATEGORIES)[number];
 
@@ -22,8 +22,9 @@ export const categoryDefinitions: CategoryDefinition[] = [
     {id: "number", titleKey: "category.number", icon: Hash},
     {id: "datetime", titleKey: "category.datetime", icon: CalendarClock},
     {id: "file", titleKey: "category.file", icon: Paperclip},
-    {id: "advanced", titleKey: "category.advanced", icon: Sparkles},
+    {id: "special", titleKey: "category.special", icon: Sparkles},
     {id: "layout", titleKey: "category.layout", icon: LayoutGrid},
+    {id: "group", titleKey: "category.group", icon: Layers},
 ];
 
 export const isBlockCategory = (value: string): value is BlockCategory =>
