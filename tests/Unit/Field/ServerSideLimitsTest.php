@@ -66,4 +66,17 @@ class ServerSideLimitsTest extends TestCase
 
         self::assertTrue($form->isValid());
     }
+
+    public function testARequiredFieldInsideAGroupOrARepeatableIsEnforced(): void
+    {
+        $child = [['id' => 't', 'type' => 'TextInput', 'label' => 'Nom', 'required' => true]];
+
+        $group = (new FormHarness())->form([['id' => 'g', 'type' => 'FieldSet', 'children' => $child]]);
+        $group->submit(['g' => ['t' => '']]);
+        self::assertFalse($group->isValid());
+
+        $repeatable = (new FormHarness())->form([['id' => 'r', 'type' => 'Repeatable', 'maxItems' => 3, 'children' => $child]]);
+        $repeatable->submit(['r' => [['t' => '']]]);
+        self::assertFalse($repeatable->isValid());
+    }
 }

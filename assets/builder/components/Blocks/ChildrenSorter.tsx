@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 import {
     DndContext,
     DragStartEvent,
@@ -21,10 +21,18 @@ import { Block } from "./Definition";
 import { BLOCK_COMPONENTS } from "../BlockRegistry";
 import { DragHandleContext } from "../../FormBuilder";
 
-const FollowUpRenderer: React.FC<{ child: Block }> = ({child}) => {
+/**
+ * Vrai sous les champs d'une règle de condition (y compris dans un groupe imbriqué) : ces champs sont masqués tant que
+ * la condition n'est pas remplie, ils ne peuvent donc pas être obligatoires (cf. ConditionalFieldType côté PHP).
+ */
+const ConditionalChildrenContext = createContext(false);
+
+const FollowUpRenderer: React.FC<{ child: Block; conditional: boolean }> = ({child, conditional}) => {
     const Comp = BLOCK_COMPONENTS[child.type];
     if (!Comp) return null;
-    return <Comp {...child} useContionnalField={false} isChildBlock={true} />;
+    // `isChildBlock` retire l'option « Requis » : réservé aux champs conditionnels (un groupe ou un répétable
+    // classique garde son option).
+    return <Comp {...child} useContionnalField={false} isChildBlock={conditional} />;
 };
 
 const SortableChildBlock: React.FC<{
@@ -61,7 +69,11 @@ const SortableChildBlock: React.FC<{
 export const ChildrenSorter: React.FC<{
     childrenBlocks: Block[];
     onReorder: (next: Block[]) => void;
-}> = ({childrenBlocks, onReorder}) => {
+    /** Enfants d'une règle de condition : champs jamais obligatoires. */
+    conditional?: boolean;
+}> = ({childrenBlocks, onReorder, conditional = false}) => {
+    const inheritedConditional = useContext(ConditionalChildrenContext);
+    const isConditional = conditional || inheritedConditional;
     const sensors = useSensors(
         useSensor(PointerSensor, {activationConstraint: {distance: 2}})
     );
@@ -101,6 +113,7 @@ export const ChildrenSorter: React.FC<{
     }, []);
 
     return (
+        <ConditionalChildrenContext.Provider value={isConditional}>
         <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -112,7 +125,7 @@ export const ChildrenSorter: React.FC<{
                 <div className="flex flex-col gap-3">
                     {childrenBlocks.map((child) => (
                         <SortableChildBlock key={child.id} id={child.id}>
-                            <FollowUpRenderer child={child}/>
+                            <FollowUpRenderer child={child} conditional={isConditional}/>
                         </SortableChildBlock>
                     ))}
                 </div>
@@ -135,5 +148,6 @@ export const ChildrenSorter: React.FC<{
                 ) : null}
             </DragOverlay>
         </DndContext>
+        </ConditionalChildrenContext.Provider>
     );
 };

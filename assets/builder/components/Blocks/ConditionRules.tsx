@@ -96,6 +96,7 @@ export const ConditionRules = (
                             <>
                                 <ChildrenSorter
                                     childrenBlocks={rule.children}
+                                    conditional
                                     onReorder={(next) => onReorderRuleChildren(rule.id, next)}
                                 />
 
