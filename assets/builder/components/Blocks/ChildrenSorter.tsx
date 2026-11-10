@@ -20,8 +20,6 @@ import { CSS } from "@dnd-kit/utilities";
 import { Block } from "./Definition";
 import { BLOCK_COMPONENTS } from "../BlockRegistry";
 import { DragHandleContext } from "../../FormBuilder";
-import { AddAfterButton } from "../AddAfterButton";
-import { BlockDefinition } from "./Definition";
 
 /**
  * Vrai sous les champs d'une règle de condition (y compris dans un groupe imbriqué) : ces champs sont masqués tant que
@@ -73,9 +71,7 @@ export const ChildrenSorter: React.FC<{
     onReorder: (next: Block[]) => void;
     /** Enfants d'une règle de condition : champs jamais obligatoires. */
     conditional?: boolean;
-    /** Si fourni, chaque enfant porte un « + » qui ajoute un bloc juste après lui (même mécanique qu'à la racine). */
-    onAddAfter?: (index: number, def: BlockDefinition, overrides?: Record<string, any>) => void;
-}> = ({childrenBlocks, onReorder, conditional = false, onAddAfter}) => {
+}> = ({childrenBlocks, onReorder, conditional = false}) => {
     const inheritedConditional = useContext(ConditionalChildrenContext);
     const isConditional = conditional || inheritedConditional;
     const sensors = useSensors(
@@ -126,13 +122,10 @@ export const ChildrenSorter: React.FC<{
             onDragCancel={onDragCancel}
         >
             <SortableContext items={childIds} strategy={verticalListSortingStrategy}>
-                <div className={onAddAfter ? "flex flex-col gap-5" : "flex flex-col gap-3"}>
-                    {childrenBlocks.map((child, index) => (
+                <div className={conditional ? "flex flex-col gap-3" : "flex flex-col gap-5"}>
+                    {childrenBlocks.map((child) => (
                         <SortableChildBlock key={child.id} id={child.id}>
                             <FollowUpRenderer child={child} conditional={isConditional}/>
-                            {onAddAfter && (
-                                <AddAfterButton onPick={(def, overrides) => onAddAfter(index, def, overrides)}/>
-                            )}
                         </SortableChildBlock>
                     ))}
                 </div>

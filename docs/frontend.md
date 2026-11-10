@@ -21,7 +21,7 @@
 ## Host setup
 
 1. **Install JS dependencies** (see `package.json` of the bundle): `react`, `react-dom`, `zustand`, `uuid`,
-   `@base-ui/react`, `@dnd-kit/core|sortable|utilities`, `class-variance-authority`, `cn`, `lucide-react`,
+   `@base-ui/react`, `@dnd-kit/core|sortable|utilities`, `class-variance-authority`, `cn`, `@phosphor-icons/react`,
    `signature_pad`, `@hotwired/stimulus`. Resolve the bundle's `assets/` path from `vendor/appolodev/form-builder-bundle/assets`
    (or its real path when installed as a path repository).
 

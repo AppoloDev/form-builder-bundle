@@ -5,9 +5,7 @@ import { CheckboxEdition } from "../Edition/CheckboxEdition";
 import { SelectEdition } from "../Edition/SelectEdition";
 import { FieldInput } from "./FieldInput";
 import { blockDefinitions } from "./Definition";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
-import { InputGroup, InputGroupAddon } from "../ui/input-group";
+import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupTextarea } from "../ui/input-group";
 import { Tooltip } from "../Tooltip";
 import { t } from "../../i18n";
 
@@ -18,7 +16,6 @@ type CommonProps = {
     placeHolder?: string;
     required?: boolean;
     isChildBlock?: boolean;
-    preview?: boolean;
     [key: string]: any;
 };
 
@@ -56,7 +53,7 @@ export const makeInputBlock = (
     opts: MakeOpts = {}
 ) => {
     const InputBlock: FC<CommonProps> = (props) => {
-        const {id, type: blockType, index: _index, isChildBlock, preview, ...restProps} = props;
+        const {id, type: blockType, index: _index, isChildBlock, ...restProps} = props;
         const {updateBlock} = useFormBuilderStore();
 
         const [form, setForm] = useState<Record<string, any>>({
@@ -156,28 +153,25 @@ export const makeInputBlock = (
                 form={form}
                 id={id}
                 type={blockType}
-                preview={preview}
                 onLabelChange={(v) => handleChange('label', v)}
+                onRequiredChange={isChildBlock ? undefined : (v) => handleChange('required', v)}
             >
+                {/* Aperçu : `inert` plutôt que `disabled`, qui griserait le champ (rendu différent du formulaire). */}
                 <InputGroup>
                     {finalType === 'textarea' ?
-                        <Textarea
+                        <InputGroupTextarea
                             id={id}
-                            data-slot="input-group-control"
                             placeholder={form.placeHolder}
                             rows={props.rows}
-                            disabled
-                            className="border-0 shadow-none focus-visible:ring-0"
+                            inert
                             {...restInputAttrs}
                         />
                         :
-                        <Input
+                        <InputGroupInput
                             id={id}
-                            data-slot="input-group-control"
                             type={finalType}
                             placeholder={form.placeHolder}
-                            disabled
-                            className="border-0 shadow-none focus-visible:ring-0"
+                            inert
                             {...restInputAttrs}
                         />
                     }

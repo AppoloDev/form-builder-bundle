@@ -77,7 +77,7 @@ abstract class AbstractValueFieldWithDefault implements FieldInterface
     protected function getFieldOptions(): array
     {
         $fieldOptions = [
-            'label' => $this->label,
+            'label' => '' === $this->label ? false : $this->label,
             'attr' => [
                 'placeholder' => $this->placeholder,
                 'formBuilder' => true,

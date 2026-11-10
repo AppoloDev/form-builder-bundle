@@ -1,31 +1,60 @@
-import { type LucideIcon, Hash, ListChecks, CalendarClock, Paperclip, LayoutGrid, Layers, Sparkles, TextCursorInput } from "lucide-react";
+import { type Icon, CheckSquareIcon } from "@phosphor-icons/react";
 import type { MessageKey } from "../../i18n";
+import type { BlockType } from "./Definition";
+import { TEXT_VARIANTS } from "./TextVariants";
 
 /**
- * Catégories de types de champs. Notion du builder (présentation du menu d'ajout et restriction des champs
- * proposés) : elle n'est jamais écrite dans la structure JSON d'un formulaire.
+ * Catégories de types de champs. Notion du builder (restriction des champs proposés, option `categories`) : elle
+ * n'est jamais écrite dans la structure JSON d'un formulaire.
  */
 export const BLOCK_CATEGORIES = ["text", "choice", "number", "datetime", "file", "special", "layout", "group"] as const;
 
 export type BlockCategory = (typeof BLOCK_CATEGORIES)[number];
 
-type CategoryDefinition = {
-    id: BlockCategory;
-    titleKey: MessageKey;
-    icon: LucideIcon;
-};
-
-/** Ordre d'affichage fixe dans le menu d'ajout. */
-export const categoryDefinitions: CategoryDefinition[] = [
-    {id: "text", titleKey: "category.text", icon: TextCursorInput},
-    {id: "choice", titleKey: "category.choice", icon: ListChecks},
-    {id: "number", titleKey: "category.number", icon: Hash},
-    {id: "datetime", titleKey: "category.datetime", icon: CalendarClock},
-    {id: "file", titleKey: "category.file", icon: Paperclip},
-    {id: "special", titleKey: "category.special", icon: Sparkles},
-    {id: "layout", titleKey: "category.layout", icon: LayoutGrid},
-    {id: "group", titleKey: "category.group", icon: Layers},
-];
-
 export const isBlockCategory = (value: string): value is BlockCategory =>
     (BLOCK_CATEGORIES as readonly string[]).includes(value);
+
+/**
+ * Entrée du menu d'ajout. Par défaut, titre et icône de la définition du bloc ; un même type peut figurer plusieurs
+ * fois avec ses propres valeurs par défaut (choix unique / multiple).
+ */
+export type AddMenuEntry = {
+    type: BlockType;
+    titleKey?: MessageKey;
+    icon?: Icon;
+    defaultProps?: Record<string, unknown>;
+};
+
+/** Sections et ordre du menu d'ajout (présentation seulement, indépendante des catégories). */
+export const addMenuSections: { titleKey: MessageKey; entries: AddMenuEntry[] }[] = [
+    {
+        titleKey: "menu.questions",
+        entries: [
+            {type: "TextInput"},
+            {type: "TextareaInput"},
+            {type: "ChoiceGroup", titleKey: "menu.singleChoice"},
+            {type: "ChoiceGroup", titleKey: "menu.multipleChoice", icon: CheckSquareIcon, defaultProps: {multiple: true}},
+            {type: "Select"},
+            {type: "NumberInput"},
+            {type: "DateTimeInput"},
+            {type: "HourMinuteInput"},
+            {type: "EmailInput"},
+            {type: "TelInput"},
+            {type: "UrlInput"},
+            {type: "AddressInput"},
+            {type: "FileInput"},
+            {type: "Signature"},
+        ],
+    },
+    {
+        titleKey: "menu.presentation",
+        // Titres 1 à 3 puis texte explicatif, comme « Transformer en ».
+        entries: TEXT_VARIANTS.map((variant): AddMenuEntry => variant.id === "paragraph"
+            ? {type: "Paragraph", titleKey: variant.titleKey, icon: variant.icon}
+            : {type: "Title", titleKey: variant.titleKey, icon: variant.icon, defaultProps: {heading: variant.id}}),
+    },
+    {
+        titleKey: "menu.organisation",
+        entries: [{type: "FieldSet"}, {type: "Repeatable"}],
+    },
+];

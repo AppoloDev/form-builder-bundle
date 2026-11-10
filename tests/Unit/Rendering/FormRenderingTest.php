@@ -21,6 +21,33 @@ class FormRenderingTest extends TestCase
     private const OPTIONS = [['label' => 'Oui', 'isSelected' => false], ['label' => 'Non', 'isSelected' => false]];
 
     /**
+     * Libellé vide (valeur par défaut d'un nouveau bloc) : pas de libellé, et surtout pas l'identifiant du bloc que
+     * Symfony afficherait à la place d'un `label` vide.
+     */
+    #[DataProvider('emptyLabelTypes')]
+    public function testEmptyLabelRendersNoLabel(string $type): void
+    {
+        $block = ['id' => 'f', 'type' => $type, 'label' => ''];
+        if (\in_array($type, ['Select', 'ChoiceGroup'], true)) {
+            $block['options'] = self::OPTIONS;
+        }
+        $html = (new FormRenderingHarness())->render((new FormHarness())->form([$block]));
+
+        self::assertSame(0, FormRenderingHarness::count(FormRenderingHarness::dom($html), "//label[normalize-space()='F']"), $html);
+        self::assertSame(0, FormRenderingHarness::count(FormRenderingHarness::dom($html), "//legend[normalize-space()='F']"), $html);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function emptyLabelTypes(): iterable
+    {
+        foreach (['TextInput', 'TextareaInput', 'EmailInput', 'TelInput', 'UrlInput', 'NumberInput', 'DateTimeInput', 'HourMinuteInput', 'AddressInput', 'Signature', 'Select', 'ChoiceGroup', 'FileInput'] as $type) {
+            yield $type => [$type];
+        }
+    }
+
+    /**
      * @param array<string, mixed> $block
      * @param list<string>         $expected
      */

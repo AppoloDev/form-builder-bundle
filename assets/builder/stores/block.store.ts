@@ -13,6 +13,8 @@ interface FormBuilderState {
     addBlock: (block: Block, index?: number) => void;
     removeBlock: (id: BlockId) => void;
     updateBlock: <T extends Block>(id: BlockId, updates: Partial<Omit<T, 'id' | 'type'>>) => void;
+    /** Remplace un bloc entier, à n'importe quelle profondeur (changement de type : « Transformer en »). */
+    replaceBlock: (id: BlockId, block: Block) => void;
 
     setOverId: (id: string | null) => void;
     setActiveId: (id: UniqueIdentifier | null) => void;
@@ -105,6 +107,11 @@ const updateBlockRecursive = (blocks: Block[], id: BlockId, updates: any): Block
     });
 };
 
+const replaceBlockRecursive = (blocks: Block[], id: BlockId, next: Block): Block[] =>
+    blocks.map((block) => block.id === id
+        ? next
+        : recurseIntoChildren(block, (children) => replaceBlockRecursive(children, id, next)));
+
 const removeBlockRecursive = (blocks: Block[], id: BlockId): Block[] => {
     const filteredBlocks = blocks.filter((block) => block.id !== id);
 
@@ -144,6 +151,12 @@ export const useFormBuilderStore = create<FormBuilderState>((set) => ({
     updateBlock: (id, updates) => {
         set((state) => ({
             blocks: updateBlockRecursive(state.blocks, id, updates)
+        }));
+    },
+
+    replaceBlock: (id, block) => {
+        set((state) => ({
+            blocks: replaceBlockRecursive(state.blocks, id, block)
         }));
     },
 

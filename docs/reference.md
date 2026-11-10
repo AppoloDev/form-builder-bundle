@@ -105,7 +105,7 @@ between the two forms; `FormLayoutBlock::listFromArray()` always flattens.
 
 ### Field categories
 
-Categories group the types in the builder's "Add a block" menu and drive the `FormStructureType` restriction
+Categories group the types in the builder's "Add a question" menu and drive the `FormStructureType` restriction
 (`categories` option). They are a builder concept: they are **not** stored in a structure. The `category` of each
 type is exposed in `assets/builder/contract/blocks.json` and mirrored by `Enum\FieldCategory` (checked by a test).
 

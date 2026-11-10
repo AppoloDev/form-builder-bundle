@@ -52,7 +52,7 @@ abstract class AbstractSimpleValueField implements FieldInterface
     protected function getFieldOptions(): array
     {
         $fieldOptions = [
-            'label' => $this->label,
+            'label' => '' === $this->label ? false : $this->label,
             'required' => $this->required,
             'help' => $this->helpText,
             'attr' => [

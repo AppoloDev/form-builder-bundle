@@ -1,4 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { FIELD_CLASSES, FIELD_DESCRIPTION_CLASSES, FIELD_LABEL_CLASSES } from "../../utilities/typography";
 
 type Option = { value: string; label: string };
 
@@ -12,8 +13,8 @@ type Props = {
 
 export const SelectEdition = ({label, value, options, helpText, editItem}: Props) => {
     return (
-        <div className="mb-3">
-            <label className="block mb-2 text-sm font-medium text-foreground">{label}</label>
+        <div className={FIELD_CLASSES}>
+            <label className={FIELD_LABEL_CLASSES}>{label}</label>
             <Select items={options} value={value ?? ""} onValueChange={(v) => editItem(v ?? "")}>
                 <SelectTrigger className="w-full">
                     <SelectValue/>
@@ -24,7 +25,7 @@ export const SelectEdition = ({label, value, options, helpText, editItem}: Props
                     ))}
                 </SelectContent>
             </Select>
-            {helpText && <p className="mt-1 text-xs text-muted-foreground italic">{helpText}</p>}
+            {helpText && <p className={FIELD_DESCRIPTION_CLASSES}>{helpText}</p>}
         </div>
     );
 };

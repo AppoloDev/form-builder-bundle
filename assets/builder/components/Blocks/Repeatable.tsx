@@ -2,6 +2,7 @@ import { RepeatableProps, Block, BlockDefinition } from "./Definition";
 import { useFormBuilderStore } from "../../stores/block.store";
 import { EditableBlock } from "./EditableBlock";
 import { Empty } from "../Empty";
+import { AddButton } from "../AddButton";
 import { ChildrenSorter } from "./ChildrenSorter";
 import { createBlockFromTemplate } from "../../utilities/block.utiles";
 import { TextEdition } from "../Edition/TextEdition";
@@ -9,21 +10,13 @@ import { ContainerContext, containerFrameClasses, repeatableCardClasses } from "
 import { t } from "../../i18n";
 import { useContext } from "react";
 
-type Props = RepeatableProps & { preview?: boolean };
-
-const Repeatable = ({id, type, children, maxItems, preview}: Props) => {
+const Repeatable = ({id, type, children, maxItems}: RepeatableProps) => {
     const {updateBlock} = useFormBuilderStore();
     const nested = useContext(ContainerContext);
 
-    const addChild = (def: BlockDefinition, overrides?: Record<string, any>) => {
-        const newBlock = createBlockFromTemplate(def, overrides);
+    const addChild = (def: BlockDefinition) => {
+        const newBlock = createBlockFromTemplate(def);
         updateBlock(id, {children: [...children, newBlock]});
-    };
-
-    const addChildAfter = (index: number, def: BlockDefinition, overrides?: Record<string, any>) => {
-        const next = [...children];
-        next.splice(index + 1, 0, createBlockFromTemplate(def, overrides));
-        updateBlock(id, {children: next});
     };
 
     const handleReorder = (next: Block[]) => {
@@ -35,7 +28,7 @@ const Repeatable = ({id, type, children, maxItems, preview}: Props) => {
     };
 
     return (
-        <EditableBlock id={id} type={type} preview={preview} editionItems={[
+        <EditableBlock id={id} type={type} editionItems={[
             <TextEdition
                 key="maxItems"
                 label={t("repeatable.max")}
@@ -46,16 +39,17 @@ const Repeatable = ({id, type, children, maxItems, preview}: Props) => {
             />,
         ]}>
             <ContainerContext.Provider value={true}>
-            <div className={preview ? "flex flex-col gap-5" : containerFrameClasses(nested, false)}>
+            <div className={containerFrameClasses(nested, false)}>
                 {children.length === 0 ? (
                     <Empty onPick={addChild}/>
                 ) : (
                     <>
                         {/* Élément répété : une carte dans le cadre du conteneur */}
-                        <div className={preview ? undefined : repeatableCardClasses}>
+                        <div className={repeatableCardClasses}>
                             <ContainerContext.Provider value={false}>
-                                <ChildrenSorter childrenBlocks={children} onReorder={handleReorder} onAddAfter={addChildAfter}/>
+                                <ChildrenSorter childrenBlocks={children} onReorder={handleReorder}/>
                             </ContainerContext.Provider>
+                            <AddButton onPick={addChild}/>
                         </div>
                     </>
                 )}

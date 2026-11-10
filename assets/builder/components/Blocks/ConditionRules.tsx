@@ -1,7 +1,7 @@
-import { Trash } from "lucide-react";
+import { TrashIcon } from "@phosphor-icons/react";
 import { Button } from "../ui/button";
 import { Select as SelectField, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { AddMenu } from "../AddMenu";
+import { AddButton } from "../AddButton";
 import { Empty } from "../Empty";
 import { ChildrenSorter } from "./ChildrenSorter";
 import { Block, BlockDefinition, ConditionOperator, ConditionRule } from "./Definition";
@@ -15,7 +15,7 @@ type Props = {
     onChangeRuleOption: (ruleId: string, optionId: string) => void;
     onChangeRuleOperator: (ruleId: string, operator: ConditionOperator) => void;
     onRemoveRule: (ruleId: string) => void;
-    onAddBlockToRule: (ruleId: string, def: BlockDefinition, overrides?: Record<string, any>) => void;
+    onAddBlockToRule: (ruleId: string, def: BlockDefinition) => void;
     onReorderRuleChildren: (ruleId: string, next: Block[]) => void;
 };
 
@@ -86,12 +86,12 @@ export const ConditionRules = (
                                 className="ml-auto text-destructive hover:text-destructive"
                                 aria-label={t("condition.deleteAria")}
                             >
-                                <Trash/>
+                                <TrashIcon/>
                             </Button>
                         </div>
 
                         {rule.children.length === 0 ? (
-                            <Empty onPick={(def, overrides) => onAddBlockToRule(rule.id, def, overrides)}/>
+                            <Empty onPick={(def) => onAddBlockToRule(rule.id, def)}/>
                         ) : (
                             <>
                                 <ChildrenSorter
@@ -100,13 +100,7 @@ export const ConditionRules = (
                                     onReorder={(next) => onReorderRuleChildren(rule.id, next)}
                                 />
 
-                                <div className="pt-1">
-                                    <AddMenu onPick={(def, overrides) => onAddBlockToRule(rule.id, def, overrides)}>
-                                        <Button type="button" size="sm">
-                                            {t("builder.addBlock")}
-                                        </Button>
-                                    </AddMenu>
-                                </div>
+                                <AddButton onPick={(def) => onAddBlockToRule(rule.id, def)}/>
                             </>
                         )}
                     </div>

@@ -1,6 +1,7 @@
 import { ChangeEvent } from "react";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
+import { FIELD_CLASSES, FIELD_DESCRIPTION_CLASSES, FIELD_LABEL_CLASSES } from "../../utilities/typography";
 
 type Props = {
     label: string;
@@ -17,8 +18,8 @@ export const TextEdition = ({label, value, helpText, editItem, type = 'text', ro
     };
 
     return (
-        <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">
+        <div className={FIELD_CLASSES}>
+            <label className={FIELD_LABEL_CLASSES}>
                 {label}
             </label>
 
@@ -37,7 +38,7 @@ export const TextEdition = ({label, value, helpText, editItem, type = 'text', ro
             )}
 
             {helpText && (
-                <p className="text-sm text-muted-foreground">{helpText}</p>
+                <p className={FIELD_DESCRIPTION_CLASSES}>{helpText}</p>
             )}
         </div>
     );

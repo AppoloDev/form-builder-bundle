@@ -10,13 +10,12 @@ import { createBlockFromTemplate } from "../../utilities/block.utiles";
 import { Select as SelectField, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Button } from "../ui/button";
 import { v4 as uuidv4 } from "uuid";
-import { GitPullRequest, Plus } from "lucide-react";
+import { GitPullRequestIcon, PlusIcon } from "@phosphor-icons/react";
 import { t } from "../../i18n";
 
 type Props = Omit<SelectProps, 'id'> & {
     id: string;
     isChildBlock?: boolean;
-    preview?: boolean;
     useContionnalField?: boolean
 };
 
@@ -33,7 +32,6 @@ const Select = (
         options: propsOptions,
         conditions: propsConditions,
         isChildBlock,
-        preview,
         useContionnalField: propsUseContionnalField = true,
     }: Props) => {
     const {updateBlock} = useFormBuilderStore();
@@ -121,8 +119,8 @@ const Select = (
         updateBlock(id, patch);
     };
 
-    const addBlockToRule = (ruleId: string, def: BlockDefinition, overrides?: Record<string, any>) => {
-        const newBlock = createBlockFromTemplate(def, overrides);
+    const addBlockToRule = (ruleId: string, def: BlockDefinition) => {
+        const newBlock = createBlockFromTemplate(def);
         const nextConditions = form.conditions.map((r) =>
             r.id === ruleId ? {...r, children: [...r.children, newBlock]} : r
         );
@@ -168,7 +166,7 @@ const Select = (
                     disabled={form.options.length === 0}
 
                 >
-                    <GitPullRequest/>
+                    <GitPullRequestIcon/>
                     {t("condition.add")}
                 </Button>
             </div>
@@ -176,14 +174,15 @@ const Select = (
     ];
 
     return (
-        <FieldInput id={id} type={blockType} form={form} editionItems={editionItems} preview={preview}
-                    onLabelChange={(v) => handleChange("label", v)}>
+        <FieldInput id={id} type={blockType} form={form} editionItems={editionItems}
+                    onLabelChange={(v) => handleChange("label", v)}
+                    onRequiredChange={isChildBlock ? undefined : (v) => handleChange("required", v)}>
             <SelectField
-                disabled
                 items={form.options.map((opt) => ({value: opt.label, label: opt.label}))}
                 defaultValue={form.options[0]?.label}
             >
-                <SelectTrigger className="w-full">
+                {/* Aperçu non interactif sans le grisé de `disabled`. */}
+                <SelectTrigger className="w-full" inert>
                     <SelectValue placeholder={t("option.select")}/>
                 </SelectTrigger>
                 <SelectContent>

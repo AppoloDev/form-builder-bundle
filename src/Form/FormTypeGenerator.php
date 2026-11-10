@@ -13,6 +13,8 @@ use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 
@@ -96,7 +98,27 @@ class FormTypeGenerator
 
         if ($field->validateDefinition($block, $this->formOptions)) {
             $field->addFieldFromDefinition($formBuilder);
+            $this->keepReadOnlyValue($formBuilder, $block->id);
         }
+    }
+
+    /**
+     * Un champ en lecture seule est `disabled` : Symfony ignore la valeur postée (pas de falsification possible) mais
+     * ne recopie pas non plus sa valeur dans les données du parent. On l'y remet, sinon la valeur par défaut d'un champ
+     * en lecture seule n'est jamais enregistrée dans la réponse.
+     */
+    private function keepReadOnlyValue(FormBuilderInterface $formBuilder, ?string $id): void
+    {
+        if (null === $id || !$formBuilder->has($id) || !$formBuilder->get($id)->getDisabled()) {
+            return;
+        }
+
+        $formBuilder->addEventListener(FormEvents::SUBMIT, static function (FormEvent $event) use ($id): void {
+            $data = $event->getData();
+            $data = \is_array($data) ? $data : [];
+            $data[$id] = $event->getForm()->get($id)->getData();
+            $event->setData($data);
+        });
     }
 
     /**

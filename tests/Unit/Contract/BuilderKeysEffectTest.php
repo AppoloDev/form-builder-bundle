@@ -32,7 +32,7 @@ class BuilderKeysEffectTest extends TestCase
         'label' => 'Autre libellé',
         'helpText' => 'Autre aide',
         'placeHolder' => 'Autre indice',
-        'required' => true,
+        'required' => false,
         'readOnly' => true,
         'multiple' => true,
         'customOption' => true,

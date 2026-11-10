@@ -1,4 +1,5 @@
 import { Switch } from "../ui/switch";
+import { FIELD_LABEL_CLASSES } from "../../utilities/typography";
 
 type Props = {
     label: string;
@@ -12,7 +13,7 @@ export const CheckboxEdition = ({label, checked, editItem}: Props) => {
             className="flex items-center cursor-pointer justify-between"
             onClick={() => editItem(!checked)}
         >
-            <span className="text-sm font-medium text-foreground">{label}</span>
+            <span className={FIELD_LABEL_CLASSES}>{label}</span>
             <Switch
                 checked={checked}
                 onCheckedChange={editItem}

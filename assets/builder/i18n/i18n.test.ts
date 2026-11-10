@@ -3,7 +3,7 @@ import { fr } from "./fr";
 import { en } from "./en";
 import { getBuilderLocale, setBuilderLocale, t } from "./index";
 import { blockDefinitions } from "../components/Blocks/Definition";
-import { categoryDefinitions } from "../components/Blocks/Categories";
+import { addMenuSections } from "../components/Blocks/Categories";
 
 describe("builder i18n", () => {
     it("has the same keys in both catalogs", () => {
@@ -17,10 +17,11 @@ describe("builder i18n", () => {
         }
     });
 
-    it("translates every block category in both catalogs", () => {
-        for (const category of categoryDefinitions) {
-            expect(fr[category.titleKey], category.id).toBeTruthy();
-            expect(en[category.titleKey], category.id).toBeTruthy();
+    it("translates every add menu section and entry in both catalogs", () => {
+        const keys = addMenuSections.flatMap((s) => [s.titleKey, ...s.entries.flatMap((e) => (e.titleKey ? [e.titleKey] : []))]);
+        for (const key of keys) {
+            expect(fr[key], key).toBeTruthy();
+            expect(en[key], key).toBeTruthy();
         }
     });
 
@@ -33,9 +34,9 @@ describe("builder i18n", () => {
     it("rebuilds the block definitions when the locale changes", () => {
         setBuilderLocale("en");
         expect(getBuilderLocale()).toBe("en");
-        expect(blockDefinitions.TextInput.title).toBe("Short text");
+        expect(blockDefinitions.TextInput.title).toBe("Short answer");
         setBuilderLocale("fr_FR");
-        expect(blockDefinitions.TextInput.title).toBe("Texte court");
+        expect(blockDefinitions.TextInput.title).toBe("Réponse courte");
     });
 
     it("falls back to English for unknown locales", () => {

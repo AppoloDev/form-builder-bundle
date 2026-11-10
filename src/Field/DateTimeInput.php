@@ -88,7 +88,7 @@ class DateTimeInput implements FieldInterface
     protected function getFieldOptions(): array
     {
         $fieldOptions = [
-            'label' => $this->label,
+            'label' => '' === $this->label ? false : $this->label,
             'required' => $this->required,
             'disabled' => $this->readOnly,
             'help' => $this->helpText,

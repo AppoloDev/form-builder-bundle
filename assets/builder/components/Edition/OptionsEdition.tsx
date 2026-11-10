@@ -4,6 +4,8 @@ import { Checkbox } from "../ui/checkbox";
 import { v4 as uuidv4 } from "uuid";
 import { SelectOption } from "../Blocks/Definition";
 import { t } from "../../i18n";
+import { TrashIcon } from "@phosphor-icons/react";
+import { FIELD_CLASSES, FIELD_DESCRIPTION_CLASSES, FIELD_LABEL_CLASSES } from "../../utilities/typography";
 
 type Props = {
     label: string;
@@ -33,9 +35,9 @@ export const OptionsEdition = ({ label, value = [], helpText, exclusive = false,
     };
 
     return (
-        <div className="mb-3">
-            <div className="flex items-center justify-between mb-1">
-                <label className="block text-sm font-medium text-foreground">{label}</label>
+        <div className={FIELD_CLASSES}>
+            <div className="flex items-center justify-between">
+                <label className={FIELD_LABEL_CLASSES}>{label}</label>
                 <Button type="button" size="sm" variant="secondary" onClick={add}>
                     {t("option.add")}
                 </Button>
@@ -63,14 +65,14 @@ export const OptionsEdition = ({ label, value = [], helpText, exclusive = false,
                             onClick={() => remove(idx)}
                             aria-label={t("option.deleteAria")}
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path></svg>
+                            <TrashIcon size={18}/>
                         </Button>
                     </div>
                 ))}
             </div>
 
             {helpText && (
-                <p className="mt-1 text-xs text-muted-foreground italic">{helpText}</p>
+                <p className={FIELD_DESCRIPTION_CLASSES}>{helpText}</p>
             )}
         </div>
     );

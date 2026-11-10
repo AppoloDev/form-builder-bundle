@@ -9,8 +9,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * `readOnly` est rendu par `disabled` : le navigateur ne poste pas le champ, mais Symfony conserve la valeur
- * initiale du formulaire (valeur par défaut à la création, réponse enregistrée en édition).
+ * `readOnly` est rendu par `disabled` : le navigateur ne poste pas le champ et Symfony ignore toute valeur postée.
+ * La valeur initiale (valeur par défaut à la création, réponse enregistrée en édition) doit malgré tout figurer dans
+ * les données du formulaire, que l'hôte enregistre.
  */
 class ReadOnlyFieldsTest extends TestCase
 {
@@ -25,6 +26,18 @@ class ReadOnlyFieldsTest extends TestCase
 
         self::assertTrue($form->get('f')->isDisabled());
         self::assertEquals($expected, $form->get('f')->getData());
+        // C'est `getData()` du formulaire que l'hôte enregistre comme réponse.
+        self::assertEquals(['f' => $expected], $form->getData());
+    }
+
+    public function testReadOnlyDefaultValueInFieldsetIsSaved(): void
+    {
+        $form = (new FormHarness())->form([['id' => 'g', 'type' => 'FieldSet', 'label' => 'G', 'children' => [
+            ['id' => 'f', 'type' => 'TextInput', 'label' => 'F', 'readOnly' => true, 'defaultValue' => 'abc'],
+        ]]]);
+        $form->submit([]);
+
+        self::assertEquals(['g' => ['f' => 'abc']], $form->getData());
     }
 
     /**
@@ -37,6 +50,7 @@ class ReadOnlyFieldsTest extends TestCase
         $form->submit(['f' => 'tampered']);
 
         self::assertEquals($expected, $form->get('f')->getData());
+        self::assertEquals(['f' => $expected], $form->getData());
     }
 
     /**

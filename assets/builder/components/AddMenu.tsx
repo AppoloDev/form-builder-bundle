@@ -1,26 +1,27 @@
-import React, { PropsWithChildren, useMemo, useRef, useState } from "react";
-import { BlockDefinition, DefinitionEditionItem } from "./Blocks/Definition";
+import React, { PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { BlockDefinition } from "./Blocks/Definition";
 import { useAddableDefinitions } from "./AllowedTypesContext";
-import { TextEdition } from "./Edition/TextEdition";
-import { CheckboxEdition } from "./Edition/CheckboxEdition";
-import { SelectEdition } from "./Edition/SelectEdition";
 import { Button } from "./ui/button";
-import { BLOCK_COMPONENTS } from "./BlockRegistry";
-import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
-import { categoryDefinitions } from "./Blocks/Categories";
+import { addMenuSections } from "./Blocks/Categories";
 import { t } from "../i18n";
 
+/** Hauteur du fondu en haut et en bas de la liste quand elle défile. */
+const FADE = "2rem";
+
+/** Fondu (masque) en haut si la liste a défilé, en bas s'il reste du contenu sous la zone visible. */
+const fadeMask = (top: boolean, bottom: boolean) =>
+    `linear-gradient(to bottom, ${top ? "transparent" : "black"}, black ${FADE}, black calc(100% - ${FADE}), ${bottom ? "transparent" : "black"})`;
+
 type AddMenuProps = {
-    onPick: (def: BlockDefinition, overrides?: Record<string, any>) => void;
-    placeholder?: string;
+    onPick: (def: BlockDefinition) => void;
     allowTypes?: Array<BlockDefinition["type"]>;
 } & PropsWithChildren;
 
 export const AddMenu: React.FC<AddMenuProps> = (
     {
         onPick,
-        placeholder = t("builder.searchBlock"),
         allowTypes,
         children
     }) => {
@@ -28,130 +29,59 @@ export const AddMenu: React.FC<AddMenuProps> = (
 
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
-    const [selectedDef, setSelectedDef] = useState<BlockDefinition | null>(null);
-    const [formState, setFormState] = useState<Record<string, any>>({});
-    const inputRef = useRef<HTMLInputElement>(null);
+    // Focus initial sur le conteneur du menu, pas sur la recherche (pas d'autofocus ; Tab y mène au clavier).
+    const popupRef = useRef<HTMLDivElement>(null);
+    // Après un ajout, le focus reste sur le libellé du nouveau bloc au lieu de revenir au déclencheur.
+    const pickedRef = useRef(false);
 
-    const filtered = useMemo(() => {
+    // Sections du menu (ordre fixe) limitées aux types autorisés et à la recherche ; les sections vides sont masquées.
+    const groups = useMemo(() => {
         const q = query.trim().toLowerCase();
-        if (!q) return items;
-        return items.filter(d =>
-            d.title.toLowerCase().includes(q) ||
-            d.description.toLowerCase().includes(q) ||
-            d.type.toLowerCase().includes(q)
-        );
+
+        return addMenuSections
+            .map(section => ({
+                titleKey: section.titleKey,
+                defs: section.entries.flatMap((entry): BlockDefinition[] => {
+                    const def = items.find(d => d.type === entry.type);
+                    if (!def) return [];
+                    const item = {
+                        ...def,
+                        title: entry.titleKey ? t(entry.titleKey) : def.title,
+                        icon: entry.icon ?? def.icon,
+                        defaultProps: {...def.defaultProps, ...entry.defaultProps},
+                    } as BlockDefinition;
+                    const matches = !q || [item.title, item.description, item.type].some(s => s.toLowerCase().includes(q));
+
+                    return matches ? [item] : [];
+                }),
+            }))
+            .filter(group => group.defs.length > 0);
     }, [query, items]);
 
-    // Types regroupés par catégorie (ordre fixe) ; les catégories sans résultat sont masquées.
-    const groups = useMemo(() => categoryDefinitions
-        .map(category => ({category, defs: filtered.filter(d => d.category === category.id)}))
-        .filter(group => group.defs.length > 0), [filtered]);
+    const listRef = useRef<HTMLDivElement | null>(null);
+    const [fade, setFade] = useState({top: false, bottom: false});
+    const updateFade = useCallback(() => {
+        const el = listRef.current;
+        if (!el) return;
+        setFade({top: el.scrollTop > 0, bottom: el.scrollTop + el.clientHeight < el.scrollHeight - 1});
+    }, []);
+    // Ref fonction : la liste est montée dans le portail à l'ouverture du menu.
+    const setListRef = useCallback((el: HTMLDivElement | null) => {
+        listRef.current = el;
+        updateFade();
+    }, [updateFade]);
+    useEffect(updateFade, [groups, updateFade]);
 
     const handleClose = () => {
         setOpen(false);
         setQuery("");
-        setSelectedDef(null);
-        setFormState({});
-    };
-
-    const handleSelectDef = (def: BlockDefinition) => {
-        setSelectedDef(def);
-        // Initialize form state from default props
-        const initial: Record<string, any> = {};
-        if (def.editionSchema) {
-            for (const field of def.editionSchema) {
-                const defaultVal = (def.defaultProps as Record<string, any>)[field.key];
-                initial[field.key] = defaultVal ?? (field.type === "checkbox" ? false : "");
-            }
-        }
-        setFormState(initial);
-    };
-
-    const getPreviewProps = (def: BlockDefinition, state: Record<string, any>): Record<string, any> => {
-        const merged: Record<string, any> = {...def.defaultProps, ...state, id: "preview", preview: true};
-
-        if ((def.type === "ChoiceGroup" || def.type === "Select") && (!merged.options || merged.options.length === 0)) {
-            merged.options = def.type === "ChoiceGroup"
-                ? [
-                    {id: "preview-1", label: "", value: ""},
-                    {id: "preview-2", label: "", value: ""}
-                ]
-                : [
-                    {id: "preview-1", label: t("option.default", {n: 1})},
-                    {id: "preview-2", label: t("option.default", {n: 2})},
-                    {id: "preview-3", label: t("option.default", {n: 3})},
-                ];
-        }
-
-        return merged;
-    };
-
-    const handleFormChange = (key: string, value: any) => {
-        setFormState(prev => {
-            return {...prev, [key]: value};
-        });
-    };
-
-    const handleConfirm = () => {
-        if (!selectedDef) return;
-
-        // Build overrides: only include values that differ from defaults
-        const overrides: Record<string, any> = {};
-        const defaults = selectedDef.defaultProps as Record<string, any>;
-        for (const [key, value] of Object.entries(formState)) {
-            if (value !== defaults[key]) {
-                overrides[key] = value;
-            }
-        }
-        onPick(selectedDef, Object.keys(overrides).length > 0 ? overrides : undefined);
-        handleClose();
-    };
-
-    const renderEditionField = (field: DefinitionEditionItem) => {
-        const value = formState[field.key];
-
-        if (field.type === "checkbox") {
-            return (
-                <CheckboxEdition
-                    key={field.key}
-                    label={field.label}
-                    checked={Boolean(value)}
-                    editItem={(v) => handleFormChange(field.key, v)}
-                />
-            );
-        }
-
-        if (field.type === "select") {
-            return (
-                <SelectEdition
-                    key={field.key}
-                    label={field.label}
-                    value={value ?? ""}
-                    options={field.options}
-                    helpText={field.helpText}
-                    editItem={(v) => handleFormChange(field.key, v)}
-                />
-            );
-        }
-
-        return (
-            <TextEdition
-                key={field.key}
-                label={field.label}
-                value={value ?? ""}
-                type={field.type || "text"}
-                helpText={field.helpText || ""}
-                rows={field.rows}
-                editItem={(v) => handleFormChange(field.key, v)}
-            />
-        );
     };
 
     return (
         <Dialog open={open} onOpenChange={(next) => {
             if (next) {
+                pickedRef.current = false;
                 setOpen(true);
-                setTimeout(() => inputRef.current?.focus(), 0);
             } else {
                 handleClose();
             }
@@ -161,128 +91,78 @@ export const AddMenu: React.FC<AddMenuProps> = (
             </DialogTrigger>
 
             <DialogContent
-                className="sm:max-w-4xl gap-0 p-0 flex overflow-hidden"
-                style={{maxHeight: "80vh"}}
+                showCloseButton={false}
+                className="sm:max-w-sm gap-0 p-0 flex flex-col overflow-hidden"
+                style={{maxHeight: "min(85vh, 48rem)"}}
+                ref={popupRef}
+                initialFocus={popupRef}
+                finalFocus={() => !pickedRef.current}
             >
-                {/* Left panel – Block list */}
-                <div className="w-72 min-w-72 border-r border-border flex flex-col">
-                    <div className="p-2 border-b border-border">
-                        <Input
-                            ref={inputRef}
-                            type="text"
-                            value={query}
-                            onChange={e => setQuery(e.target.value)}
-                            placeholder={placeholder}
-                        />
-                    </div>
-
-                    <div className="flex-1 overflow-auto">
-                        {filtered.length === 0 ? (
-                            <div className="p-3 text-sm text-muted-foreground">{t("common.noResult")}</div>
-                        ) : (
-                            <div className="p-2 space-y-3">
-                                {groups.map(({category, defs}) => (
-                                    <section key={category.id} aria-label={t(category.titleKey)}>
-                                        {groups.length > 1 && (
-                                            <h4 className="flex items-center gap-1.5 px-2 pb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                                <category.icon className="size-3.5" aria-hidden="true"/>
-                                                {t(category.titleKey)}
-                                            </h4>
-                                        )}
-                                        <ul className="space-y-1">
-                                            {defs.map(def => (
-                                                <li key={def.id}>
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        onClick={(e) => {
-                                                            e.preventDefault();
-                                                            e.stopPropagation();
-                                                            handleSelectDef(def);
-                                                        }}
-                                                        className={`w-full justify-start ${
-                                                            selectedDef?.id === def.id
-                                                                ? "bg-accent border border-accent ring-1 ring-accent"
-                                                                : ""
-                                                        }`}
-                                                        title={def.description}
-                                                    >
-                                                        {def.title}
-                                                    </Button>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </section>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                <div className="p-2">
+                    <Input
+                        type="text"
+                        value={query}
+                        onChange={e => setQuery(e.target.value)}
+                        placeholder={t("builder.searchBlock")}
+                    />
                 </div>
 
-                {/* Right panel – Configuration */}
-                <div className="flex-1 flex flex-col min-w-0">
-                    {selectedDef ? (
-                        <>
-                            {/* Header */}
-                            <div className="p-4 border-b border-border">
-                                <h3 className="text-lg font-semibold text-foreground">{selectedDef.title}</h3>
-                                <p className="text-sm text-muted-foreground mt-1">{selectedDef.description}</p>
-                            </div>
-
-                            <div className="flex-1 overflow-auto">
-                                {/* Edition fields */}
-                                {selectedDef.editionSchema && selectedDef.editionSchema.length > 0 && (
-                                    <div className="p-4 space-y-3">
-                                        {selectedDef.editionSchema.map(renderEditionField)}
-                                    </div>
-                                )}
-
-                                {/* Preview */}
-                                <div className="p-4 border-t border-border bg-muted">
-                                    <p className="text-sm font-medium text-muted-foreground mb-2">{t("common.preview")}</p>
-                                    <div className="pointer-events-none bg-background p-4 rounded-lg">
-                                        {(() => {
-                                            const PreviewComponent = BLOCK_COMPONENTS[selectedDef.type];
-                                            return (
-                                                <PreviewComponent
-                                                    key={selectedDef.type}
-                                                    {...getPreviewProps(selectedDef, formState)}
-                                                />
-                                            );
-                                        })()}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Footer */}
-                            <div className="p-3 border-t border-border flex justify-end gap-2">
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    onClick={() => {
-                                        setSelectedDef(null);
-                                        setFormState({});
-                                    }}
-                                >
-                                    {t("common.back")}
-                                </Button>
-
-                                <Button
-                                    onClick={handleConfirm}
-                                >{t("common.add")}</Button>
-                            </div>
-                        </>
+                {/* Barre de défilement fine sans piste (ni fond ni bordure) : propriétés standard (Chrome, Firefox),
+                    pseudo-éléments -webkit- pour Safari. */}
+                <div
+                    ref={setListRef}
+                    onScroll={updateFade}
+                    className="flex-1 overflow-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30"
+                    style={{
+                        maskImage: fadeMask(fade.top, fade.bottom),
+                        WebkitMaskImage: fadeMask(fade.top, fade.bottom),
+                        scrollbarWidth: "thin",
+                        scrollbarColor: "color-mix(in oklab, var(--muted-foreground) 30%, transparent) transparent",
+                    }}
+                >
+                    {groups.length === 0 ? (
+                        <div className="p-3 text-sm text-muted-foreground">{t("common.noResult")}</div>
                     ) : (
-                        <div className="flex-1 flex items-center justify-center p-8">
-                            <div className="text-center text-muted-foreground">
-                                <svg className="mx-auto mb-3 text-muted-foreground" width="48" height="48" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" strokeWidth="1.5">
-                                    <path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M2 2l1.932 1.932"/>
-                                </svg>
-                                <p className="text-sm">{t("builder.selectBlock")}</p>
-                            </div>
+                        <div className="divide-y divide-border px-3">
+                            {groups.map(({titleKey, defs}) => (
+                                <section key={titleKey} aria-label={t(titleKey)} className="py-3">
+                                    {groups.length > 1 && (
+                                        <h4 className="px-2 pb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                            {t(titleKey)}
+                                        </h4>
+                                    )}
+                                    <ul>
+                                        {defs.map(def => (
+                                            <li key={def.title}>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        pickedRef.current = true;
+                                                        onPick(def);
+                                                        handleClose();
+                                                    }}
+                                                    className="h-9 w-full justify-start gap-3 font-normal"
+                                                    title={def.description}
+                                                >
+                                                    {def.icon && <def.icon className="size-5 text-muted-foreground" aria-hidden="true"/>}
+                                                    {def.title}
+                                                </Button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </section>
+                            ))}
                         </div>
                     )}
+                </div>
+
+                <div className="border-t border-border p-2">
+                    <DialogClose render={<Button type="button" variant="ghost" className="h-9 w-full justify-start font-normal"/>}>
+                        {t("common.close")}
+                    </DialogClose>
                 </div>
             </DialogContent>
         </Dialog>

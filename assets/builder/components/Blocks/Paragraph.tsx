@@ -4,12 +4,12 @@ import { useFormBuilderStore } from "../../stores/block.store";
 import { EditableBlock } from "./EditableBlock";
 import { InlineEditableText } from "../InlineEditableText";
 import { t } from "../../i18n";
-import { PARAGRAPH_CLASSES, PARAGRAPH_TEXTAREA_CLASSES } from "../../utilities/typography";
+import { PARAGRAPH_TEXTAREA_CLASSES } from "../../utilities/typography";
+import { TransformEdition } from "../Edition/TransformEdition";
+import { transformTextBlock } from "./TextVariants";
 
-type Props = ParagraphProps & { preview?: boolean };
-
-const Paragraph = ({id, type, text, preview}: Props) => {
-    const {updateBlock} = useFormBuilderStore();
+const Paragraph = ({id, type, text}: ParagraphProps) => {
+    const {updateBlock, replaceBlock} = useFormBuilderStore();
     const [label, setLabel] = useState(text);
 
     useEffect(() => {
@@ -21,14 +21,18 @@ const Paragraph = ({id, type, text, preview}: Props) => {
     };
 
     return (
-        <EditableBlock id={id} type={type} preview={preview}>
-            <div className={preview ? "" : "rounded-lg p-2 transition-colors"}>
-                {preview ? (
-                    <p className={PARAGRAPH_CLASSES}>{label}</p>
-                ) : (
-                    <InlineEditableText
+        <EditableBlock id={id} type={type} editionItems={[
+            <TransformEdition
+                key="transform"
+                current="paragraph"
+                onTransform={(v) => replaceBlock(id, transformTextBlock({id, type, text: label}, v))}
+            />
+        ]}>
+            <div className="rounded-lg p-2 transition-colors">
+                <InlineEditableText
                         value={label}
-                        onCommit={(v) => {
+                        blockId={id}
+                    onCommit={(v) => {
                             setLabel(v);
                             handleChange('text', v);
                         }}
@@ -36,7 +40,6 @@ const Paragraph = ({id, type, text, preview}: Props) => {
                         multiline
                         className={`placeholder:text-muted-foreground/50 ${PARAGRAPH_TEXTAREA_CLASSES}`}
                     />
-                )}
             </div>
         </EditableBlock>
     );

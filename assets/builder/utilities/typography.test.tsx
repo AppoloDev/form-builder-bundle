@@ -40,28 +40,26 @@ describe("typographie des titres et paragraphes", () => {
         const schema = blockDefinitions.Title.editionSchema?.find((item) => item.key === "heading");
         expect(schema?.type).toBe("select");
         const values = schema && schema.type === "select" ? schema.options.map((option) => option.value) : [];
-        expect(values).toEqual([...HEADING_LEVELS]);
+        // Le builder ne propose que h1 à h3 ; h4 à h6 restent stylés pour les formulaires existants.
+        expect(values).toEqual(["h1", "h2", "h3"]);
+        for (const value of values) {
+            expect(HEADING_LEVELS).toContain(value);
+        }
     });
 
-    it("Title applique ces classes en édition et en aperçu", () => {
+    it("Title applique ces classes en édition", () => {
         for (const level of HEADING_LEVELS) {
             const edit = renderToStaticMarkup(createElement(Title, {id: "t", type: "Title", text: "Mon titre", heading: level}));
             for (const cls of TITLE_INPUT_CLASSES[level].split(" ")) {
                 expect(edit, `${level} ${cls}`).toContain(cls);
             }
-
-            const preview = renderToStaticMarkup(createElement(Title, {id: "t", type: "Title", text: "Mon titre", heading: level, preview: true}));
-            expect(preview).toContain(`<${level} class="${TITLE_CLASSES[level]}">Mon titre</${level}>`);
         }
     });
 
-    it("Paragraph applique ces classes en édition et en aperçu", () => {
+    it("Paragraph applique ces classes en édition", () => {
         const edit = renderToStaticMarkup(createElement(Paragraph, {id: "p", type: "Paragraph", text: "Texte"}));
         for (const cls of PARAGRAPH_TEXTAREA_CLASSES.split(" ")) {
             expect(edit, cls).toContain(cls);
         }
-
-        const preview = renderToStaticMarkup(createElement(Paragraph, {id: "p", type: "Paragraph", text: "Texte", preview: true}));
-        expect(preview).toContain(`<p class="${PARAGRAPH_CLASSES}">Texte</p>`);
     });
 });

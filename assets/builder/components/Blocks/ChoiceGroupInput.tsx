@@ -11,7 +11,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { GitPullRequest, Plus, Trash } from "lucide-react";
+import { GitPullRequestIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { t } from "../../i18n";
 
 type Props = {
@@ -26,7 +26,6 @@ type Props = {
     conditions?: ConditionRule[];
     useContionnalField?: boolean;
     isChildBlock?: boolean;
-    preview?: boolean;
 };
 
 const ChoiceGroupInput: FC<Props> = (props) => {
@@ -42,7 +41,6 @@ const ChoiceGroupInput: FC<Props> = (props) => {
         conditions: propsConditions,
         useContionnalField: propsUseContionnalField = true,
         isChildBlock,
-        preview,
     } = props;
 
     const {updateBlock} = useFormBuilderStore();
@@ -142,8 +140,8 @@ const ChoiceGroupInput: FC<Props> = (props) => {
         updateBlock(id, patch);
     };
 
-    const addBlockToRule = (ruleId: string, def: BlockDefinition, overrides?: Record<string, any>) => {
-        const newBlock = createBlockFromTemplate(def, overrides);
+    const addBlockToRule = (ruleId: string, def: BlockDefinition) => {
+        const newBlock = createBlockFromTemplate(def);
         const nextConditions = form.conditions.map((r) =>
             r.id === ruleId ? {...r, children: [...r.children, newBlock]} : r
         );
@@ -192,7 +190,7 @@ const ChoiceGroupInput: FC<Props> = (props) => {
                             className="w-full justify-start"
                             disabled={form.options.length === 0}
                         >
-                            <GitPullRequest/>
+                            <GitPullRequestIcon/>
                             {t("condition.add")}
                         </Button>
                     </div>
@@ -235,9 +233,9 @@ const ChoiceGroupInput: FC<Props> = (props) => {
         <div key={opt.id} className="group/option relative rounded-md">
             <div className="flex items-center gap-2">
                 {form.multiple ? (
-                    <Checkbox disabled/>
+                    <Checkbox inert/>
                 ) : (
-                    <RadioGroupItem value={opt.id} disabled/>
+                    <RadioGroupItem value={opt.id} inert/>
                 )}
 
                 <Input
@@ -259,7 +257,7 @@ const ChoiceGroupInput: FC<Props> = (props) => {
                         className="text-destructive hover:text-destructive"
                         aria-label={t("option.deleteAria")}
                     >
-                        <Trash/>
+                        <TrashIcon/>
                     </Button>
                 </div>
             </div>
@@ -267,8 +265,9 @@ const ChoiceGroupInput: FC<Props> = (props) => {
     );
 
     return (
-        <FieldInput id={id} type={blockType} form={form} editionItems={editionItems} preview={preview}
-                    onLabelChange={(v) => handleChange("label", v)}>
+        <FieldInput id={id} type={blockType} form={form} editionItems={editionItems}
+                    onLabelChange={(v) => handleChange("label", v)}
+                    onRequiredChange={isChildBlock ? undefined : (v) => handleChange("required", v)}>
             <div className="space-y-3">
                 {form.multiple ? (
                     <div className="space-y-1">
@@ -280,13 +279,13 @@ const ChoiceGroupInput: FC<Props> = (props) => {
                     </RadioGroup>
                 )}
 
-                {!preview && <div className="flex justify-start">
+                <div className="flex justify-start">
                     <Button type="button" variant="ghost" onClick={addOption}
                             className="text-muted-foreground">
-                        <Plus/>
+                        <PlusIcon/>
                         {t("option.addLong")}
                     </Button>
-                </div>}
+                </div>
 
                 {propsUseContionnalField && (
                     <ConditionRules

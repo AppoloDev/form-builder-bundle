@@ -4,9 +4,9 @@
       "category": "special",
       "defaults": {
         "type": "AddressInput",
-        "label": "Libellé",
+        "label": "",
         "placeHolder": "Indiquez un lieu…",
-        "required": false,
+        "required": true,
         "helpText": ""
       },
       "keys": [
@@ -20,9 +20,9 @@
       "category": "choice",
       "defaults": {
         "type": "ChoiceGroup",
-        "label": "Libellé",
+        "label": "",
         "helpText": "",
-        "required": false,
+        "required": true,
         "multiple": false,
         "options": [],
         "conditions": []
@@ -41,8 +41,8 @@
       "category": "datetime",
       "defaults": {
         "type": "DateTimeInput",
-        "label": "Libellé",
-        "required": false,
+        "label": "",
+        "required": true,
         "helpText": "",
         "mode": "datetime-local"
       },
@@ -59,9 +59,9 @@
       "category": "text",
       "defaults": {
         "type": "EmailInput",
-        "label": "Libellé",
+        "label": "",
         "placeHolder": "",
-        "required": false,
+        "required": true,
         "helpText": ""
       },
       "keys": [
@@ -87,8 +87,8 @@
       "category": "file",
       "defaults": {
         "type": "FileInput",
-        "label": "Libellé",
-        "required": false,
+        "label": "",
+        "required": true,
         "helpText": "",
         "acceptedFile": "image",
         "allowMultiple": false
@@ -105,8 +105,8 @@
       "category": "datetime",
       "defaults": {
         "type": "HourMinuteInput",
-        "label": "Libellé",
-        "required": false,
+        "label": "",
+        "required": true,
         "helpText": ""
       },
       "keys": [
@@ -121,9 +121,9 @@
       "category": "number",
       "defaults": {
         "type": "NumberInput",
-        "label": "Libellé",
+        "label": "",
         "placeHolder": "",
-        "required": false,
+        "required": true,
         "helpText": "",
         "min": "",
         "max": "",
@@ -167,9 +167,9 @@
       "category": "choice",
       "defaults": {
         "type": "Select",
-        "label": "Libellé",
+        "label": "",
         "helpText": "",
-        "required": false,
+        "required": true,
         "multiple": false,
         "options": [],
         "conditions": []
@@ -189,9 +189,9 @@
       "category": "special",
       "defaults": {
         "type": "Signature",
-        "label": "Libellé",
+        "label": "",
         "helpText": "",
-        "required": false
+        "required": true
       },
       "keys": [
         "helpText",
@@ -203,9 +203,9 @@
       "category": "text",
       "defaults": {
         "type": "TelInput",
-        "label": "Libellé",
+        "label": "",
         "placeHolder": "",
-        "required": false,
+        "required": true,
         "helpText": ""
       },
       "keys": [
@@ -221,9 +221,9 @@
       "category": "text",
       "defaults": {
         "type": "TextareaInput",
-        "label": "Libellé",
+        "label": "",
         "placeHolder": "",
-        "required": false,
+        "required": true,
         "helpText": "",
         "rows": 5
       },
@@ -241,9 +241,9 @@
       "category": "text",
       "defaults": {
         "type": "TextInput",
-        "label": "Libellé",
+        "label": "",
         "placeHolder": "",
-        "required": false,
+        "required": true,
         "helpText": ""
       },
       "keys": [
@@ -271,9 +271,9 @@
       "category": "text",
       "defaults": {
         "type": "UrlInput",
-        "label": "Libellé",
+        "label": "",
         "placeHolder": "",
-        "required": false,
+        "required": true,
         "helpText": ""
       },
       "keys": [

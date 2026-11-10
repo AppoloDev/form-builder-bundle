@@ -94,7 +94,7 @@ class NumberInput implements FieldInterface
         }
 
         $fieldOptions = [
-            'label' => $this->label,
+            'label' => '' === $this->label ? false : $this->label,
             'required' => $this->required,
             'disabled' => $this->readOnly,
             'help' => $this->helpText,

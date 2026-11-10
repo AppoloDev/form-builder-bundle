@@ -1,6 +1,9 @@
 import { ChangeEvent, FocusEvent, KeyboardEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
+import { cn } from "cn";
+import { takePendingFocus } from "../utilities/block.utiles";
+import { BlockId } from "./Blocks/Definition";
 
 type Props = {
     value: string;
@@ -8,6 +11,8 @@ type Props = {
     placeholder?: string;
     className?: string;
     multiline?: boolean;
+    /** Bloc porteur du texte : le champ prend le focus si ce bloc vient d'être ajouté. */
+    blockId?: BlockId;
 };
 
 const baseClassName = "border-transparent bg-transparent px-1 -mx-1 hover:border-input focus-visible:border-ring";
@@ -16,8 +21,16 @@ const inputOnlyClassName = "h-6 max-w-full";
 const MIN_WIDTH = 96;
 const CARET_SPACE = 8;
 
-export const InlineEditableText = ({value, onCommit, placeholder, className = "", multiline = false}: Props) => {
+export const InlineEditableText = ({value, onCommit, placeholder, className = "", multiline = false, blockId}: Props) => {
     const [draft, setDraft] = useState(value);
+    const inputRef = useRef<HTMLInputElement>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    useEffect(() => {
+        if (blockId && takePendingFocus(blockId)) {
+            (inputRef.current ?? textareaRef.current)?.focus();
+        }
+    }, [blockId]);
     const mirrorRef = useRef<HTMLSpanElement>(null);
     const [width, setWidth] = useState(MIN_WIDTH);
 
@@ -52,6 +65,7 @@ export const InlineEditableText = ({value, onCommit, placeholder, className = ""
     if (multiline) {
         return (
             <Textarea
+                ref={textareaRef}
                 value={draft}
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -66,12 +80,13 @@ export const InlineEditableText = ({value, onCommit, placeholder, className = ""
             <span
                 ref={mirrorRef}
                 aria-hidden="true"
-                className={`invisible absolute -z-10 whitespace-pre border px-1 ${className}`}
+                className={cn("invisible absolute -z-10 whitespace-pre border px-1", className)}
             >
                 {draft || placeholder}
             </span>
 
             <Input
+                ref={inputRef}
                 value={draft}
                 onChange={handleChange}
                 onBlur={handleBlur}

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { buildContract, serializeContract } from "./buildContract";
-import { BLOCK_CATEGORIES, categoryDefinitions, isBlockCategory } from "../components/Blocks/Categories";
+import { BLOCK_CATEGORIES, addMenuSections, isBlockCategory } from "../components/Blocks/Categories";
 import { blockDefinitions } from "../components/Blocks/Definition";
 
 describe("contrat front/PHP", () => {
@@ -32,8 +32,14 @@ describe("contrat front/PHP", () => {
         }
     });
 
-    it("chaque catégorie est définie une fois, dans l'ordre, et utilisée par au moins un type", () => {
-        expect(categoryDefinitions.map((c) => c.id)).toEqual([...BLOCK_CATEGORIES]);
+    it("chaque type de bloc figure dans le menu d'ajout", () => {
+        const inMenu = new Set(addMenuSections.flatMap((s) => s.entries.map((e) => e.type)));
+        for (const type of Object.keys(blockDefinitions)) {
+            expect(inMenu.has(type as keyof typeof blockDefinitions), type).toBe(true);
+        }
+    });
+
+    it("chaque catégorie est utilisée par au moins un type", () => {
         const used = new Set(Object.values(blockDefinitions).map((d) => d.category));
         for (const category of BLOCK_CATEGORIES) {
             expect(used.has(category), category).toBe(true);

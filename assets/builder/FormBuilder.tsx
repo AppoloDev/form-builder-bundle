@@ -25,8 +25,7 @@ import {
 } from "@dnd-kit/sortable";
 
 import { CSS } from "@dnd-kit/utilities";
-import { AddAfterButton } from "./components/AddAfterButton";
-import { t } from "./i18n";
+import { AddButton } from "./components/AddButton";
 import { AllowedTypesContext } from "./components/AllowedTypesContext";
 import { resolveAllowedTypes } from "./utilities/allowedTypes";
 
@@ -71,6 +70,7 @@ const SortableItem: React.FC<{ id: UniqueIdentifier; children: React.ReactNode }
         <DragHandleContext.Provider
             value={{attributes, listeners, setActivatorNodeRef, isDragging}}
         >
+
             <div
                 ref={setNodeRef}
                 style={style}
@@ -96,10 +96,7 @@ export const FormBuilder = ({onChange, json = [], categories, types}: Props) => 
         })
     );
 
-    const handleAddAt = (afterIndex: number, def: BlockDefinition, overrides?: Record<string, any>) => {
-        const newBlock = createBlockFromTemplate(def, overrides);
-        addBlock(newBlock, afterIndex + 1);
-    };
+    const handleAdd = (def: BlockDefinition) => addBlock(createBlockFromTemplate(def));
 
     useEffect(() => {
         setBlocks(json);
@@ -154,12 +151,12 @@ export const FormBuilder = ({onChange, json = [], categories, types}: Props) => 
             onDragEnd={onDragEnd}
             onDragCancel={onDragCancel}
         >
-            <div className="border border-dashed border-border rounded-lg py-4 pr-4 pl-28 space-y-4">
+            <div className={`border border-dashed border-border rounded-lg ${blocks.length === 0 ? "" : "py-4 pr-4 pl-28 space-y-4"}`}>
                 {blocks.length === 0 ? (
-                    <Empty onPick={(def, overrides) => handleAddAt(-1, def, overrides)}/>
+                    <Empty onPick={handleAdd}/>
                 ) : (
                     <SortableContext items={ids} strategy={verticalListSortingStrategy}>
-                        {blocks.map((block, idx) => {
+                        {blocks.map((block) => {
                             const Component = BLOCK_COMPONENTS[block.type];
                             if (!Component) {
                                 console.error(`Composant non trouvé pour le type: ${block.type}`);
@@ -167,19 +164,11 @@ export const FormBuilder = ({onChange, json = [], categories, types}: Props) => 
                             }
                             return (
                                 <SortableItem key={block.id} id={block.id}>
-                                    <div className="group relative">
-
-                                        <AddAfterButton
-                                            onPick={(def, overrides) => handleAddAt(idx, def, overrides)}
-                                            placeholder={t("builder.searchType")}
-                                        />
-
-                                        <Component {...block} />
-                                    </div>
+                                    <Component {...block} />
                                 </SortableItem>
-                            )
-                                ;
+                            );
                         })}
+                        <AddButton onPick={handleAdd}/>
                     </SortableContext>
                 )}
             </div>

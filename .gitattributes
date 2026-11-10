@@ -6,3 +6,4 @@
 /phpstan.dist.neon export-ignore
 /phpunit.dist.xml export-ignore
 /Plan.md export-ignore
+/CLAUDE.md export-ignore

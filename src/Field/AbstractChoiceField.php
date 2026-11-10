@@ -104,7 +104,7 @@ abstract class AbstractChoiceField implements FieldInterface
 
         $fieldOptions = [
             'placeholder' => $this->hasEmptyChoice() ? $this->emptyChoiceLabel() : false,
-            'label' => $this->label,
+            'label' => '' === $this->label ? false : $this->label,
             'choices' => $choices,
             'required' => $this->required,
             'disabled' => $this->readOnly,

@@ -1,11 +1,11 @@
-import React, { ReactElement, ReactNode, useState, MouseEvent, useCallback, useContext } from "react";
+import { ReactElement, ReactNode, useState, useCallback, useContext } from "react";
 import { Tooltip } from "../Tooltip";
 import { UniqueIdentifier } from "@dnd-kit/core";
-import { ContextMenu, ContextMenuItem } from "../ContextMenu";
+import { ContextMenu } from "../ContextMenu";
 import { useBlockOperations } from "../../hooks/useBlockOperations";
 import { DragHandleContext } from "../../FormBuilder";
 import { Button } from "../ui/button";
-import { GripVertical, SquarePen, Trash } from "lucide-react";
+import { type Icon, DotsSixVerticalIcon, PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import { BlockType, blockDefinitions } from "./Definition";
 import { t } from "../../i18n";
 
@@ -16,7 +16,9 @@ interface EditableBlockProps {
     children: ReactNode;
     onDelete?: () => void;
     className?: string;
-    preview?: boolean;
+    /** En-tête du menu d'options, à la place de celui du type (ex. « Titre 2 » pour un titre de niveau 2). */
+    title?: string;
+    icon?: Icon;
 }
 
 export const EditableBlock = (
@@ -27,37 +29,26 @@ export const EditableBlock = (
         children,
         onDelete,
         className = "",
-        preview = false,
+        title,
+        icon,
     }: EditableBlockProps) => {
-    const typeLabel = type ? blockDefinitions[type]?.title : undefined;
-    const [contextMenuVisible, setContextMenuVisible] = useState(false);
+    const definition = type ? blockDefinitions[type] : undefined;
+    const [menuOpen, setMenuOpen] = useState(false);
 
     const {handleRemove} = useBlockOperations(id);
-
-    const handleOpenContextMenu = useCallback((e: MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        setContextMenuVisible(true);
-    }, []);
-
-    const handleCloseContextMenu = useCallback(() => {
-        setContextMenuVisible(false);
-    }, []);
 
     const handleDelete = useCallback(() => {
         onDelete?.();
         handleRemove();
-        handleCloseContextMenu();
-    }, [onDelete, handleRemove, handleCloseContextMenu]);
+        setMenuOpen(false);
+    }, [onDelete, handleRemove]);
 
-    const items = Array.isArray(editionItems) ? editionItems : [editionItems];
+    // Le libellé s'édite directement dans le bloc ; « Requis » en tête du menu, comme Tally.
+    const items = (Array.isArray(editionItems) ? editionItems : [editionItems])
+        .filter((item) => item.key !== "label")
+        .sort((a, b) => Number(b.key === "required") - Number(a.key === "required"));
 
     const {attributes, listeners, setActivatorNodeRef} = useContext(DragHandleContext);
-
-    if (preview) {
-        return <>{children}</>;
-    }
 
     return (
         <div className={`fb-block relative ${className}`}>
@@ -66,17 +57,23 @@ export const EditableBlock = (
             {/* Invisible bridge so the cursor doesn't lose hover crossing the gap to the floating toolbar */}
             <div className="absolute top-0 right-full h-full w-24" aria-hidden="true"/>
 
-            <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 z-10 flex items-center gap-0.5 p-0.5 opacity-0 transition-opacity pointer-events-none [.fb-block:hover>&]:opacity-100 [.fb-block:hover>&]:pointer-events-auto">
+            <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 z-10 flex items-center gap-0.5 p-0.5 opacity-0 transition-opacity pointer-events-none [.fb-block:hover>&]:opacity-100 [.fb-block:hover>&]:pointer-events-auto has-[[data-popup-open]]:opacity-100">
                 {items.length > 0 && (
                     <Tooltip content={t("block.settings")}>
-                        <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={handleOpenContextMenu}
-                            aria-label={t("block.openSettings")}
+                        <ContextMenu
+                            open={menuOpen}
+                            onOpenChange={setMenuOpen}
+                            title={title ?? definition?.title}
+                            icon={icon ?? definition?.icon}
+                            onDelete={handleDelete}
+                            trigger={
+                                <Button variant="ghost" size="icon-sm" aria-label={t("block.openSettings")}>
+                                    <PencilSimpleIcon/>
+                                </Button>
+                            }
                         >
-                            <SquarePen />
-                        </Button>
+                            {items}
+                        </ContextMenu>
                     </Tooltip>
                 )}
 
@@ -88,7 +85,7 @@ export const EditableBlock = (
                         onClick={handleDelete}
                         aria-label={t("block.deleteAria")}
                     >
-                        <Trash />
+                        <TrashIcon />
                     </Button>
                 </Tooltip>
 
@@ -101,24 +98,12 @@ export const EditableBlock = (
                         {...(listeners || {})}
                         className="cursor-grab active:cursor-grabbing"
                     >
-                        <GripVertical />
+                        <DotsSixVerticalIcon />
                     </Button>
                 </Tooltip>
             </div>
 
             {children}
-
-            {items.length > 0 && (
-                <ContextMenu
-                    visible={contextMenuVisible}
-                    onClose={handleCloseContextMenu}
-                    title={typeLabel ? t("builder.fieldConfigOf", {type: typeLabel}) : undefined}
-                >
-                    {items.map((item, index) => (
-                        <ContextMenuItem key={item.key || index}>{item}</ContextMenuItem>
-                    ))}
-                </ContextMenu>
-            )}
         </div>
     );
 };

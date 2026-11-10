@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
-import { SignatureProps } from "./Definition";
+import { SignatureProps, blockDefinitions } from "./Definition";
 import { useFormBuilderStore } from "../../stores/block.store";
 import { EditableBlock } from "./EditableBlock";
 import { TextEdition } from "../Edition/TextEdition";
 import { CheckboxEdition } from "../Edition/CheckboxEdition";
 import { InlineEditableText } from "../InlineEditableText";
+import { RequiredMark } from "./FieldInput";
 import { t } from "../../i18n";
+import { FIELD_CLASSES, FIELD_DESCRIPTION_CLASSES, FIELD_LABEL_CLASSES, FIELD_LABEL_INPUT_CLASSES } from "../../utilities/typography";
 
-type Props = SignatureProps & { isChildBlock?: boolean; preview?: boolean };
+type Props = SignatureProps & { isChildBlock?: boolean };
 
-const Signature = ({id, type, label, helpText, required, isChildBlock, preview}: Props) => {
+const Signature = ({id, type, label, helpText, required, isChildBlock}: Props) => {
     const {updateBlock} = useFormBuilderStore();
 
     const [form, setForm] = useState({
@@ -43,27 +45,25 @@ const Signature = ({id, type, label, helpText, required, isChildBlock, preview}:
     ];
 
     return (
-        <EditableBlock id={id} type={type} preview={preview} editionItems={editionItems}>
-            <div className={preview ? "flex flex-col gap-2" : "flex flex-col gap-2 rounded-lg transition-colors"}>
-                <label className="text-sm font-medium">
-                    {preview ? (
-                        form.label
-                    ) : (
-                        <InlineEditableText
-                            value={form.label}
-                            onCommit={(v) => handleChange('label', v)}
-                            placeholder={t("field.label")}
-                        />
-                    )}
-                    {form.required && <span className="text-destructive">*</span>}
+        <EditableBlock id={id} type={type} editionItems={editionItems}>
+            <div className={FIELD_CLASSES}>
+                <label className={`self-start ${FIELD_LABEL_CLASSES}`}>
+                    <InlineEditableText
+                        value={form.label}
+                        onCommit={(v) => handleChange('label', v)}
+                        blockId={id}
+                        placeholder={(type && blockDefinitions[type]?.title) || t("field.label")}
+                        className={FIELD_LABEL_INPUT_CLASSES}
+                    />
+                    {!isChildBlock && form.required && <RequiredMark onRemove={() => handleChange('required', false)}/>}
                 </label>
 
                 <div
-                    className="flex h-24 items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground">
+                    className="flex h-24 items-center justify-center rounded-lg border border-input text-sm text-muted-foreground dark:bg-input/30">
                     {t("signature.area")}
                 </div>
 
-                {form.helpText && <div className="text-sm text-muted-foreground">{form.helpText}</div>}
+                {form.helpText && <p className={FIELD_DESCRIPTION_CLASSES}>{form.helpText}</p>}
             </div>
         </EditableBlock>
     );

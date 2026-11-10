@@ -38,6 +38,21 @@ export const PARAGRAPH_CLASSES = "text-base text-muted-foreground";
 /** Idem pour la zone de saisie du paragraphe en édition (devant le `md:text-sm` du `Textarea`). */
 export const PARAGRAPH_TEXTAREA_CLASSES = "text-base md:text-base text-muted-foreground";
 
+/** Libellé d'un champ, comme `Field:Label` du kit shadcn de l'application (blocs et panneau d'options). */
+export const FIELD_LABEL_CLASSES = "text-sm leading-snug font-medium text-foreground";
+
+/**
+ * Libellé modifiable en place : texte nu, sans bordure, fond, marge ni anneau de focus de l'`Input` (seul le curseur
+ * de saisie signale l'édition). Taille répétée sous `md:` pour passer devant le `md:text-sm` de l'`Input`.
+ */
+export const FIELD_LABEL_INPUT_CLASSES = "h-auto mx-0 rounded-none border-0 p-0 bg-transparent dark:bg-transparent focus-visible:ring-0 text-sm md:text-sm placeholder:text-muted-foreground";
+
+/** Texte d'aide d'un champ, comme `Field:Description`. */
+export const FIELD_DESCRIPTION_CLASSES = "text-sm leading-normal font-normal text-muted-foreground";
+
+/** Ligne libellé + contrôle + aide, comme `Field` (orientation verticale). */
+export const FIELD_CLASSES = "flex flex-col gap-2";
+
 export const isHeadingLevel = (value: string): value is HeadingLevel => (HEADING_LEVELS as readonly string[]).includes(value);
 
 /** Niveau de titre valide, h1 par défaut (comme les valeurs par défaut du builder). */
