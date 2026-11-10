@@ -151,7 +151,7 @@ export const FormBuilder = ({onChange, json = [], categories, types}: Props) => 
             onDragEnd={onDragEnd}
             onDragCancel={onDragCancel}
         >
-            <div className={`border border-dashed border-border rounded-lg ${blocks.length === 0 ? "" : "py-4 pr-4 pl-28 space-y-4"}`}>
+            <div className={`border border-dashed border-border rounded-lg ${blocks.length === 0 ? "" : "py-20 pr-20 pl-40 space-y-4"}`}>
                 {blocks.length === 0 ? (
                     <Empty onPick={handleAdd}/>
                 ) : (

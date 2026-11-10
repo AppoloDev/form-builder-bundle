@@ -21,7 +21,7 @@ export const Empty = ({onPick}: Props) => {
     return (
         <div
             onClick={openFromZone}
-            className="w-full flex flex-col justify-center space-y-5 p-8 rounded-lg cursor-pointer transition-colors hover:bg-muted/50"
+            className="w-full flex flex-col justify-center space-y-5 p-20 rounded-lg cursor-pointer transition-colors hover:bg-muted/50"
         >
             <div className="max-w-sm mx-auto flex flex-col items-center gap-2">
                 <div className="font-semibold text-foreground text-center">
