@@ -1,25 +1,11 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
-import {
-    DndContext,
-    DragStartEvent,
-    DragEndEvent,
-    DragOverlay,
-    PointerSensor,
-    UniqueIdentifier,
-    useSensor,
-    useSensors,
-    closestCenter
-} from "@dnd-kit/core";
-import {
-    SortableContext,
-    useSortable,
-    verticalListSortingStrategy,
-    arrayMove
-} from "@dnd-kit/sortable";
+import React, { createContext, useContext, useMemo } from "react";
+import { UniqueIdentifier, useDroppable } from "@dnd-kit/core";
+import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Block } from "./Definition";
+import { Block, BlockId } from "./Definition";
 import { BLOCK_COMPONENTS } from "../BlockRegistry";
 import { DragHandleContext } from "../../FormBuilder";
+import type { ContainerId } from "../../stores/block.store";
 
 /**
  * Vrai sous les champs d'une règle de condition (y compris dans un groupe imbriqué) : ces champs sont masqués tant que
@@ -35,10 +21,15 @@ const FollowUpRenderer: React.FC<{ child: Block; conditional: boolean }> = ({chi
     return <Comp {...child} useContionnalField={!conditional} isChildBlock={conditional} />;
 };
 
-const SortableChildBlock: React.FC<{
+/**
+ * Bloc déplaçable. Un seul `DndContext` (FormBuilder) couvre tout l'arbre : `containerId` indique la liste du bloc,
+ * pour pouvoir l'amener dans une autre (groupe, répétable, règle de condition, racine).
+ */
+export const SortableBlock: React.FC<{
     id: UniqueIdentifier;
+    containerId: ContainerId;
     children: React.ReactNode;
-}> = ({id, children}) => {
+}> = ({id, containerId, children}) => {
     const {
         attributes,
         listeners,
@@ -47,7 +38,7 @@ const SortableChildBlock: React.FC<{
         transform,
         transition,
         isDragging,
-    } = useSortable({id});
+    } = useSortable({id, data: {containerId}});
 
     const style: React.CSSProperties = {
         transform: CSS.Transform.toString(transform),
@@ -59,95 +50,55 @@ const SortableChildBlock: React.FC<{
         <DragHandleContext.Provider
             value={{attributes, listeners, setActivatorNodeRef, isDragging}}
         >
-            <div ref={setNodeRef} style={style} data-child-id={String(id)} className="relative">
+            <div
+                ref={setNodeRef}
+                style={style}
+                data-block-id={String(id)}
+                className="relative"
+            >
                 {children}
             </div>
         </DragHandleContext.Provider>
     );
 };
 
+/** Zone de dépôt d'une liste : reçoit un bloc lâché entre ses éléments ou dans la liste vide. */
+export const DropZone: React.FC<{
+    containerId: ContainerId;
+    className?: string;
+    children: React.ReactNode;
+}> = ({containerId, className = "", children}) => {
+    const {setNodeRef, isOver} = useDroppable({id: `zone:${containerId ?? "root"}`, data: {zone: true, containerId}});
+
+    return (
+        <div ref={setNodeRef} className={`${className} ${isOver ? "ring-2 ring-primary/40" : ""}`}>
+            {children}
+        </div>
+    );
+};
+
 export const ChildrenSorter: React.FC<{
     childrenBlocks: Block[];
-    onReorder: (next: Block[]) => void;
+    /** Groupe, répétable ou règle de condition qui contient ces blocs. */
+    containerId: BlockId;
     /** Enfants d'une règle de condition : champs jamais obligatoires. */
     conditional?: boolean;
-}> = ({childrenBlocks, onReorder, conditional = false}) => {
+}> = ({childrenBlocks, containerId, conditional = false}) => {
     const inheritedConditional = useContext(ConditionalChildrenContext);
     const isConditional = conditional || inheritedConditional;
-    const sensors = useSensors(
-        useSensor(PointerSensor, {activationConstraint: {distance: 2}})
-    );
-
     const childIds = useMemo(() => childrenBlocks.map((c) => c.id), [childrenBlocks]);
-
-    const [activeChildId, setActiveChildId] = useState<UniqueIdentifier | null>(null);
-    const [activeSize, setActiveSize] = useState<{ width: number; height: number } | null>(null);
-
-    const onDragStart = useCallback((e: DragStartEvent) => {
-        setActiveChildId(e.active.id);
-        const el = document.querySelector<HTMLElement>(`[data-child-id="${String(e.active.id)}"]`);
-        if (el) {
-            const r = el.getBoundingClientRect();
-            setActiveSize({width: r.width, height: r.height});
-        } else {
-            setActiveSize(null);
-        }
-    }, []);
-
-    const onDragEnd = useCallback((e: DragEndEvent) => {
-        const {active, over} = e;
-        if (over && active.id !== over.id) {
-            const oldIndex = childrenBlocks.findIndex((b) => b.id === active.id);
-            const newIndex = childrenBlocks.findIndex((b) => b.id === over.id);
-            if (oldIndex !== -1 && newIndex !== -1) {
-                onReorder(arrayMove(childrenBlocks, oldIndex, newIndex));
-            }
-        }
-        setActiveChildId(null);
-        setActiveSize(null);
-    }, [childrenBlocks, onReorder]);
-
-    const onDragCancel = useCallback(() => {
-        setActiveChildId(null);
-        setActiveSize(null);
-    }, []);
 
     return (
         <ConditionalChildrenContext.Provider value={isConditional}>
-        <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
-            onDragCancel={onDragCancel}
-        >
             <SortableContext items={childIds} strategy={verticalListSortingStrategy}>
                 <div className={conditional ? "flex flex-col gap-3" : "flex flex-col gap-5"}>
                     {childrenBlocks.map((child) => (
-                        <SortableChildBlock key={child.id} id={child.id}>
+                        <SortableBlock key={child.id} id={child.id} containerId={containerId}>
                             <FollowUpRenderer child={child} conditional={isConditional}/>
-                        </SortableChildBlock>
+                        </SortableBlock>
                     ))}
                 </div>
             </SortableContext>
-
-            <DragOverlay dropAnimation={null}>
-                {activeChildId && activeSize ? (
-                    <div
-                        className="bg-primary/10"
-                        style={{
-                            width: activeSize.width,
-                            height: activeSize.height,
-                            borderRadius: 8,
-                            background: "",
-                            opacity: .6,
-                            boxShadow:
-                                "0 4px 14px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08)",
-                        }}
-                    />
-                ) : null}
-            </DragOverlay>
-        </DndContext>
         </ConditionalChildrenContext.Provider>
     );
 };

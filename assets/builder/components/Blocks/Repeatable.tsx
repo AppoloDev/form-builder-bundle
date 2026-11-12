@@ -1,9 +1,9 @@
-import { RepeatableProps, Block, BlockDefinition } from "./Definition";
+import { RepeatableProps, BlockDefinition } from "./Definition";
 import { useFormBuilderStore } from "../../stores/block.store";
 import { EditableBlock } from "./EditableBlock";
-import { Empty } from "../Empty";
 import { AddButton } from "../AddButton";
-import { ChildrenSorter } from "./ChildrenSorter";
+import { Empty } from "../Empty";
+import { ChildrenSorter, DropZone } from "./ChildrenSorter";
 import { createBlockFromTemplate } from "../../utilities/block.utiles";
 import { TextEdition } from "../Edition/TextEdition";
 import { ContainerContext, containerFrameClasses, repeatableCardClasses } from "./ContainerContext";
@@ -17,10 +17,6 @@ const Repeatable = ({id, type, children, maxItems}: RepeatableProps) => {
     const addChild = (def: BlockDefinition) => {
         const newBlock = createBlockFromTemplate(def);
         updateBlock(id, {children: [...children, newBlock]});
-    };
-
-    const handleReorder = (next: Block[]) => {
-        updateBlock(id, {children: next});
     };
 
     const handleMaxItemsChange = (v: string) => {
@@ -39,7 +35,7 @@ const Repeatable = ({id, type, children, maxItems}: RepeatableProps) => {
             />,
         ]}>
             <ContainerContext.Provider value={true}>
-            <div className={containerFrameClasses(nested, false)}>
+            <DropZone containerId={id} className={containerFrameClasses(nested, false)}>
                 {children.length === 0 ? (
                     <Empty onPick={addChild}/>
                 ) : (
@@ -47,13 +43,13 @@ const Repeatable = ({id, type, children, maxItems}: RepeatableProps) => {
                         {/* Élément répété : une carte dans le cadre du conteneur */}
                         <div className={repeatableCardClasses}>
                             <ContainerContext.Provider value={false}>
-                                <ChildrenSorter childrenBlocks={children} onReorder={handleReorder}/>
+                                <ChildrenSorter childrenBlocks={children} containerId={id}/>
                             </ContainerContext.Provider>
                             <AddButton onPick={addChild}/>
                         </div>
                     </>
                 )}
-            </div>
+            </DropZone>
             </ContainerContext.Provider>
         </EditableBlock>
     );

@@ -119,7 +119,8 @@ final readonly class FormLayoutBlock
 
         $options = [];
         foreach ($value as $option) {
-            if (\is_array($option) && \is_string($option['label'] ?? null)) {
+            // Une option sans libellé est ignorée : Symfony afficherait sinon un index numérique à la place.
+            if (\is_array($option) && \is_string($option['label'] ?? null) && '' !== trim($option['label'])) {
                 $options[] = ['label' => $option['label'], 'isSelected' => true === ($option['isSelected'] ?? false)];
             }
         }

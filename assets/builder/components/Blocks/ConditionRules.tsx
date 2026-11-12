@@ -3,8 +3,8 @@ import { Button } from "../ui/button";
 import { Select as SelectField, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { AddButton } from "../AddButton";
 import { Empty } from "../Empty";
-import { ChildrenSorter } from "./ChildrenSorter";
-import { Block, BlockDefinition, ConditionOperator, ConditionRule } from "./Definition";
+import { ChildrenSorter, DropZone } from "./ChildrenSorter";
+import { BlockDefinition, ConditionOperator, ConditionRule } from "./Definition";
 import { t } from "../../i18n";
 
 type OptionChoice = { id: string; label: string };
@@ -16,7 +16,6 @@ type Props = {
     onChangeRuleOperator: (ruleId: string, operator: ConditionOperator) => void;
     onRemoveRule: (ruleId: string) => void;
     onAddBlockToRule: (ruleId: string, def: BlockDefinition) => void;
-    onReorderRuleChildren: (ruleId: string, next: Block[]) => void;
 };
 
 const operatorOptions = (): { value: ConditionOperator; label: string }[] => [
@@ -32,7 +31,6 @@ export const ConditionRules = (
         onChangeRuleOperator,
         onRemoveRule,
         onAddBlockToRule,
-        onReorderRuleChildren,
     }: Props) => {
     if (conditions.length === 0) return null;
 
@@ -90,19 +88,21 @@ export const ConditionRules = (
                             </Button>
                         </div>
 
+                        <DropZone containerId={rule.id} className="space-y-3 rounded-lg">
                         {rule.children.length === 0 ? (
                             <Empty onPick={(def) => onAddBlockToRule(rule.id, def)}/>
                         ) : (
                             <>
                                 <ChildrenSorter
                                     childrenBlocks={rule.children}
+                                    containerId={rule.id}
                                     conditional
-                                    onReorder={(next) => onReorderRuleChildren(rule.id, next)}
                                 />
 
                                 <AddButton onPick={(def) => onAddBlockToRule(rule.id, def)}/>
                             </>
                         )}
+                        </DropZone>
                     </div>
                 );
             })}

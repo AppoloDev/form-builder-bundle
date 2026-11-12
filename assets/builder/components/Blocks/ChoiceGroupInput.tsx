@@ -150,15 +150,6 @@ const ChoiceGroupInput: FC<Props> = (props) => {
         updateBlock(id, patch);
     };
 
-    const reorderRuleChildren = (ruleId: string, nextChildren: Block[]) => {
-        const nextConditions = form.conditions.map((r) =>
-            r.id === ruleId ? {...r, children: nextChildren} : r
-        );
-        const patch = {conditions: nextConditions};
-        setForm(prev => ({...prev, ...patch}));
-        updateBlock(id, patch);
-    };
-
     const editionItems = useMemo(
         () => {
             const items = [
@@ -295,7 +286,6 @@ const ChoiceGroupInput: FC<Props> = (props) => {
                         onChangeRuleOperator={updateRuleOperator}
                         onRemoveRule={removeRule}
                         onAddBlockToRule={addBlockToRule}
-                        onReorderRuleChildren={reorderRuleChildren}
                     />
                 )}
             </div>

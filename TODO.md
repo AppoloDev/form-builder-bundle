@@ -1,3 +1,1 @@
-- Dans un groupe vide, pouvoir drop un bloc
 - Fichier à revoir
-- Choix unique si pas de valeur affiche un décimal

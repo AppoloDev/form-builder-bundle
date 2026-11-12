@@ -35,6 +35,24 @@ class ChoiceEmptyValueTest extends TestCase
         self::assertSame($expectsEmpty, null !== $view->vars['placeholder'] && false !== $view->vars['placeholder']);
     }
 
+    public function testOptionWithoutLabelIsNotRendered(): void
+    {
+        $field = new ChoiceGroup();
+        $field->validateDefinition(FormLayoutBlock::fromArray([
+            'id' => 'c',
+            'required' => true,
+            'options' => [['label' => 'A', 'isSelected' => false], ['label' => ' ', 'isSelected' => false], ['label' => '', 'isSelected' => false]],
+        ]), []);
+        $builder = TestForms::factory()->createBuilder(FormType::class);
+        $field->addFieldFromDefinition($builder);
+
+        $view = $builder->getForm()->createView()['c'];
+
+        /** @var list<\Symfony\Component\Form\ChoiceList\View\ChoiceView> $choices */
+        $choices = $view->vars['choices'];
+        self::assertSame(['A'], array_map(static fn ($choice) => $choice->label, $choices));
+    }
+
     /**
      * @return iterable<string, array{class-string, bool, bool, bool}>
      */

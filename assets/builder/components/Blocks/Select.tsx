@@ -129,15 +129,6 @@ const Select = (
         updateBlock(id, patch);
     };
 
-    const reorderRuleChildren = (ruleId: string, nextChildren: Block[]) => {
-        const nextConditions = form.conditions.map((r) =>
-            r.id === ruleId ? {...r, children: nextChildren} : r
-        );
-        const patch = {conditions: nextConditions};
-        setForm(prev => ({...prev, ...patch}));
-        updateBlock(id, patch);
-    };
-
     const editionItems = [
         <TextEdition key="label" label={t("field.title")} value={form.label} editItem={(v) => handleChange("label", v)}/>,
         <TextEdition key="helpText" label={t("field.helpText")} type="textarea" value={form.helpText}
@@ -200,7 +191,6 @@ const Select = (
                     onChangeRuleOperator={updateRuleOperator}
                     onRemoveRule={removeRule}
                     onAddBlockToRule={addBlockToRule}
-                    onReorderRuleChildren={reorderRuleChildren}
                 />
             )}
         </FieldInput>

@@ -18,9 +18,15 @@ interface FormBuilderState {
 
     setOverId: (id: string | null) => void;
     setActiveId: (id: UniqueIdentifier | null) => void;
-    moveBlock: (activeId: string, overId: string) => void;
-    moveBlockToEnd: (activeId: string) => void;
+    /** Déplace un bloc n'importe où dans l'arbre (cf. `moveBlockInTree`). */
+    moveBlock: (activeId: BlockId, target: MoveTarget) => void;
 }
+
+/** Liste de blocs : la racine (`null`), un groupe / répétable (id du bloc) ou une règle de condition (id de la règle). */
+export type ContainerId = BlockId | null;
+
+/** Cible d'un déplacement : à côté d'un bloc (avant, ou après si `after`), ou à la fin d'une liste. */
+export type MoveTarget = { overId: BlockId; after?: boolean } | { containerId: ContainerId };
 
 const recurseIntoChildren = (block: Block, recurse: (children: Block[]) => Block[]): Block => {
     if (block.type === 'FieldSet' || block.type === 'Repeatable') {
@@ -38,6 +44,88 @@ const recurseIntoChildren = (block: Block, recurse: (children: Block[]) => Block
     }
 
     return block;
+};
+
+/** Listes d'enfants directes d'un bloc, avec l'identifiant de leur conteneur. */
+const childLists = (block: Block): [BlockId, Block[]][] => {
+    if (block.type === 'FieldSet' || block.type === 'Repeatable') return [[block.id, block.children]];
+    if (block.type === 'ChoiceGroup' || block.type === 'Select') {
+        return (block.conditions ?? []).map((rule) => [rule.id, rule.children]);
+    }
+    return [];
+};
+
+/** Conteneur de la liste qui contient le bloc `id` (`undefined` : bloc introuvable). */
+export const findContainer = (blocks: Block[], id: BlockId, containerId: ContainerId = null): ContainerId | undefined => {
+    for (const block of blocks) {
+        if (block.id === id) return containerId;
+        for (const [childContainer, children] of childLists(block)) {
+            const found = findContainer(children, id, childContainer);
+            if (found !== undefined) return found;
+        }
+    }
+    return undefined;
+};
+
+const findBlock = (blocks: Block[], id: BlockId): Block | undefined => {
+    for (const block of blocks) {
+        if (block.id === id) return block;
+        for (const [, children] of childLists(block)) {
+            const found = findBlock(children, id);
+            if (found) return found;
+        }
+    }
+    return undefined;
+};
+
+/** Identifiants du bloc et de tous les conteneurs qu'il renferme (on ne dépose pas un bloc en lui-même). */
+const containerIdsWithin = (block: Block, ids = new Set<BlockId>([block.id])): Set<BlockId> => {
+    for (const [containerId, children] of childLists(block)) {
+        ids.add(containerId);
+        children.forEach((child) => containerIdsWithin(child, ids));
+    }
+    return ids;
+};
+
+/** Applique `fn` à la liste du conteneur `containerId`, à n'importe quelle profondeur. */
+const mapContainer = (blocks: Block[], containerId: ContainerId, fn: (list: Block[]) => Block[]): Block[] => {
+    if (containerId === null) return fn(blocks);
+    return blocks.map((block) => {
+        if ((block.type === 'FieldSet' || block.type === 'Repeatable') && block.id === containerId) {
+            return { ...block, children: fn(block.children) };
+        }
+        if ((block.type === 'ChoiceGroup' || block.type === 'Select') && block.conditions?.some((r) => r.id === containerId)) {
+            return {
+                ...block,
+                conditions: block.conditions.map((r) => r.id === containerId ? { ...r, children: fn(r.children) } : r),
+            };
+        }
+        return recurseIntoChildren(block, (children) => mapContainer(children, containerId, fn));
+    });
+};
+
+/** Déplace un bloc dans sa liste ou vers une autre (racine, groupe, répétable, règle de condition). */
+export const moveBlockInTree = (blocks: Block[], activeId: BlockId, target: MoveTarget): Block[] => {
+    const active = findBlock(blocks, activeId);
+    const from = findContainer(blocks, activeId);
+    const to = 'overId' in target ? findContainer(blocks, target.overId) : target.containerId;
+    if (!active || from === undefined || to === undefined) return blocks;
+    if (to !== null && containerIdsWithin(active).has(to)) return blocks;
+
+    if ('overId' in target && from === to) {
+        return mapContainer(blocks, to, (list) => arrayMove(
+            list,
+            list.findIndex((b) => b.id === activeId),
+            list.findIndex((b) => b.id === target.overId),
+        ));
+    }
+
+    return mapContainer(removeBlockRecursive(blocks, activeId), to, (list) => {
+        const index = 'overId' in target
+            ? list.findIndex((b) => b.id === target.overId) + (target.after ? 1 : 0)
+            : list.length;
+        return [...list.slice(0, index), active, ...list.slice(index)];
+    });
 };
 
 const migrateBlock = (block: Block): Block => {
@@ -162,28 +250,7 @@ export const useFormBuilderStore = create<FormBuilderState>((set) => ({
         set({ activeId: id });
     },
 
-    moveBlock: (activeId, overId) => {
-        set((state) => {
-            const oldIndex = state.blocks.findIndex((b) => b.id === activeId);
-            const newIndex = state.blocks.findIndex((b) => b.id === overId);
-
-            if (oldIndex === -1 || newIndex === -1) return state;
-
-            return {
-                blocks: arrayMove(state.blocks, oldIndex, newIndex)
-            };
-        });
-    },
-
-    moveBlockToEnd: (activeId) => {
-        set((state) => {
-            const oldIndex = state.blocks.findIndex((b) => b.id === activeId);
-
-            if (oldIndex === -1) return state;
-
-            return {
-                blocks: arrayMove(state.blocks, oldIndex, state.blocks.length - 1)
-            };
-        });
+    moveBlock: (activeId, target) => {
+        set((state) => ({ blocks: moveBlockInTree(state.blocks, activeId, target) }));
     },
 }));
