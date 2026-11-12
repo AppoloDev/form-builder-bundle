@@ -48,10 +48,10 @@ export const addMenuSections: { titleKey: MessageKey; entries: AddMenuEntry[] }[
     },
     {
         titleKey: "menu.presentation",
-        // Titres 1 à 3 puis texte explicatif, comme « Transformer en ».
         entries: TEXT_VARIANTS.map((variant): AddMenuEntry => variant.id === "paragraph"
             ? {type: "Paragraph", titleKey: variant.titleKey, icon: variant.icon}
-            : {type: "Title", titleKey: variant.titleKey, icon: variant.icon, defaultProps: {heading: variant.id}}),
+            : {type: "Title", titleKey: variant.titleKey, icon: variant.icon, defaultProps: {heading: variant.id}})
+            .concat({type: "Separator"}),
     },
     {
         titleKey: "menu.organisation",

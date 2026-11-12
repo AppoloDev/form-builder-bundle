@@ -19,7 +19,7 @@ final class FieldKindResolver
     public static function resolve(string $type): FieldKind
     {
         return match ($type) {
-            'Title', 'Paragraph' => FieldKind::DisplayOnly,
+            'Title', 'Paragraph', 'Separator' => FieldKind::DisplayOnly,
             'FieldSet' => FieldKind::Container,
             'Repeatable' => FieldKind::Repeatable,
             default => FieldKind::Value,

@@ -42,10 +42,12 @@ export const PARAGRAPH_TEXTAREA_CLASSES = "text-base md:text-base text-muted-for
 export const FIELD_LABEL_CLASSES = "text-sm leading-snug font-medium text-foreground";
 
 /**
- * Libellé modifiable en place : texte nu, sans bordure, fond, marge ni anneau de focus de l'`Input` (seul le curseur
+ * Texte modifiable en place (libellé, titre, paragraphe) : texte nu, sans bordure, fond, marge ni anneau de focus de l'`Input` (seul le curseur
  * de saisie signale l'édition). Taille répétée sous `md:` pour passer devant le `md:text-sm` de l'`Input`.
  */
-export const FIELD_LABEL_INPUT_CLASSES = "h-auto mx-0 rounded-none border-0 p-0 bg-transparent dark:bg-transparent focus-visible:ring-0 text-sm md:text-sm placeholder:text-muted-foreground";
+export const INLINE_BARE_CLASSES = "h-auto min-h-0 mx-0 rounded-none border-0 p-0 shadow-none bg-transparent focus-visible:ring-0";
+
+export const FIELD_LABEL_INPUT_CLASSES = `${INLINE_BARE_CLASSES} text-sm md:text-sm placeholder:text-muted-foreground/70`;
 
 /** Texte d'aide d'un champ, comme `Field:Description`. */
 export const FIELD_DESCRIPTION_CLASSES = "text-sm leading-normal font-normal text-muted-foreground";

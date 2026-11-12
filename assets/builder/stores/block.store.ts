@@ -40,21 +40,12 @@ const recurseIntoChildren = (block: Block, recurse: (children: Block[]) => Block
     return block;
 };
 
-// Upgrades one block from a legacy shape to the current one. Idempotent —
-// a block already in the new shape passes through unchanged, so this is
-// safe to run on every load regardless of the input's actual shape.
 const migrateBlock = (block: Block): Block => {
     if (block.type === 'ChoiceGroup') {
         const conditions: ConditionRule[] = [...(block.conditions ?? [])];
-
-        // Legacy JSON may still carry showConditionalField/children on an
-        // option even though OptionItem's type no longer declares them —
-        // this cast is the intentional escape hatch for reading that.
         const legacyOptions = block.options as Array<OptionItem & { showConditionalField?: boolean; children?: Block[] }>;
 
         const options: OptionItem[] = legacyOptions.map((option) => {
-            // eslint's no-unused-vars would flag this destructure-to-discard
-            // otherwise (ignoreRestSiblings isn't enabled repo-wide).
             const { showConditionalField: _showConditionalField, children, ...rest } = option;
             if (children && children.length > 0) {
                 conditions.push({ id: uuidv4(), operator: 'is', optionId: option.id, children });
@@ -74,7 +65,6 @@ const migrateBlock = (block: Block): Block => {
     }
 
     if (block.type === 'Select') {
-        // Legacy JSON may still have options as plain strings.
         const legacyOptions = block.options as unknown as Array<string | SelectOption>;
 
         const options: SelectOption[] = legacyOptions.map((option) =>
@@ -92,7 +82,11 @@ const migrateBlock = (block: Block): Block => {
         };
     }
 
-    return recurseIntoChildren(block, (children) => children.map(migrateBlock));
+    if (block.type === 'FieldSet' || block.type === 'Repeatable') {
+        return { ...block, children: (block.children ?? []).map(migrateBlock) };
+    }
+
+    return block;
 };
 
 const migrateBlocks = (blocks: Block[]): Block[] => blocks.map(migrateBlock);

@@ -29,12 +29,10 @@ export const AddMenu: React.FC<AddMenuProps> = (
 
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
-    // Focus initial sur le conteneur du menu, pas sur la recherche (pas d'autofocus ; Tab y mène au clavier).
-    const popupRef = useRef<HTMLDivElement>(null);
-    // Après un ajout, le focus reste sur le libellé du nouveau bloc au lieu de revenir au déclencheur.
+    // Focus initial sur la recherche : on peut taper directement à l'ouverture.
+    const searchRef = useRef<HTMLInputElement>(null);
     const pickedRef = useRef(false);
 
-    // Sections du menu (ordre fixe) limitées aux types autorisés et à la recherche ; les sections vides sont masquées.
     const groups = useMemo(() => {
         const q = query.trim().toLowerCase();
 
@@ -86,7 +84,7 @@ export const AddMenu: React.FC<AddMenuProps> = (
                 handleClose();
             }
         }}>
-            <DialogTrigger nativeButton={false} render={<div onClick={(e) => e.stopPropagation()} className="inline-block cursor-pointer"/>}>
+            <DialogTrigger nativeButton={false} render={<div onClick={(e) => e.stopPropagation()} className="outline-none"/>}>
                 {children}
             </DialogTrigger>
 
@@ -94,12 +92,12 @@ export const AddMenu: React.FC<AddMenuProps> = (
                 showCloseButton={false}
                 className="sm:max-w-sm gap-0 p-0 flex flex-col overflow-hidden"
                 style={{maxHeight: "min(85vh, 48rem)"}}
-                ref={popupRef}
-                initialFocus={popupRef}
+                initialFocus={searchRef}
                 finalFocus={() => !pickedRef.current}
             >
                 <div className="p-2">
                     <Input
+                        ref={searchRef}
                         type="text"
                         value={query}
                         onChange={e => setQuery(e.target.value)}

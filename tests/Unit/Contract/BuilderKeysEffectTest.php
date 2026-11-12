@@ -69,6 +69,10 @@ class BuilderKeysEffectTest extends TestCase
         self::assertNotNull($value, \sprintf('Aucune valeur de test pour la clé "%s" : l\'ajouter à VALUES (ou à IGNORED avec la raison).', $key));
 
         $base = [...$defaults, 'id' => 'f'];
+        // Titre et paragraphe naissent vides et ne sont pas rendus : on part d'un texte pour voir l'effet des autres clés.
+        if ('' === ($base['text'] ?? null) && 'text' !== $key) {
+            $base['text'] = 'Texte';
+        }
         // Un choix sans option ne montre pas l'effet de `multiple`, `required`… : on part de deux options.
         if (\in_array($type, ['Select', 'ChoiceGroup'], true) && 'options' !== $key) {
             $base['options'] = self::VALUES['options'];

@@ -19,6 +19,7 @@ import {
     AlignLeftIcon,
     TextTSlashIcon, TextAlignLeftIcon,
     AtIcon,
+    MinusIcon,
 } from "@phosphor-icons/react";
 import { onBuilderLocaleChange, t } from "../../i18n";
 import type { BlockCategory } from "./Categories";
@@ -61,6 +62,10 @@ export interface TitleProps extends BaseBlockProps {
 export interface ParagraphProps extends BaseBlockProps {
     type: 'Paragraph';
     text: string;
+}
+
+export interface SeparatorProps extends BaseBlockProps {
+    type: 'Separator';
 }
 
 export interface ChoiceGroupProps extends BaseBlockProps {
@@ -207,6 +212,7 @@ export type ConditionRule = {
 export type BlockPropsByType = {
     Title: TitleProps;
     Paragraph: ParagraphProps;
+    Separator: SeparatorProps;
     TextInput: TextInputProps;
     TextareaInput: TextareaInputProps;
     ChoiceGroup: ChoiceGroupProps;
@@ -286,7 +292,7 @@ const buildDefinitions = (): BlockDefinitions => ({
         description: t("def.Title.description"),
         defaultProps: {
             type: "Title",
-            text: t("title.default"),
+            text: "",
             heading: 'h1'
         },
         editionSchema: [
@@ -309,11 +315,22 @@ const buildDefinitions = (): BlockDefinitions => ({
         description: t("def.Paragraph.description"),
         defaultProps: {
             type: "Paragraph",
-            text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+            text: ""
         },
         editionSchema: [
             {key: "text", label: t("paragraph.text"), type: "textarea", rows: 3},
         ],
+    },
+    Separator: {
+        id: "drag-separator",
+        type: "Separator",
+        category: "layout",
+        title: t("def.Separator.title"),
+        icon: MinusIcon,
+        description: t("def.Separator.description"),
+        defaultProps: {
+            type: "Separator",
+        },
     },
     TextInput: {
         id: "drag-textinput",

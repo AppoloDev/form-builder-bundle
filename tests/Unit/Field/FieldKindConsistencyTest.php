@@ -43,7 +43,7 @@ class FieldKindConsistencyTest extends TestCase
         foreach ([
             'AddressInput', 'ChoiceGroup', 'DateTimeInput', 'EmailInput', 'FieldSet', 'FileInput',
             'GenericTextInput', 'HourMinuteInput', 'NumberInput', 'Paragraph', 'Repeatable',
-            'Select', 'Signature', 'TelInput', 'TextareaInput', 'TextInput',
+            'Select', 'Separator', 'Signature', 'TelInput', 'TextareaInput', 'TextInput',
             'Title', 'UrlInput',
         ] as $type) {
             yield $type => [$type];

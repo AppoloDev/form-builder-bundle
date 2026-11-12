@@ -32,7 +32,7 @@ enum FieldCategory: string
             self::DateTime => ['DateTimeInput', 'HourMinuteInput'],
             self::File => ['FileInput'],
             self::Special => ['AddressInput', 'Signature'],
-            self::Layout => ['Title', 'Paragraph'],
+            self::Layout => ['Title', 'Paragraph', 'Separator'],
             self::Group => ['FieldSet', 'Repeatable'],
         };
     }

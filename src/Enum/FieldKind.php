@@ -6,7 +6,7 @@ namespace AppoloDev\FormBuilderBundle\Enum;
 
 enum FieldKind: string
 {
-    /** No answer value of its own (Title, Paragraph). */
+    /** No answer value of its own (Title, Paragraph, Separator). */
     case DisplayOnly = 'display_only';
 
     /** Groups other fields but holds no value itself (FieldSet). */

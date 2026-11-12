@@ -18,8 +18,6 @@ type Props = {
 const baseClassName = "border-transparent bg-transparent px-1 -mx-1 hover:border-input focus-visible:border-ring";
 const inputOnlyClassName = "h-6 max-w-full";
 
-const MIN_WIDTH = 96;
-const CARET_SPACE = 8;
 
 export const InlineEditableText = ({value, onCommit, placeholder, className = "", multiline = false, blockId}: Props) => {
     const [draft, setDraft] = useState(value);
@@ -31,19 +29,29 @@ export const InlineEditableText = ({value, onCommit, placeholder, className = ""
             (inputRef.current ?? textareaRef.current)?.focus();
         }
     }, [blockId]);
-    const mirrorRef = useRef<HTMLSpanElement>(null);
-    const [width, setWidth] = useState(MIN_WIDTH);
 
     useEffect(() => {
         setDraft(value);
     }, [value]);
 
+    // L'input prend la largeur du texte (ou du placeholder) recopié dans un span invisible.
+    const mirrorRef = useRef<HTMLSpanElement>(null);
+    const [width, setWidth] = useState<number>();
+    const measure = () => {
+        if (mirrorRef.current) setWidth(Math.ceil(mirrorRef.current.getBoundingClientRect().width));
+    };
+
+    // À chaque frappe, mesure synchrone avant l'affichage : l'input ne paraît jamais plus étroit que son texte.
+    useLayoutEffect(measure, [draft, placeholder, className]);
+
+    // Le chargement de la police web change la largeur sans changer le texte.
     useLayoutEffect(() => {
-        if (multiline || !mirrorRef.current) return;
-        const measured = mirrorRef.current.getBoundingClientRect().width;
-        const floor = draft ? 0 : MIN_WIDTH;
-        setWidth(Math.max(floor, Math.ceil(measured) + CARET_SPACE));
-    }, [draft, placeholder, multiline, className]);
+        const mirror = mirrorRef.current;
+        if (!mirror) return;
+        const observer = new ResizeObserver(measure);
+        observer.observe(mirror);
+        return () => observer.disconnect();
+    }, [multiline]);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setDraft(e.target.value);

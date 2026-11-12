@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { SignatureProps, blockDefinitions } from "./Definition";
+import { SignatureProps } from "./Definition";
 import { useFormBuilderStore } from "../../stores/block.store";
 import { EditableBlock } from "./EditableBlock";
 import { TextEdition } from "../Edition/TextEdition";
@@ -47,19 +47,19 @@ const Signature = ({id, type, label, helpText, required, isChildBlock}: Props) =
     return (
         <EditableBlock id={id} type={type} editionItems={editionItems}>
             <div className={FIELD_CLASSES}>
-                <label className={`self-start ${FIELD_LABEL_CLASSES}`}>
+                <label className={`self-start flex max-w-full items-baseline ${FIELD_LABEL_CLASSES}`}>
                     <InlineEditableText
                         value={form.label}
                         onCommit={(v) => handleChange('label', v)}
                         blockId={id}
-                        placeholder={(type && blockDefinitions[type]?.title) || t("field.label")}
+                        placeholder={t("field.labelPlaceholder")}
                         className={FIELD_LABEL_INPUT_CLASSES}
                     />
                     {!isChildBlock && form.required && <RequiredMark onRemove={() => handleChange('required', false)}/>}
                 </label>
 
                 <div
-                    className="flex h-24 items-center justify-center rounded-lg border border-input text-sm text-muted-foreground dark:bg-input/30">
+                    className="flex h-24 items-center justify-center rounded-lg border border-input text-sm text-muted-foreground">
                     {t("signature.area")}
                 </div>
 

@@ -4,6 +4,7 @@ import TextInput from "./Blocks/TextInput";
 import TextareaInput from "./Blocks/TextareaInput";
 import Title from "./Blocks/Title";
 import Paragraph from "./Blocks/Paragraph";
+import Separator from "./Blocks/Separator";
 import NumberInput from "./Blocks/NumberInput";
 import EmailInput from "./Blocks/EmailInput";
 import TelInput from "./Blocks/TelInput";
@@ -23,6 +24,7 @@ export const BLOCK_COMPONENTS: Record<BlockType, ComponentType<any>> = {
     'TextareaInput': TextareaInput,
     'Title': Title,
     'Paragraph': Paragraph,
+    'Separator': Separator,
     'ChoiceGroup': ChoiceGroupInput,
     'NumberInput': NumberInput,
     'EmailInput': EmailInput,

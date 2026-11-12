@@ -30,7 +30,7 @@ the theme list to the constructor).
 | `FileInput` | `FileRepeatableType` (collection of `file` + hidden `delete` checkbox); `label`, `help`, `required`, `attr.maxItems` and `Count` constraints on the **collection** | `file_repeatable_row` (override): the field label (with the required mark), help and collection errors, shown even before any file is added; the « Attached files » title only when there is no label |
 | `AddressInput` | `AddressType` | `address_row` (override) |
 | `Signature` | `SignatureType` | `signature_row` (override) |
-| `FieldSet`, `Repeatable`, `Title`, `Paragraph` | bundle types | the bundle blocks (override) |
+| `FieldSet`, `Repeatable`, `Title`, `Paragraph`, `Separator` | bundle types | the bundle blocks (override) |
 
 Common to every value field: label (`label`), help text (`help`), `required` mark, `disabled`, and the errors.
 `formBuilder="formBuilder"` is an `attr` marker added to every generated field (an application theme may ignore it).

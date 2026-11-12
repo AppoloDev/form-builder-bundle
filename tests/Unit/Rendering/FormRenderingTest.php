@@ -243,6 +243,10 @@ class FormRenderingTest extends TestCase
             ['type' => 'Paragraph', 'text' => 'Un paragraphe'],
             ["//p[@id='form_builder_f'][normalize-space()='Un paragraphe']"],
         ];
+        yield 'Separator' => [
+            ['type' => 'Separator'],
+            ["//hr[@id='form_builder_f']"],
+        ];
         yield 'FieldSet' => [
             ['type' => 'FieldSet', 'children' => [['id' => 'child', 'type' => 'TextInput', 'label' => 'Enfant']]],
             ["//fieldset[@id='form_builder_f']//label[normalize-space()='Enfant']", "//fieldset//input[@id='form_builder_f_child']"],

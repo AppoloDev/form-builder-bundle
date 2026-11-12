@@ -145,7 +145,7 @@
       "category": "layout",
       "defaults": {
         "type": "Paragraph",
-        "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        "text": ""
       },
       "keys": [
         "text"
@@ -184,6 +184,13 @@
         "readOnly",
         "required"
       ]
+    },
+    "Separator": {
+      "category": "layout",
+      "defaults": {
+        "type": "Separator"
+      },
+      "keys": []
     },
     "Signature": {
       "category": "special",
@@ -259,7 +266,7 @@
       "category": "layout",
       "defaults": {
         "type": "Title",
-        "text": "Titre",
+        "text": "",
         "heading": "h1"
       },
       "keys": [

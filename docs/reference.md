@@ -69,7 +69,7 @@ key and must be unique in the layout.
 
 | Kind | Types | Has a value |
 |---|---|---|
-| DisplayOnly | `Title`, `Paragraph` (use `text`) | no |
+| DisplayOnly | `Title`, `Paragraph` (use `text`), `Separator` | no |
 | Container | `FieldSet` | no, groups `children` |
 | Repeatable | `Repeatable` | rows of its `children` |
 | Value | everything else | yes |
@@ -102,6 +102,7 @@ between the two forms; `FormLayoutBlock::listFromArray()` always flattens.
 | `Repeatable` | `children`, `maxItems` (default 5; `0` = unlimited) |
 | `Title` | `text`, `heading` (`h1`…`h6`, default `h3`) |
 | `Paragraph` | `text` |
+| `Separator` | — |
 
 ### Field categories
 
@@ -117,7 +118,7 @@ type is exposed in `assets/builder/contract/blocks.json` and mirrored by `Enum\F
 | `datetime` | `DateTimeInput`, `HourMinuteInput` |
 | `file` | `FileInput` |
 | `special` | `AddressInput`, `Signature` |
-| `layout` | `Title`, `Paragraph` |
+| `layout` | `Title`, `Paragraph`, `Separator` |
 | `group` | `FieldSet`, `Repeatable` |
 
 ## Answer data
@@ -148,7 +149,7 @@ Collection behaviour comes from the `form-builder-collection` Stimulus controlle
 `data-delete-selector`), the add/remove buttons from `<template id="add-btn">` / `<template id="remove-btn">`.
 
 **Answers template** must define block `answers_view` (variables `answers`, `formAnswer`) and one block per
-field type used (`FieldSet`, `Repeatable`, `Title`, `Paragraph`, `TextInput`, …, `FileInput`, `Select`,
+field type used (`FieldSet`, `Repeatable`, `Title`, `Paragraph`, `Separator`, `TextInput`, …, `FileInput`, `Select`,
 `Signature`, `ChoiceGroup`, `HourMinuteInput`). Extend the default one with `{% extends '@FormBuilder/answers/shadcn.html.twig' %}` and override
 only what you need (e.g. `FileInput`, `fileList` for PDF).
 

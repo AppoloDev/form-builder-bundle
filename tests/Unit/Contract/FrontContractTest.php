@@ -68,6 +68,10 @@ class FrontContractTest extends TestCase
         $field = new $class();
         self::assertInstanceOf(FieldInterface::class, $field);
 
+        // Titre et paragraphe naissent vides (placeholder seul) et sont ignorés tant qu'ils le restent.
+        if ('' === ($defaults['text'] ?? null)) {
+            $defaults['text'] = 'Texte';
+        }
         $block = FormLayoutBlock::fromArray(['id' => $type.'-1', ...$defaults]);
         self::assertTrue($field->validateDefinition($block, []), \sprintf('Le bloc par défaut "%s" est refusé par la classe PHP.', $type));
 

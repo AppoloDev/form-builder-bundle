@@ -156,7 +156,6 @@ export const makeInputBlock = (
                 onLabelChange={(v) => handleChange('label', v)}
                 onRequiredChange={isChildBlock ? undefined : (v) => handleChange('required', v)}
             >
-                {/* Aperçu : `inert` plutôt que `disabled`, qui griserait le champ (rendu différent du formulaire). */}
                 <InputGroup>
                     {finalType === 'textarea' ?
                         <InputGroupTextarea
@@ -172,6 +171,7 @@ export const makeInputBlock = (
                             type={finalType}
                             placeholder={form.placeHolder}
                             inert
+                            className="[&::-webkit-calendar-picker-indicator]:hidden"
                             {...restInputAttrs}
                         />
                     }

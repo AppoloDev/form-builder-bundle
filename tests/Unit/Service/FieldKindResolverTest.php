@@ -24,6 +24,7 @@ class FieldKindResolverTest extends TestCase
     {
         yield 'Title' => ['Title', FieldKind::DisplayOnly];
         yield 'Paragraph' => ['Paragraph', FieldKind::DisplayOnly];
+        yield 'Separator' => ['Separator', FieldKind::DisplayOnly];
         yield 'FieldSet' => ['FieldSet', FieldKind::Container];
         yield 'Repeatable' => ['Repeatable', FieldKind::Repeatable];
         yield 'TextInput' => ['TextInput', FieldKind::Value];

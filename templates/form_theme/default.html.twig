@@ -26,6 +26,10 @@
     <div class="fb-paragraph"><p id="{{ id }}">{{ label|nl2br }}</p></div>
 {%- endblock -%}
 
+{%- block separator_row -%}
+    <div class="fb-separator"><hr id="{{ id }}"></div>
+{%- endblock -%}
+
 {%- block repeatable_row -%}
     <div class="repeatable fb-repeatable">
         <div

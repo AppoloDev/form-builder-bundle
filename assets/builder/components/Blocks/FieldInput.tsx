@@ -1,9 +1,10 @@
 import React, { ReactElement, PropsWithChildren } from "react";
 import { EditableBlock } from "./EditableBlock";
 import { InlineEditableText } from "../InlineEditableText";
-import { BlockType, blockDefinitions } from "./Definition";
+import { BlockType } from "./Definition";
 import { t } from "../../i18n";
 import { FIELD_CLASSES, FIELD_DESCRIPTION_CLASSES, FIELD_LABEL_CLASSES, FIELD_LABEL_INPUT_CLASSES } from "../../utilities/typography";
+import { AsteriskIcon } from "@phosphor-icons/react"
 
 type Props = { id: string;
     type?: BlockType;
@@ -26,9 +27,9 @@ export const RequiredMark = ({onRemove}: { onRemove: () => void }) => (
         }}
         title={t("field.makeOptional")}
         aria-label={t("field.makeOptional")}
-        className="ml-1 cursor-pointer text-muted-foreground transition-opacity hover:opacity-60"
+        className="flex items-center justify-center rounded-full ml-1 shrink-0 cursor-pointer text-destructive bg-muted flex-1 aspect-square w-4 h-4"
     >
-        *
+        <AsteriskIcon size={12} />
     </button>
 );
 
@@ -36,12 +37,12 @@ export const FieldInput = ({id, type, editionItems, form, children, onLabelChang
     return (
         <EditableBlock id={id} type={type} editionItems={editionItems}>
             <div className={FIELD_CLASSES}>
-                <label className={`self-start ${FIELD_LABEL_CLASSES}`} htmlFor={id}>
+                <label className={`self-start flex max-w-full items-baseline ${FIELD_LABEL_CLASSES}`} htmlFor={id}>
                     <InlineEditableText
                         value={form.label}
                         onCommit={(v) => onLabelChange?.(v)}
                         blockId={id}
-                        placeholder={(type && blockDefinitions[type]?.title) || t("field.label")}
+                        placeholder={t("field.labelPlaceholder")}
                         className={FIELD_LABEL_INPUT_CLASSES}
                     />
                     {onRequiredChange && form.required && <RequiredMark onRemove={() => onRequiredChange(false)}/>}
