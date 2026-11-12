@@ -16,7 +16,7 @@ pnpm run export-contract   # régénère assets/builder/contract/blocks.json —
 ## Organisation
 
 - `src/Field/<Type>.php` : une classe par type de bloc. `FieldFactory` résout `type` → classe par son nom.
-- `assets/builder/components/Blocks/Definition.ts` (définitions des blocs), `BlockRegistry.tsx` (type → composant), `Categories.ts`
+- `assets/builder/components/Blocks/Definition.ts` (définitions des blocs), `Blocks/Categories.ts`, `components/BlockRegistry.tsx` (type → composant)
 - `templates/form_theme/default.html.twig` (formulaire de réponse), `templates/answers/shadcn.html.twig` (`{% block <Type> %}`)
 - `assets/controllers/` : contrôleurs Stimulus (préfixe `form-builder-`) ; `assets/lib/condition.js` : logique des conditions
 - `tests/Fixtures` : fausses entités hôtes ; `tests/Support` : harnais de formulaire et de rendu
@@ -24,7 +24,8 @@ pnpm run export-contract   # régénère assets/builder/contract/blocks.json —
 ## Contrat front ↔ PHP
 
 Ajouter ou renommer un type de bloc touche : `Definition.ts`, `BlockRegistry.tsx`, `Categories.ts`, `i18n/{fr,en}.ts`,
-`src/Field/<Type>.php`, `Enum/FieldCategory.php`, le bloc du template des réponses, puis `pnpm run export-contract`.
+`src/Field/<Type>.php`, `Enum/FieldCategory.php`, le bloc du template des réponses, `docs/reference.md` (non testé),
+puis `pnpm run export-contract`.
 - `tests/Unit/Contract/FrontContractTest.php` échoue si une clé émise par le builder n'est pas lue par PHP, ou l'inverse ;
   les clés encore lues mais plus émises vont dans sa constante `LEGACY`.
 - `BuilderKeysEffectTest` : chaque clé du builder doit modifier le formulaire rendu.
