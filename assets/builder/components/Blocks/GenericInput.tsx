@@ -53,6 +53,8 @@ type MakeOpts = {
     toInputAttrs?: (form: Record<string, any>) => Record<string, any>;
     /** Aperçu propre au bloc à la place de l'input (ex. zone de dépôt du FileInput). */
     renderPreview?: (form: Record<string, any>) => React.ReactNode;
+    /** Largeur max de l'aperçu (défaut max-w-sm), ex. champs date / heure plus étroits comme dans le formulaire. */
+    maxWidth?: (form: Record<string, any>) => string;
 };
 
 export const makeInputBlock = (
@@ -190,7 +192,7 @@ export const makeInputBlock = (
                 onLabelChange={(v) => handleChange('label', v)}
                 onRequiredChange={isChildBlock ? undefined : (v) => handleChange('required', v)}
             >
-                {opts.renderPreview ? opts.renderPreview(form) : <InputGroup className={`${finalType === 'textarea' ? '' : 'h-9 max-w-sm'} ${form.readOnly ? 'bg-muted' : ''}`}>
+                {opts.renderPreview ? opts.renderPreview(form) : <InputGroup className={`${finalType === 'textarea' ? '' : `h-9 ${opts.maxWidth?.(form) ?? 'max-w-sm'}`} ${form.readOnly ? 'bg-muted' : ''}`}>
                     {finalType === 'textarea' ?
                         <InputGroupTextarea
                             id={id}

@@ -10,6 +10,8 @@ const now = (mode: string): string => {
 };
 
 const DateTimeInput = makeInputBlock("date", {
+    // Largeurs du formulaire : date w-48, heure w-28 ; date + heure en un seul champ natif, un peu plus large.
+    maxWidth: (form) => form.mode === "date" ? "max-w-48" : form.mode === "time" ? "max-w-28" : "max-w-60",
     toInputAttrs: (form) => {
         const mode = typeof form.mode === "string" && allowedModes.includes(form.mode)
             ? form.mode

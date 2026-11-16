@@ -180,6 +180,9 @@ export const FormBuilder = ({onChange, json = [], categories, types}: Props) => 
 
     return (
         <AllowedTypesContext.Provider value={allowedTypes}>
+        {/* Entrée dans un champ du builder ne soumet pas le formulaire hôte (soumission implicite). Les menus et
+            fenêtres en portail remontent aussi ici (arbre React). Zones multilignes et boutons non concernés. */}
+        <div className="contents" onKeyDown={(e) => e.key === "Enter" && e.target instanceof HTMLInputElement && e.preventDefault()}>
         <DndContext
             sensors={sensors}
             collisionDetection={collisionDetection}
@@ -231,6 +234,7 @@ export const FormBuilder = ({onChange, json = [], categories, types}: Props) => 
                 document.body
             )}
         </DndContext>
+        </div>
         </AllowedTypesContext.Provider>
     );
 };

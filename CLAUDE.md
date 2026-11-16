@@ -11,13 +11,16 @@ composer cs-fix
 pnpm run typecheck
 pnpm run test              # vitest, y compris la vérification que le contrat est à jour
 pnpm run export-contract   # régénère assets/builder/contract/blocks.json — après TOUTE modification d'un bloc
+vendor/bin/phpunit --filter FrontContractTest   # un test PHP ciblé
+pnpm exec vitest run assets/builder/i18n        # un dossier/fichier vitest
 ```
 
 ## Organisation
 
 - `src/Field/<Type>.php` : une classe par type de bloc. `FieldFactory` résout `type` → classe par son nom.
 - `assets/builder/components/Blocks/Definition.ts` (définitions des blocs), `Blocks/Categories.ts`, `components/BlockRegistry.tsx` (type → composant)
-- `templates/form_theme/default.html.twig` (formulaire de réponse), `templates/answers/shadcn.html.twig` (`{% block <Type> %}`)
+- `templates/form_theme/default.html.twig` (formulaire de réponse ; `shadcn.html.twig` n'en est qu'un alias),
+  `form_theme/structure.html.twig` (widget du builder), `templates/answers/shadcn.html.twig` (`{% block <Type> %}`)
 - `assets/controllers/` : contrôleurs Stimulus (préfixe `form-builder-`) ; `assets/lib/condition.js` : logique des conditions
 - `tests/Fixtures` : fausses entités hôtes ; `tests/Support` : harnais de formulaire et de rendu
 
@@ -32,7 +35,8 @@ puis `pnpm run export-contract`.
 
 ## Pièges
 
-- Les classes Tailwind vont uniquement dans des fichiers `.tsx` — le `@source` de l'hôte scanne `assets/builder/**/*.tsx`.
+- Classes Tailwind : seulement dans `assets/builder/**/*.tsx` et `templates/**/*.twig` (les `@source` de l'hôte),
+  jamais dans un `.ts`/`.js` (ex. `Definition.ts`, `TextVariants.ts`) — elles ne seraient pas générées.
 - Les imports du builder restent relatifs (pas d'alias `@/` ; ne pas lancer la CLI shadcn telle quelle — après ajout
   d'un composant `components/ui`, réécrire ses imports `@/` en relatifs).
 - Les variantes `dark:` des composants shadcn sont neutralisées côté hôte (`@custom-variant dark` dans `docs/frontend.md`),

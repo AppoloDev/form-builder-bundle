@@ -25,6 +25,7 @@ export const en: Record<MessageKey, string> = {
     "menu.multipleChoice": "Multiple choice",
 
     "builder.addBlock": "Add a question",
+    "builder.add": "Add",
     "builder.empty": "Your form is empty",
     "builder.emptyDescription": "Add a first question to start building your form.",
     "builder.searchBlock": "What would you like to add?",
@@ -83,7 +84,6 @@ export const en: Record<MessageKey, string> = {
     "file.documents": "Documents (images, PDF, Office…)",
     "file.maxItems": "Maximum number of files",
     "file.unlimited": "Unlimited files",
-    "file.add": "Add",
     "file.limit.image.none": "Add your images",
     "file.limit.image.one": "1 image maximum",
     "file.limit.image.many": "{max} images maximum",

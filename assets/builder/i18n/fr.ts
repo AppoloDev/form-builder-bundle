@@ -23,6 +23,7 @@ export const fr = {
     "menu.multipleChoice": "Choix multiple",
 
     "builder.addBlock": "Ajouter une question",
+    "builder.add": "Ajouter",
     "builder.empty": "Votre formulaire est vide",
     "builder.emptyDescription": "Ajoutez une première question pour commencer à construire votre formulaire.",
     "builder.searchBlock": "Que souhaitez-vous ajouter ?",
@@ -81,7 +82,6 @@ export const fr = {
     "file.documents": "Documents (images, PDF, Office…)",
     "file.maxItems": "Nombre maximum de fichiers",
     "file.unlimited": "Fichiers illimités",
-    "file.add": "Ajouter",
     "file.limit.image.none": "Ajoutez vos images",
     "file.limit.image.one": "1 image maximum",
     "file.limit.image.many": "{max} images maximum",
