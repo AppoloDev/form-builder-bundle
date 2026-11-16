@@ -10,7 +10,7 @@ export const Tooltip = ({ children, content }: Props) => {
                 <TooltipTrigger render={<span className="inline-block" />}>
                     {children}
                 </TooltipTrigger>
-                <TooltipContent>{content}</TooltipContent>
+                <TooltipContent className="whitespace-pre-line">{content}</TooltipContent>
             </TooltipRoot>
         </TooltipProvider>
     );

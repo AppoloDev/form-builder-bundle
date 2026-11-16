@@ -35,8 +35,16 @@ describe("déplacement d'un bloc dans l'arbre", () => {
 
     it("réordonne dans la même liste et refuse de déposer un groupe en lui-même", () => {
         expect(ids(moveBlockInTree(tree(), "s", {overId: "a"}))).toEqual(["s", "a", ["g", ["b"]]]);
+        expect(ids(moveBlockInTree(tree(), "a", {overId: "s"}))).toEqual([["g", ["b"]], "a", "s"]);
+        expect(ids(moveBlockInTree(tree(), "a", {overId: "s", after: true}))).toEqual([["g", ["b"]], "s", "a"]);
         const blocks = tree();
         expect(moveBlockInTree(blocks, "g", {containerId: "g"})).toBe(blocks);
         expect(moveBlockInTree(blocks, "g", {overId: "b"})).toBe(blocks);
+    });
+
+    it("insère un nouveau bloc juste après le bloc courant, dans sa liste (même imbriquée)", () => {
+        useFormBuilderStore.setState({blocks: tree()});
+        useFormBuilderStore.getState().insertBlockAfter("b", {id: "n", type: "TextInput"} as any);
+        expect(ids(useFormBuilderStore.getState().blocks)).toEqual(["a", ["g", ["b", "n"]], "s"]);
     });
 });

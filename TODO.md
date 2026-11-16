@@ -1,1 +1,2 @@
 - Fichier à revoir
+- Latence à l'éditon d'une option

@@ -33,7 +33,10 @@ puis `pnpm run export-contract`.
 ## Pièges
 
 - Les classes Tailwind vont uniquement dans des fichiers `.tsx` — le `@source` de l'hôte scanne `assets/builder/**/*.tsx`.
-- Les imports du builder restent relatifs (pas d'alias `@/` ; ne pas lancer la CLI shadcn telle quelle).
+- Les imports du builder restent relatifs (pas d'alias `@/` ; ne pas lancer la CLI shadcn telle quelle — après ajout
+  d'un composant `components/ui`, réécrire ses imports `@/` en relatifs).
+- Les variantes `dark:` des composants shadcn sont neutralisées côté hôte (`@custom-variant dark` dans `docs/frontend.md`),
+  inutile de les retirer des composants.
 - `i18n.test.ts` impose des clés et des placeholders identiques dans `fr.ts` / `en.ts`.
 - Ne jamais référencer les entités de l'hôte depuis le code du bundle ; passer par les interfaces de `src/Contract/*`.
 

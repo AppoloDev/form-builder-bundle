@@ -52,6 +52,9 @@ export const FIELD_LABEL_INPUT_CLASSES = `${INLINE_BARE_CLASSES} text-sm md:text
 /** Texte d'aide d'un champ, comme `Field:Description`. */
 export const FIELD_DESCRIPTION_CLASSES = "text-sm leading-normal font-normal text-muted-foreground";
 
+/** Espace au-dessus du libellé d'un champ. */
+export const FIELD_TEXT_INSET_CLASSES = "pt-0.5";
+
 /** Ligne libellé + contrôle + aide, comme `Field` (orientation verticale). */
 export const FIELD_CLASSES = "flex flex-col gap-2";
 

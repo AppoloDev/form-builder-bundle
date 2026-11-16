@@ -3,7 +3,7 @@ import { EditableBlock } from "./EditableBlock";
 import { InlineEditableText } from "../InlineEditableText";
 import { BlockType } from "./Definition";
 import { t } from "../../i18n";
-import { FIELD_CLASSES, FIELD_DESCRIPTION_CLASSES, FIELD_LABEL_CLASSES, FIELD_LABEL_INPUT_CLASSES } from "../../utilities/typography";
+import { FIELD_CLASSES, FIELD_DESCRIPTION_CLASSES, FIELD_TEXT_INSET_CLASSES, FIELD_LABEL_CLASSES, FIELD_LABEL_INPUT_CLASSES } from "../../utilities/typography";
 import { AsteriskIcon } from "@phosphor-icons/react"
 
 type Props = { id: string;
@@ -37,7 +37,7 @@ export const FieldInput = ({id, type, editionItems, form, children, onLabelChang
     return (
         <EditableBlock id={id} type={type} editionItems={editionItems}>
             <div className={FIELD_CLASSES}>
-                <label className={`self-start flex max-w-full items-baseline ${FIELD_LABEL_CLASSES}`} htmlFor={id}>
+                <label className={`self-start flex max-w-full items-baseline ${FIELD_TEXT_INSET_CLASSES} ${FIELD_LABEL_CLASSES}`} htmlFor={id}>
                     <InlineEditableText
                         value={form.label}
                         onCommit={(v) => onLabelChange?.(v)}

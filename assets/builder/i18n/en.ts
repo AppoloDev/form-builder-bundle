@@ -29,8 +29,8 @@ export const en: Record<MessageKey, string> = {
     "builder.emptyDescription": "Add a first question to start building your form.",
     "builder.searchBlock": "What would you like to add?",
 
-    "block.settings": "Settings",
-    "block.openSettings": "Open settings",
+    "block.addBelow": "Add a block below",
+    "block.handle": "Drag to move\nClick for settings",
     "block.delete": "Delete",
     "block.deleteAria": "Delete the block",
     "block.move": "Move the block",
@@ -45,8 +45,7 @@ export const en: Record<MessageKey, string> = {
     "option.add": "+ Add",
     "option.addLong": "Add an option",
     "option.deleteAria": "Delete the option",
-    "option.preselectAria": "Preselect this option",
-    "option.preselectTitle": "Selected by default",
+    "option.reorderAria": "Drag to reorder the option",
     "option.editHelp": "Add, edit or remove the options",
     "option.select": "Select…",
 
@@ -71,7 +70,6 @@ export const en: Record<MessageKey, string> = {
     "date.mode": "Input type",
     "date.modeDate": "Date",
     "date.modeDateTime": "Date and time",
-    "date.modeTime": "Time",
     "date.prefill": "Prefill with the current date and time",
     "file.accepted": "Accepted files",
     "file.images": "Images",

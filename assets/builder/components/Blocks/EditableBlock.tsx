@@ -1,13 +1,16 @@
-import { ReactElement, ReactNode, useState, useCallback, useContext } from "react";
+import { PointerEvent, ReactElement, ReactNode, useState, useCallback, useContext } from "react";
 import { Tooltip } from "../Tooltip";
 import { UniqueIdentifier } from "@dnd-kit/core";
 import { ContextMenu } from "../ContextMenu";
 import { useBlockOperations } from "../../hooks/useBlockOperations";
+import { useFormBuilderStore } from "../../stores/block.store";
 import { DragHandleContext } from "../../FormBuilder";
 import { Button } from "../ui/button";
-import { type Icon, DotsSixVerticalIcon, PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
+import { type Icon, DotsSixVerticalIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { BlockType, blockDefinitions } from "./Definition";
 import { t } from "../../i18n";
+import { AddMenu } from "../AddMenu";
+import { createBlockFromTemplate } from "../../utilities/block.utiles";
 
 interface EditableBlockProps {
     id: UniqueIdentifier;
@@ -49,6 +52,29 @@ export const EditableBlock = (
         .sort((a, b) => Number(b.key === "required") - Number(a.key === "required"));
 
     const {attributes, listeners, setActivatorNodeRef} = useContext(DragHandleContext);
+    const selected = useFormBuilderStore((state) => state.selectedId === id);
+    const select = useFormBuilderStore((state) => state.select);
+    const insertBlockAfter = useFormBuilderStore((state) => state.insertBlockAfter);
+
+    const handle = (
+        <Button
+            variant="ghost"
+            size="icon-sm"
+            ref={setActivatorNodeRef}
+            {...(attributes || {})}
+            {...(listeners || {})}
+            className="cursor-grab active:cursor-grabbing"
+            data-block-handle=""
+            aria-label={t(items.length > 0 ? "block.handle" : "block.move")}
+            // Sélection dès l'appui (avant tout glisser), sans écraser l'écouteur de dnd-kit.
+            onPointerDown={(e: PointerEvent) => {
+                listeners?.onPointerDown?.(e);
+                select(id);
+            }}
+        >
+            <DotsSixVerticalIcon/>
+        </Button>
+    );
 
     return (
         <div className={`fb-block relative ${className}`}>
@@ -57,25 +83,14 @@ export const EditableBlock = (
             {/* Invisible bridge so the cursor doesn't lose hover crossing the gap to the floating toolbar */}
             <div className="absolute top-0 right-full h-full w-24" aria-hidden="true"/>
 
-            <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 z-10 flex items-center gap-0.5 p-0.5 opacity-0 transition-opacity pointer-events-none [.fb-block:hover>&]:opacity-100 [.fb-block:hover>&]:pointer-events-auto has-[[data-popup-open]]:opacity-100">
-                {items.length > 0 && (
-                    <Tooltip content={t("block.settings")}>
-                        <ContextMenu
-                            open={menuOpen}
-                            onOpenChange={setMenuOpen}
-                            title={title ?? definition?.title}
-                            icon={icon ?? definition?.icon}
-                            onDelete={handleDelete}
-                            trigger={
-                                <Button variant="ghost" size="icon-sm" aria-label={t("block.openSettings")}>
-                                    <PencilSimpleIcon/>
-                                </Button>
-                            }
-                        >
-                            {items}
-                        </ContextMenu>
-                    </Tooltip>
-                )}
+            <div className="absolute right-full top-0 mr-2 z-10 flex items-center gap-0.5 opacity-0 transition-opacity pointer-events-none [.fb-block:hover>&]:opacity-100 [.fb-block:hover>&]:pointer-events-auto has-[[data-popup-open]]:opacity-100">
+                <Tooltip content={t("block.addBelow")}>
+                    <AddMenu onPick={(def) => insertBlockAfter(id, createBlockFromTemplate(def))}>
+                        <Button variant="ghost" size="icon-sm" aria-label={t("block.addBelow")}>
+                            <PlusIcon/>
+                        </Button>
+                    </AddMenu>
+                </Tooltip>
 
                 <Tooltip content={t("block.delete")}>
                     <Button
@@ -89,21 +104,29 @@ export const EditableBlock = (
                     </Button>
                 </Tooltip>
 
-                <Tooltip content={t("block.move")}>
-                    <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        ref={setActivatorNodeRef}
-                        {...(attributes || {})}
-                        {...(listeners || {})}
-                        className="cursor-grab active:cursor-grabbing"
-                    >
-                        <DotsSixVerticalIcon />
-                    </Button>
+                {/* Poignée : glisser pour déplacer (dnd-kit, seuil de 2 px), cliquer pour ouvrir les paramètres. */}
+                <Tooltip content={t(items.length > 0 ? "block.handle" : "block.move")}>
+                    {items.length > 0 ? (
+                        <ContextMenu
+                            open={menuOpen}
+                            onOpenChange={setMenuOpen}
+                            title={title ?? definition?.title}
+                            icon={icon ?? definition?.icon}
+                            onDelete={handleDelete}
+                            trigger={handle}
+                        >
+                            {items}
+                        </ContextMenu>
+                    ) : handle}
                 </Tooltip>
             </div>
 
             {children}
+
+            {/* Voile bleu par-dessus tout le contenu du bloc (champs d'un groupe compris), sans bloquer la saisie. */}
+            {selected && (
+                <div aria-hidden="true" className="absolute -inset-2 z-[5] rounded-md bg-blue-500/10 pointer-events-none"/>
+            )}
         </div>
     );
 };

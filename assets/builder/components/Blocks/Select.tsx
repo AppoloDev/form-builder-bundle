@@ -4,13 +4,12 @@ import { useFormBuilderStore } from "../../stores/block.store";
 import { FieldInput } from "./FieldInput";
 import { TextEdition } from "../Edition/TextEdition";
 import { CheckboxEdition } from "../Edition/CheckboxEdition";
-import { OptionsEdition } from "../Edition/OptionsEdition";
+import { OptionList } from "./OptionList";
 import { ConditionRules } from "./ConditionRules";
 import { createBlockFromTemplate } from "../../utilities/block.utiles";
-import { Select as SelectField, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Button } from "../ui/button";
 import { v4 as uuidv4 } from "uuid";
-import { GitPullRequestIcon, PlusIcon } from "@phosphor-icons/react";
+import { GitPullRequestIcon } from "@phosphor-icons/react";
 import { t } from "../../i18n";
 
 type Props = Omit<SelectProps, 'id'> & {
@@ -143,9 +142,6 @@ const Select = (
                          editItem={(v) => handleChange("customOption", v)}/>,
         <CheckboxEdition key="readOnly" label={t("field.readOnly")} checked={form.readOnly}
                          editItem={(v) => handleChange("readOnly", v)}/>,
-        <OptionsEdition key="options" label="Options" value={form.options} exclusive={!form.multiple}
-                        onChange={(v) => handleChange("options", v)}
-                        helpText={t("option.editHelp")}/>,
         ...(propsUseContionnalField ? [
             <div className="border-t pt-4">
                 <Button
@@ -168,20 +164,11 @@ const Select = (
         <FieldInput id={id} type={blockType} form={form} editionItems={editionItems}
                     onLabelChange={(v) => handleChange("label", v)}
                     onRequiredChange={isChildBlock ? undefined : (v) => handleChange("required", v)}>
-            <SelectField
-                items={form.options.map((opt) => ({value: opt.label, label: opt.label}))}
-                defaultValue={form.options[0]?.label}
-            >
-                {/* Aperçu non interactif sans le grisé de `disabled`. */}
-                <SelectTrigger className="w-full" inert>
-                    <SelectValue placeholder={t("option.select")}/>
-                </SelectTrigger>
-                <SelectContent>
-                    {form.options.map((opt) => (
-                        <SelectItem key={opt.id} value={opt.label}>{opt.label}</SelectItem>
-                    ))}
-                </SelectContent>
-            </SelectField>
+            <OptionList
+                options={form.options}
+                onChange={(v) => handleChange("options", v)}
+                createOption={(optionId) => ({id: optionId, label: ""})}
+            />
 
             {propsUseContionnalField && (
                 <ConditionRules

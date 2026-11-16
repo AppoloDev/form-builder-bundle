@@ -1,23 +1,22 @@
 import { create } from "zustand";
-import { arrayMove } from "@dnd-kit/sortable";
 import { Block, BlockId, ConditionRule, OptionItem, SelectOption } from "../components/Blocks/Definition";
-import { UniqueIdentifier } from "@dnd-kit/core";
 import { v4 as uuidv4 } from "uuid";
 
 interface FormBuilderState {
     blocks: Block[];
-    overId: string | null;
-    activeId: UniqueIdentifier | null;
+    /** Bloc sélectionné au clic sur sa poignée (fond bleu, comme Notion). */
+    selectedId: BlockId | null;
 
     setBlocks: (blocks: Block[]) => void;
     addBlock: (block: Block, index?: number) => void;
+    /** Insère un bloc juste après `afterId`, dans la même liste (racine, groupe ou règle de condition). */
+    insertBlockAfter: (afterId: BlockId, block: Block) => void;
     removeBlock: (id: BlockId) => void;
     updateBlock: <T extends Block>(id: BlockId, updates: Partial<Omit<T, 'id' | 'type'>>) => void;
     /** Remplace un bloc entier, à n'importe quelle profondeur (changement de type : « Transformer en »). */
     replaceBlock: (id: BlockId, block: Block) => void;
 
-    setOverId: (id: string | null) => void;
-    setActiveId: (id: UniqueIdentifier | null) => void;
+    select: (id: BlockId | null) => void;
     /** Déplace un bloc n'importe où dans l'arbre (cf. `moveBlockInTree`). */
     moveBlock: (activeId: BlockId, target: MoveTarget) => void;
 }
@@ -112,14 +111,6 @@ export const moveBlockInTree = (blocks: Block[], activeId: BlockId, target: Move
     if (!active || from === undefined || to === undefined) return blocks;
     if (to !== null && containerIdsWithin(active).has(to)) return blocks;
 
-    if ('overId' in target && from === to) {
-        return mapContainer(blocks, to, (list) => arrayMove(
-            list,
-            list.findIndex((b) => b.id === activeId),
-            list.findIndex((b) => b.id === target.overId),
-        ));
-    }
-
     return mapContainer(removeBlockRecursive(blocks, activeId), to, (list) => {
         const index = 'overId' in target
             ? list.findIndex((b) => b.id === target.overId) + (target.after ? 1 : 0)
@@ -203,8 +194,7 @@ const removeBlockRecursive = (blocks: Block[], id: BlockId): Block[] => {
 };
 export const useFormBuilderStore = create<FormBuilderState>((set) => ({
     blocks: [],
-    overId: null,
-    activeId: null,
+    selectedId: null,
 
     setBlocks: (blocks) => {
         set({ blocks: migrateBlocks(blocks) });
@@ -222,6 +212,12 @@ export const useFormBuilderStore = create<FormBuilderState>((set) => ({
 
             return { blocks: newBlocks };
         });
+    },
+
+    insertBlockAfter: (afterId, block) => {
+        set((state) => ({
+            blocks: moveBlockInTree([...state.blocks, block], block.id, { overId: afterId, after: true }),
+        }));
     },
 
     removeBlock: (id) => {
@@ -242,12 +238,8 @@ export const useFormBuilderStore = create<FormBuilderState>((set) => ({
         }));
     },
 
-    setOverId: (id) => {
-        set({ overId: id });
-    },
-
-    setActiveId: (id) => {
-        set({ activeId: id });
+    select: (id) => {
+        set({ selectedId: id });
     },
 
     moveBlock: (activeId, target) => {

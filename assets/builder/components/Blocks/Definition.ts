@@ -197,7 +197,6 @@ export type OptionItem = {
 export type SelectOption = {
     id: string;
     label: string;
-    isSelected?: boolean;
 };
 
 export type ConditionOperator = 'is' | 'is_not';
@@ -486,7 +485,6 @@ const buildDefinitions = (): BlockDefinitions => ({
                 key: "mode", label: t("date.mode"), type: "select", options: [
                     {value: "date", label: t("date.modeDate")},
                     {value: "datetime-local", label: t("date.modeDateTime")},
-                    {value: "time", label: t("date.modeTime")},
                 ]
             },
             {key: "hasCurrentDate", label: t("date.prefill"), type: "checkbox"},

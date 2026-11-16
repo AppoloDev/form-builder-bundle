@@ -27,8 +27,8 @@ export const fr = {
     "builder.emptyDescription": "Ajoutez une première question pour commencer à construire votre formulaire.",
     "builder.searchBlock": "Que souhaitez-vous ajouter ?",
 
-    "block.settings": "Paramètres",
-    "block.openSettings": "Ouvrir les paramètres",
+    "block.addBelow": "Ajouter un bloc",
+    "block.handle": "Glisser pour déplacer\nCliquer pour les paramètres",
     "block.delete": "Supprimer",
     "block.deleteAria": "Supprimer le bloc",
     "block.move": "Déplacer le bloc",
@@ -43,8 +43,7 @@ export const fr = {
     "option.add": "+ Ajouter",
     "option.addLong": "Ajouter une option",
     "option.deleteAria": "Supprimer l'option",
-    "option.preselectAria": "Présélectionner cette option",
-    "option.preselectTitle": "Présélectionnée par défaut",
+    "option.reorderAria": "Glisser pour réordonner l'option",
     "option.editHelp": "Ajoutez, modifiez ou supprimez les options",
     "option.select": "Sélectionner…",
 
@@ -69,7 +68,6 @@ export const fr = {
     "date.mode": "Type de saisie",
     "date.modeDate": "Date",
     "date.modeDateTime": "Date et heure",
-    "date.modeTime": "Heure",
     "date.prefill": "Préremplir avec la date et l'heure actuelles",
     "file.accepted": "Fichiers acceptés",
     "file.images": "Images",

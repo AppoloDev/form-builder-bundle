@@ -3,15 +3,13 @@ import { FieldInput } from "./FieldInput";
 import { TextEdition } from "../Edition/TextEdition";
 import { CheckboxEdition } from "../Edition/CheckboxEdition";
 import { ConditionRules } from "./ConditionRules";
+import { OptionList } from "./OptionList";
 import { Block, BlockDefinition, BlockType, ConditionOperator, ConditionRule, OptionItem } from "./Definition";
 import { createBlockFromTemplate } from "../../utilities/block.utiles";
 import { useFormBuilderStore } from "../../stores/block.store";
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Checkbox } from "../ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { GitPullRequestIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
+import { GitPullRequestIcon } from "@phosphor-icons/react";
 import { t } from "../../i18n";
 
 type Props = {
@@ -54,15 +52,6 @@ const ChoiceGroupInput: FC<Props> = (props) => {
         options: (propsOptions || []) as OptionItem[],
         conditions: (propsConditions || []) as ConditionRule[],
     });
-
-    const [pendingFocusOptionId, setPendingFocusOptionId] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (!pendingFocusOptionId) return;
-        const el = document.querySelector<HTMLInputElement>(`[data-option-id="${pendingFocusOptionId}"]`);
-        el?.focus();
-        setPendingFocusOptionId(null);
-    }, [pendingFocusOptionId, form.options]);
 
     useEffect(() => {
         setForm({
@@ -193,90 +182,23 @@ const ChoiceGroupInput: FC<Props> = (props) => {
         [form.label, form.helpText, form.required, form.readOnly, form.multiple, form.options, form.conditions, isChildBlock, propsUseContionnalField]
     );
 
-    const addOption = () => {
-        const newOption = {id: uuidv4(), label: "", value: ""};
-
-        const patch = {options: [...form.options, newOption]};
-        setForm(prev => ({...prev, ...patch}));
-        updateBlock(id, patch);
-        setPendingFocusOptionId(newOption.id);
-    };
-
-    const updateOption = (idx: number, optionPatch: Partial<OptionItem>) => {
-        const nextOptions = form.options.map((o, i) => (i === idx ? {...o, ...optionPatch} : o));
-
-        const patch = {options: nextOptions};
+    const changeOptions = (nextOptions: OptionItem[]) => {
+        const remainingIds = new Set(nextOptions.map((o) => o.id));
+        const patch = {options: nextOptions, conditions: form.conditions.filter((r) => remainingIds.has(r.optionId))};
         setForm(prev => ({...prev, ...patch}));
         updateBlock(id, patch);
     };
-
-    const removeOption = (idx: number) => {
-        const removedId = form.options[idx].id;
-        const nextOptions = form.options.filter((_, i) => i !== idx);
-        const nextConditions = form.conditions.filter((r) => r.optionId !== removedId);
-
-        const patch = {options: nextOptions, conditions: nextConditions};
-        setForm(prev => ({...prev, ...patch}));
-        updateBlock(id, patch);
-    };
-
-    const renderOptionRow = (opt: OptionItem, idx: number) => (
-        <div key={opt.id} className="group/option relative rounded-md">
-            <div className="flex items-center gap-2">
-                {form.multiple ? (
-                    <Checkbox inert/>
-                ) : (
-                    <RadioGroupItem value={opt.id} inert/>
-                )}
-
-                <Input
-                    data-option-id={opt.id}
-                    value={opt.label}
-                    placeholder={t("option.default", {n: idx + 1})}
-                    onChange={(e) =>
-                        updateOption(idx, {label: e.target.value, value: e.target.value})
-                    }
-                    className="border-transparent bg-transparent hover:border-input focus-visible:border-ring"
-                />
-
-                <div className="flex gap-0.5 opacity-0 transition-opacity group-hover/option:opacity-100">
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => removeOption(idx)}
-                        className="text-destructive hover:text-destructive"
-                        aria-label={t("option.deleteAria")}
-                    >
-                        <TrashIcon/>
-                    </Button>
-                </div>
-            </div>
-        </div>
-    );
 
     return (
         <FieldInput id={id} type={blockType} form={form} editionItems={editionItems}
                     onLabelChange={(v) => handleChange("label", v)}
                     onRequiredChange={isChildBlock ? undefined : (v) => handleChange("required", v)}>
             <div className="space-y-3">
-                {form.multiple ? (
-                    <div className="space-y-1">
-                        {form.options.map(renderOptionRow)}
-                    </div>
-                ) : (
-                    <RadioGroup className="space-y-1">
-                        {form.options.map(renderOptionRow)}
-                    </RadioGroup>
-                )}
-
-                <div className="flex justify-start">
-                    <Button type="button" variant="ghost" onClick={addOption}
-                            className="text-muted-foreground">
-                        <PlusIcon/>
-                        {t("option.addLong")}
-                    </Button>
-                </div>
+                <OptionList
+                    options={form.options}
+                    onChange={changeOptions}
+                    createOption={(optionId) => ({id: optionId, label: "", value: ""})}
+                />
 
                 {propsUseContionnalField && (
                     <ConditionRules

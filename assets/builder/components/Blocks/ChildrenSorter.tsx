@@ -1,11 +1,14 @@
 import React, { createContext, useContext, useMemo } from "react";
 import { UniqueIdentifier, useDroppable } from "@dnd-kit/core";
-import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { SortableContext, SortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Block, BlockId } from "./Definition";
 import { BLOCK_COMPONENTS } from "../BlockRegistry";
 import { DragHandleContext } from "../../FormBuilder";
 import type { ContainerId } from "../../stores/block.store";
+
+/** Les blocs ne s'écartent pas pendant le glisser : seule la barre d'insertion montre où le bloc sera déposé. */
+export const noShiftStrategy: SortingStrategy = () => null;
 
 /**
  * Vrai sous les champs d'une règle de condition (y compris dans un groupe imbriqué) : ces champs sont masqués tant que
@@ -90,7 +93,7 @@ export const ChildrenSorter: React.FC<{
 
     return (
         <ConditionalChildrenContext.Provider value={isConditional}>
-            <SortableContext items={childIds} strategy={verticalListSortingStrategy}>
+            <SortableContext items={childIds} strategy={noShiftStrategy}>
                 <div className={conditional ? "flex flex-col gap-3" : "flex flex-col gap-5"}>
                     {childrenBlocks.map((child) => (
                         <SortableBlock key={child.id} id={child.id} containerId={containerId}>

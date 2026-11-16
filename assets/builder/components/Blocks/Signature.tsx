@@ -7,7 +7,10 @@ import { CheckboxEdition } from "../Edition/CheckboxEdition";
 import { InlineEditableText } from "../InlineEditableText";
 import { RequiredMark } from "./FieldInput";
 import { t } from "../../i18n";
-import { FIELD_CLASSES, FIELD_DESCRIPTION_CLASSES, FIELD_LABEL_CLASSES, FIELD_LABEL_INPUT_CLASSES } from "../../utilities/typography";
+import { SignatureIcon } from "@phosphor-icons/react";
+import { Tooltip } from "../Tooltip";
+import { blockDefinitions } from "./Definition";
+import { FIELD_CLASSES, FIELD_DESCRIPTION_CLASSES, FIELD_TEXT_INSET_CLASSES, FIELD_LABEL_CLASSES, FIELD_LABEL_INPUT_CLASSES } from "../../utilities/typography";
 
 type Props = SignatureProps & { isChildBlock?: boolean };
 
@@ -47,7 +50,7 @@ const Signature = ({id, type, label, helpText, required, isChildBlock}: Props) =
     return (
         <EditableBlock id={id} type={type} editionItems={editionItems}>
             <div className={FIELD_CLASSES}>
-                <label className={`self-start flex max-w-full items-baseline ${FIELD_LABEL_CLASSES}`}>
+                <label className={`self-start flex max-w-full items-baseline ${FIELD_TEXT_INSET_CLASSES} ${FIELD_LABEL_CLASSES}`}>
                     <InlineEditableText
                         value={form.label}
                         onCommit={(v) => handleChange('label', v)}
@@ -59,8 +62,14 @@ const Signature = ({id, type, label, helpText, required, isChildBlock}: Props) =
                 </label>
 
                 <div
-                    className="flex h-24 items-center justify-center rounded-lg border border-input text-sm text-muted-foreground">
+                    className="relative flex h-24 items-center justify-center rounded-lg border border-input text-sm text-muted-foreground">
                     {t("signature.area")}
+                    {/* Même emplacement que l'icône des autres champs (GenericInput). */}
+                    <div className="absolute top-2.5 right-2">
+                        <Tooltip content={blockDefinitions.Signature.title}>
+                            <SignatureIcon className="size-3.5 text-muted-foreground"/>
+                        </Tooltip>
+                    </div>
                 </div>
 
                 {form.helpText && <p className={FIELD_DESCRIPTION_CLASSES}>{form.helpText}</p>}

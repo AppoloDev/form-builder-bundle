@@ -156,7 +156,7 @@ export const makeInputBlock = (
                 onLabelChange={(v) => handleChange('label', v)}
                 onRequiredChange={isChildBlock ? undefined : (v) => handleChange('required', v)}
             >
-                <InputGroup>
+                <InputGroup className={finalType === 'textarea' ? undefined : 'max-w-sm'}>
                     {finalType === 'textarea' ?
                         <InputGroupTextarea
                             id={id}
@@ -177,7 +177,7 @@ export const makeInputBlock = (
                     }
 
                     {Icon && (
-                        <InputGroupAddon align="inline-end">
+                        <InputGroupAddon align="inline-end" className="self-start pt-2.5">
                             <Tooltip content={blockDefinitions[blockType as keyof typeof blockDefinitions]?.title ?? ""}>
                                 <Icon className="size-3.5 text-muted-foreground"/>
                             </Tooltip>

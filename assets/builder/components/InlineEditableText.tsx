@@ -1,5 +1,4 @@
 import { ChangeEvent, FocusEvent, KeyboardEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { cn } from "cn";
 import { takePendingFocus } from "../utilities/block.utiles";
@@ -16,12 +15,13 @@ type Props = {
 };
 
 const baseClassName = "border-transparent bg-transparent px-1 -mx-1 hover:border-input focus-visible:border-ring";
-const inputOnlyClassName = "h-6 max-w-full";
+// Une seule « ligne » logique, mais le texte passe à la ligne au lieu d'être coupé quand il dépasse le bloc.
+const singleLineClassName = "max-w-full resize-none overflow-hidden";
 
 
 export const InlineEditableText = ({value, onCommit, placeholder, className = "", multiline = false, blockId}: Props) => {
     const [draft, setDraft] = useState(value);
-    const inputRef = useRef<HTMLInputElement>(null);
+    const inputRef = useRef<HTMLTextAreaElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
@@ -44,6 +44,14 @@ export const InlineEditableText = ({value, onCommit, placeholder, className = ""
     // À chaque frappe, mesure synchrone avant l'affichage : l'input ne paraît jamais plus étroit que son texte.
     useLayoutEffect(measure, [draft, placeholder, className]);
 
+    // Hauteur ajustée au texte replié (field-sizing n'est pas pris en charge partout).
+    useLayoutEffect(() => {
+        const el = inputRef.current;
+        if (!el) return;
+        el.style.height = "auto";
+        el.style.height = `${el.scrollHeight}px`;
+    }, [draft, width]);
+
     // Le chargement de la police web change la largeur sans changer le texte.
     useLayoutEffect(() => {
         const mirror = mirrorRef.current;
@@ -53,17 +61,18 @@ export const InlineEditableText = ({value, onCommit, placeholder, className = ""
         return () => observer.disconnect();
     }, [multiline]);
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setDraft(e.target.value);
+    const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+        // Hors multiline, un saut de ligne collé devient une espace : le texte reste sur une ligne logique.
+        setDraft(multiline ? e.target.value : e.target.value.replace(/\r?\n/g, " "));
     };
 
-    const handleBlur = (e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleBlur = (e: FocusEvent<HTMLTextAreaElement>) => {
         if (e.target.value !== value) {
             onCommit(e.target.value);
         }
     };
 
-    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === "Enter") {
             e.preventDefault();
             e.currentTarget.blur();
@@ -93,15 +102,16 @@ export const InlineEditableText = ({value, onCommit, placeholder, className = ""
                 {draft || placeholder}
             </span>
 
-            <Input
+            <Textarea
                 ref={inputRef}
+                rows={1}
                 value={draft}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder}
                 style={{width}}
-                className={`${baseClassName} ${inputOnlyClassName} ${className}`}
+                className={`${baseClassName} ${singleLineClassName} ${className}`}
             />
         </>
     );

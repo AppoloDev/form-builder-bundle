@@ -46,6 +46,8 @@
 
    ```css
    @source '../vendor/appolodev/form-builder-bundle/assets/builder/**/*.tsx';
+   /* dark: only applies under a .dark class, not prefers-color-scheme */
+   @custom-variant dark (&:where(.dark, .dark *));
    ```
 
    The builder uses shadcn design tokens (`--background`, `--border`, `--primary`, …); define them in your theme.

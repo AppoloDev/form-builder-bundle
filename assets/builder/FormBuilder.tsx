@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState, createContext } from "react";
+import React, { useEffect, useMemo, useState, createContext } from "react";
+import { createPortal } from "react-dom";
 import { Block, BlockDefinition } from "./components/Blocks/Definition";
-import { ContainerId, findContainer, useFormBuilderStore } from "./stores/block.store";
+import { MoveTarget, useFormBuilderStore } from "./stores/block.store";
 import { createBlockFromTemplate } from "./utilities/block.utiles";
 import { BLOCK_COMPONENTS } from "./components/BlockRegistry";
 import { Empty } from "./components/Empty";
@@ -9,7 +10,7 @@ import {
     DndContext,
     DragStartEvent,
     DragEndEvent,
-    DragOverEvent,
+    DragMoveEvent,
     DragOverlay,
     MeasuringStrategy,
     PointerSensor,
@@ -21,8 +22,8 @@ import {
     UniqueIdentifier,
 } from "@dnd-kit/core";
 
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { DropZone, SortableBlock } from "./components/Blocks/ChildrenSorter";
+import { SortableContext } from "@dnd-kit/sortable";
+import { DropZone, noShiftStrategy, SortableBlock } from "./components/Blocks/ChildrenSorter";
 import { AddButton } from "./components/AddButton";
 import { AllowedTypesContext } from "./components/AllowedTypesContext";
 import { resolveAllowedTypes } from "./utilities/allowedTypes";
@@ -77,30 +78,26 @@ const collisionDetection: CollisionDetection = (args) => {
     return [deepest];
 };
 
-/** Bloc amené dans une autre liste : après le bloc survolé si son centre est plus bas que celui de ce dernier. */
-const isDroppedAfter = ({active, over}: DragOverEvent | DragEndEvent): boolean => {
+/**
+ * Où le bloc serait déposé : à côté du bloc survolé (après si son centre est plus bas que celui de ce dernier),
+ * ou dans une liste vide (zone). `null` : sur lui-même ou hors de toute liste.
+ */
+const dropTargetOf = ({active, over}: DragMoveEvent | DragEndEvent): MoveTarget | null => {
+    if (!over || active.id === over.id) return null;
+    if (over.data.current?.zone) return {containerId: over.data.current.containerId};
     const dropped = active.rect.current.translated;
-    return !!over && !!dropped && dropped.top + dropped.height / 2 > over.rect.top + over.rect.height / 2;
+    return {overId: over.id, after: !!dropped && dropped.top + dropped.height / 2 > over.rect.top + over.rect.height / 2};
 };
 
 export const FormBuilder = ({onChange, json = [], categories, types}: Props) => {
     const allowedTypes = useMemo(() => resolveAllowedTypes(categories, types), [categories, types]);
     const {blocks, addBlock, setBlocks, moveBlock} = useFormBuilderStore();
+    // Barre d'insertion, dans <body> au-dessus du calque de glisser (sinon la copie du bloc déplacé la recouvre),
+    // sous les infobulles.
+    const [bar, setBar] = useState<{ top: number; left: number; width: number } | null>(null);
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-    const [activeSize, setActiveSize] = useState<{ width: number; height: number } | null>(null);
-    // Juste après un changement de liste, on garde la cible précédente le temps que la mise en page se stabilise
-    // (sinon le bloc oscille entre les deux listes). Même parade que l'exemple multi-conteneurs de dnd-kit.
-    const lastOverId = useRef<UniqueIdentifier | null>(null);
-    const recentlyMoved = useRef(false);
-    const detectCollisions: CollisionDetection = useCallback((args) => {
-        if (recentlyMoved.current && lastOverId.current !== null) {
-            return [{id: lastOverId.current}];
-        }
-        const collisions = collisionDetection(args);
-        lastOverId.current = collisions[0]?.id ?? null;
-        return collisions;
-    }, []);
-
+    // Copie du DOM du bloc déplacé, affichée sous le pointeur (une copie React dupliquerait ses zones de dépôt).
+    const [activePreview, setActivePreview] = useState<HTMLElement | null>(null);
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -117,86 +114,87 @@ export const FormBuilder = ({onChange, json = [], categories, types}: Props) => 
 
     useEffect(() => {
         onChange(blocks);
-        requestAnimationFrame(() => {
-            recentlyMoved.current = false;
-        });
     }, [blocks]);
+
+    // Sélection (clic sur une poignée) : un clic ailleurs ou Échap la retire.
+    useEffect(() => {
+        const clear = () => useFormBuilderStore.getState().select(null);
+        const onPointerDown = (e: PointerEvent) => {
+            if (!(e.target as Element).closest?.("[data-block-handle]")) clear();
+        };
+        const onKeyDown = (e: KeyboardEvent) => e.key === "Escape" && clear();
+        document.addEventListener("pointerdown", onPointerDown);
+        document.addEventListener("keydown", onKeyDown);
+        return () => {
+            document.removeEventListener("pointerdown", onPointerDown);
+            document.removeEventListener("keydown", onKeyDown);
+        };
+    }, []);
 
     const ids = useMemo(() => blocks.map((b) => b.id), [blocks]);
 
-    // Arbre avant le glisser : le bloc change de liste en cours de route, Échap doit tout remettre en place.
-    const blocksBeforeDrag = useRef<Block[] | null>(null);
-
     const onDragStart = (event: DragStartEvent) => {
         setActiveId(event.active.id);
-        blocksBeforeDrag.current = blocks;
 
         const el = document.querySelector<HTMLElement>(`[data-block-id="${String(event.active.id)}"]`);
         if (el) {
-            const rect = el.getBoundingClientRect();
-            setActiveSize({width: rect.width, height: rect.height});
+            const clone = el.cloneNode(true) as HTMLElement;
+            clone.removeAttribute("data-block-id");
+            clone.removeAttribute("style");
+            clone.style.width = `${el.getBoundingClientRect().width}px`;
+            setActivePreview(clone);
         } else {
-            setActiveSize(null);
+            setActivePreview(null);
         }
     };
 
-    /** Le bloc change de liste dès le survol d'un de ses blocs : la liste d'arrivée s'écarte pour lui faire de la place. */
-    const onDragOver = (event: DragOverEvent) => {
-        const {active, over} = event;
-        if (!over || active.id === over.id) return;
+    /** Seule la barre d'insertion suit le pointeur : l'arbre n'est modifié qu'au lâcher. */
+    const onDragMove = (event: DragMoveEvent) => {
+        const target = dropTargetOf(event);
+        const el = target && "overId" in target
+            ? document.querySelector<HTMLElement>(`[data-block-id="${String(target.overId)}"]`)
+            : null;
+        if (!target || !("overId" in target) || !el) return setBar(null);
 
-        // Une zone n'est la cible que d'une liste vide : son état vide reste affiché, le bloc n'y entre qu'au lâcher.
-        const data = over.data.current;
-        if (data?.zone) return;
-
-        const to = data?.containerId as ContainerId | undefined;
-        const from = findContainer(useFormBuilderStore.getState().blocks, active.id);
-        if (to === undefined || from === undefined || to === from) return;
-
-        recentlyMoved.current = true;
-        moveBlock(active.id, {overId: over.id, after: isDroppedAfter(event)});
+        // Au milieu de l'espace avec le bloc voisin, quel que soit l'écart de la liste (racine, groupe, condition).
+        const rect = el.getBoundingClientRect();
+        const sibling = target.after ? el.nextElementSibling : el.previousElementSibling;
+        const near = sibling?.hasAttribute("data-block-id") ? sibling.getBoundingClientRect() : null;
+        const top = target.after
+            ? (near ? (rect.bottom + near.top) / 2 : rect.bottom + 4)
+            : (near ? (near.bottom + rect.top) / 2 : rect.top - 4);
+        setBar({top, left: rect.left, width: rect.width});
     };
 
     const onDragEnd = (event: DragEndEvent) => {
-        const {active, over} = event;
-
-        if (over && active.id !== over.id) {
-            const data = over.data.current;
-            if (data?.zone) {
-                moveBlock(active.id, {containerId: data.containerId});
-            } else {
-                moveBlock(active.id, {overId: over.id, after: isDroppedAfter(event)});
-            }
-        }
-
-        setActiveId(null);
-        setActiveSize(null);
+        const target = dropTargetOf(event);
+        if (target) moveBlock(event.active.id, target);
+        onDragCancel();
     };
 
     const onDragCancel = () => {
-        if (blocksBeforeDrag.current) {
-            useFormBuilderStore.setState({blocks: blocksBeforeDrag.current});
-        }
         setActiveId(null);
-        setActiveSize(null);
+        setActivePreview(null);
+        setBar(null);
     };
 
     return (
         <AllowedTypesContext.Provider value={allowedTypes}>
         <DndContext
             sensors={sensors}
-            collisionDetection={detectCollisions}
+            collisionDetection={collisionDetection}
             measuring={{droppable: {strategy: MeasuringStrategy.Always}}}
             onDragStart={onDragStart}
-            onDragOver={onDragOver}
+            onDragMove={onDragMove}
             onDragEnd={onDragEnd}
             onDragCancel={onDragCancel}
         >
-            <DropZone containerId={null} className={`border border-dashed border-border rounded-lg ${blocks.length === 0 ? "" : "py-20 pr-20 pl-40 space-y-4"}`}>
+            <DropZone containerId={null} className={`border border-dashed border-border rounded-lg ${blocks.length === 0 ? "" : "py-20 pr-20 pl-40"}`}>
                 {blocks.length === 0 ? (
                     <Empty onPick={handleAdd}/>
                 ) : (
-                    <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+                    <div className="mx-auto max-w-2xl space-y-4">
+                    <SortableContext items={ids} strategy={noShiftStrategy}>
                         {blocks.map((block) => {
                             const Component = BLOCK_COMPONENTS[block.type];
                             if (!Component) {
@@ -211,25 +209,27 @@ export const FormBuilder = ({onChange, json = [], categories, types}: Props) => 
                         })}
                         <AddButton onPick={handleAdd}/>
                     </SortableContext>
+                    </div>
                 )}
             </DropZone>
 
-            <DragOverlay dropAnimation={null}>
-                {activeId && activeSize ? (
+            {/* Calques : bloc déplacé (40) < barre d'insertion (45) < infobulles (z-50). */}
+            <DragOverlay dropAnimation={null} zIndex={40}>
+                {activeId && activePreview ? (
                     <div
-                        className="bg-primary/10"
-                        style={{
-                            width: activeSize.width,
-                            height: activeSize.height,
-                            borderRadius: 8,
-                            background: "",
-                            opacity: .6,
-                            boxShadow:
-                                "0 4px 14px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08)",
-                        }}
+                        className="pointer-events-none opacity-60"
+                        ref={(node) => node?.replaceChildren(activePreview)}
                     />
                 ) : null}
             </DragOverlay>
+            {bar && createPortal(
+                <div
+                    aria-hidden="true"
+                    className="fixed z-[45] h-1 -translate-y-1/2 rounded-full bg-blue-500 pointer-events-none"
+                    style={bar}
+                />,
+                document.body
+            )}
         </DndContext>
         </AllowedTypesContext.Provider>
     );
