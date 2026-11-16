@@ -3,11 +3,14 @@ import { useFormBuilderStore } from "../../stores/block.store";
 import { TextEdition } from "../Edition/TextEdition";
 import { CheckboxEdition } from "../Edition/CheckboxEdition";
 import { SelectEdition } from "../Edition/SelectEdition";
+import { MaxItemsEdition } from "../Edition/MaxItemsEdition";
+import { YesNoLabelsEdition } from "../Edition/YesNoLabelsEdition";
 import { FieldInput } from "./FieldInput";
 import { blockDefinitions } from "./Definition";
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupTextarea } from "../ui/input-group";
 import { Tooltip } from "../Tooltip";
 import { t } from "../../i18n";
+import type { MaskType } from "../../../lib/masks";
 
 type CommonProps = {
     id: string;
@@ -27,8 +30,10 @@ type FormStateBase = {
 };
 
 export type EditionItem =
-    | { key: keyof FormStateBase | string; label: string; type: "text" | "textarea" | "number"; helpText?: string; rows?: number }
+    | { key: keyof FormStateBase | string; label: string; type: "text" | "textarea" | "number"; helpText?: string; rows?: number; mask?: MaskType; optional?: boolean }
     | { key: keyof FormStateBase | string; label: string; type: "checkbox" }
+    | { key: keyof FormStateBase | string; label: string; type: "maxItems"; unlimitedLabel: string; min: number }
+    | { key: keyof FormStateBase | string; label: string; type: "yesNoLabels" }
     | {
     key: keyof FormStateBase | string;
     label: string;
@@ -39,13 +44,15 @@ export type EditionItem =
 
 const baseSchema = (): EditionItem[] => [
     {key: "label", label: t("field.title"), type: "text"},
-    {key: "placeHolder", label: t("field.placeholder"), type: "text"},
-    {key: "helpText", label: t("field.helpText"), type: "textarea"},
+    {key: "placeHolder", label: t("field.placeholder"), type: "text", optional: true},
+    {key: "helpText", label: t("field.helpText"), type: "textarea", optional: true},
     {key: "required", label: t("field.required"), type: "checkbox"},
 ];
 
 type MakeOpts = {
     toInputAttrs?: (form: Record<string, any>) => Record<string, any>;
+    /** Aperçu propre au bloc à la place de l'input (ex. zone de dépôt du FileInput). */
+    renderPreview?: (form: Record<string, any>) => React.ReactNode;
 };
 
 export const makeInputBlock = (
@@ -114,6 +121,31 @@ export const makeInputBlock = (
                         );
                     }
 
+                    if (def.type === "maxItems") {
+                        return (
+                            <MaxItemsEdition
+                                key={String(def.key)}
+                                unlimitedLabel={def.unlimitedLabel}
+                                label={def.label}
+                                value={Number(value) || 0}
+                                min={def.min}
+                                editItem={(v: number) => handleChange(def.key, v)}
+                            />
+                        );
+                    }
+
+                    if (def.type === "yesNoLabels") {
+                        return (
+                            <YesNoLabelsEdition
+                                key={String(def.key)}
+                                label={def.label}
+                                yesLabel={form.yesLabel ?? ""}
+                                noLabel={form.noLabel ?? ""}
+                                editItem={handleChange}
+                            />
+                        );
+                    }
+
                     if (def.type === "select") {
                         return (
                             <SelectEdition
@@ -135,6 +167,8 @@ export const makeInputBlock = (
                             type={def.type || "text"}
                             helpText={def.helpText || ""}
                             rows={def.rows}
+                            mask={def.mask}
+                            optional={def.optional}
                             editItem={(v: string) => handleChange(def.key as string, v)}
                         />
                     );
@@ -156,11 +190,14 @@ export const makeInputBlock = (
                 onLabelChange={(v) => handleChange('label', v)}
                 onRequiredChange={isChildBlock ? undefined : (v) => handleChange('required', v)}
             >
-                <InputGroup className={finalType === 'textarea' ? undefined : 'max-w-sm'}>
+                {opts.renderPreview ? opts.renderPreview(form) : <InputGroup className={`${finalType === 'textarea' ? '' : 'h-9 max-w-sm'} ${form.readOnly ? 'bg-muted' : ''}`}>
                     {finalType === 'textarea' ?
                         <InputGroupTextarea
                             id={id}
                             placeholder={form.placeHolder}
+                            // Valeur par défaut affichée comme dans le formulaire ; sinon l'indice (placeholder).
+                            value={form.defaultValue ?? ""}
+                            readOnly
                             rows={props.rows}
                             inert
                             {...restInputAttrs}
@@ -170,6 +207,8 @@ export const makeInputBlock = (
                             id={id}
                             type={finalType}
                             placeholder={form.placeHolder}
+                            value={form.defaultValue ?? ""}
+                            readOnly
                             inert
                             className="[&::-webkit-calendar-picker-indicator]:hidden"
                             {...restInputAttrs}
@@ -177,13 +216,13 @@ export const makeInputBlock = (
                     }
 
                     {Icon && (
-                        <InputGroupAddon align="inline-end" className="self-start pt-2.5">
+                        <InputGroupAddon align="inline-end" className={finalType === 'textarea' ? "self-start pt-2.5" : undefined}>
                             <Tooltip content={blockDefinitions[blockType as keyof typeof blockDefinitions]?.title ?? ""}>
                                 <Icon className="size-3.5 text-muted-foreground"/>
                             </Tooltip>
                         </InputGroupAddon>
                     )}
-                </InputGroup>
+                </InputGroup>}
             </FieldInput>
         );
     };

@@ -91,13 +91,13 @@
         "required": true,
         "helpText": "",
         "acceptedFile": "image",
-        "allowMultiple": false
+        "maxItems": 0
       },
       "keys": [
         "acceptedFile",
-        "allowMultiple",
         "helpText",
         "label",
+        "maxItems",
         "required"
       ]
     },
@@ -111,6 +111,7 @@
       },
       "keys": [
         "defaultValue",
+        "hasCurrentTime",
         "helpText",
         "label",
         "readOnly",
@@ -156,7 +157,7 @@
       "defaults": {
         "type": "Repeatable",
         "children": [],
-        "maxItems": 1
+        "maxItems": 0
       },
       "keys": [
         "children",
@@ -290,6 +291,24 @@
         "placeHolder",
         "readOnly",
         "required"
+      ]
+    },
+    "YesNo": {
+      "category": "choice",
+      "defaults": {
+        "type": "YesNo",
+        "label": "",
+        "helpText": "",
+        "required": true,
+        "yesLabel": "Oui",
+        "noLabel": "Non"
+      },
+      "keys": [
+        "helpText",
+        "label",
+        "noLabel",
+        "required",
+        "yesLabel"
       ]
     }
   }

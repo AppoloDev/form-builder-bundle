@@ -1,3 +1,4 @@
+import type { MaskType } from "../../../lib/masks";
 import { UniqueIdentifier } from "@dnd-kit/core";
 import {
     type Icon,
@@ -20,6 +21,7 @@ import {
     TextTSlashIcon, TextAlignLeftIcon,
     AtIcon,
     MinusIcon,
+    ToggleRightIcon,
 } from "@phosphor-icons/react";
 import { onBuilderLocaleChange, t } from "../../i18n";
 import type { BlockCategory } from "./Categories";
@@ -77,6 +79,16 @@ export interface ChoiceGroupProps extends BaseBlockProps {
     multiple?: boolean;
     options: OptionItem[];
     conditions?: ConditionRule[];
+}
+
+export interface YesNoProps extends BaseBlockProps {
+    type: 'YesNo';
+    label: string;
+    helpText?: string;
+    required?: boolean;
+    readOnly?: boolean;
+    yesLabel: string;
+    noLabel: string;
 }
 
 export interface NumberInputProps extends BaseBlockProps {
@@ -145,7 +157,11 @@ export interface FileInputProps extends BaseBlockProps {
     label: string;
     helpText?: string;
     required?: boolean;
+    /** `image` ou `document` (images, PDF, Office, OpenDocument, texte, CSV). */
     acceptedFile?: string;
+    /** Nombre maximum de fichiers ; vide ou 0 = illimité. */
+    maxItems?: number | string;
+    /** Ancienne clé (avant maxItems) : `false` = un seul fichier, sinon 5. */
     allowMultiple?: boolean;
 }
 
@@ -156,6 +172,7 @@ export interface HourMinuteInputProps extends BaseBlockProps {
     required?: boolean;
     readOnly?: boolean;
     defaultValue?: string;
+    hasCurrentTime?: boolean;
 }
 
 export interface SelectProps extends BaseBlockProps {
@@ -203,7 +220,8 @@ export type ConditionOperator = 'is' | 'is_not';
 
 export type ConditionRule = {
     id: string;
-    operator: ConditionOperator;
+    /** Vide tant que l'auteur n'a pas choisi (lu comme `is` côté PHP). */
+    operator: ConditionOperator | '';
     optionId: string;
     children: Block[];
 };
@@ -215,6 +233,7 @@ export type BlockPropsByType = {
     TextInput: TextInputProps;
     TextareaInput: TextareaInputProps;
     ChoiceGroup: ChoiceGroupProps;
+    YesNo: YesNoProps;
     NumberInput: NumberInputProps;
     EmailInput: EmailInputProps;
     TelInput: TelInputProps;
@@ -237,8 +256,10 @@ type BlockOf<T extends BlockType> = BlockPropsByType[T];
 
 // Edition schema item types for block configuration
 export type DefinitionEditionItem =
-    | { key: string; label: string; type: "text" | "textarea" | "number"; helpText?: string; rows?: number }
+    | { key: string; label: string; type: "text" | "textarea" | "number"; helpText?: string; rows?: number; mask?: MaskType; optional?: boolean }
     | { key: string; label: string; type: "checkbox" }
+    | { key: string; label: string; type: "maxItems"; unlimitedLabel: string; min: number }
+    | { key: string; label: string; type: "yesNoLabels" }
     | { key: string; label: string; type: "select"; options: { value: string; label: string }[]; helpText?: string };
 
 export interface BlockDefinition<T extends BlockType = BlockType> {
@@ -260,8 +281,8 @@ type BlockDefinitions = { [T in BlockType]: BlockDefinition<T> };
 // Common edition fields shared by most input blocks
 const commonInputSchema = (): DefinitionEditionItem[] => [
     {key: "label", label: t("field.title"), type: "text"},
-    {key: "placeHolder", label: t("field.placeholder"), type: "text"},
-    {key: "helpText", label: t("field.helpText"), type: "textarea", rows: 2},
+    {key: "placeHolder", label: t("field.placeholder"), type: "text", optional: true},
+    {key: "helpText", label: t("field.helpText"), type: "textarea", rows: 2, optional: true},
     {key: "required", label: t("field.required"), type: "checkbox"},
 ];
 
@@ -270,14 +291,19 @@ const readOnlyItem = (): DefinitionEditionItem => ({key: "readOnly", label: t("f
 // Text-like inputs that can be prefilled and locked
 const prefillableInputSchema = (): DefinitionEditionItem[] => [
     ...commonInputSchema(),
-    {key: "defaultValue", label: t("field.defaultValue"), type: "text"},
+    {key: "defaultValue", label: t("field.defaultValue"), type: "text", optional: true},
     readOnlyItem(),
 ];
+
+// Téléphone, e-mail, URL : indice et valeur par défaut saisis avec le masque du formulaire (assets/lib/masks.js).
+const maskedInputSchema = (mask: MaskType): DefinitionEditionItem[] => prefillableInputSchema().map((item) =>
+    item.type === "text" && (item.key === "placeHolder" || item.key === "defaultValue") ? {...item, mask} : item
+);
 
 // Input blocks without a placeholder field
 const commonInputSchemaNoPlaceholder = (): DefinitionEditionItem[] => [
     {key: "label", label: t("field.title"), type: "text"},
-    {key: "helpText", label: t("field.helpText"), type: "textarea", rows: 2},
+    {key: "helpText", label: t("field.helpText"), type: "textarea", rows: 2, optional: true},
     {key: "required", label: t("field.required"), type: "checkbox"},
 ];
 
@@ -385,10 +411,31 @@ const buildDefinitions = (): BlockDefinitions => ({
         },
         editionSchema: [
             {key: "label", label: t("field.title"), type: "text"},
-            {key: "helpText", label: t("field.helpText"), type: "textarea", rows: 2},
+            {key: "helpText", label: t("field.helpText"), type: "textarea", rows: 2, optional: true},
             {key: "required", label: t("field.required"), type: "checkbox"},
             {key: "multiple", label: t("field.multiple"), type: "checkbox"},
             readOnlyItem(),
+        ],
+    },
+    YesNo: {
+        id: "drag-yesno",
+        type: "YesNo",
+        category: "choice",
+        title: t("def.YesNo.title"),
+        icon: ToggleRightIcon,
+        description: t("def.YesNo.description"),
+        defaultProps: {
+            type: "YesNo",
+            label: "",
+            helpText: "",
+            required: true,
+            yesLabel: t("yesNo.yes"),
+            noLabel: t("yesNo.no"),
+        },
+        editionSchema: [
+            ...commonInputSchemaNoPlaceholder(),
+            // Édite yesLabel et noLabel (noLabel figure aussi dans defaultProps, donc dans le contrat).
+            {key: "yesLabel", label: t("field.defaultValue"), type: "yesNoLabels"},
         ],
     },
     NumberInput: {
@@ -410,11 +457,11 @@ const buildDefinitions = (): BlockDefinitions => ({
         },
         editionSchema: [
             ...commonInputSchema(),
-            {key: "defaultValue", label: t("field.defaultValue"), type: "number"},
+            {key: "defaultValue", label: t("field.defaultValue"), type: "number", optional: true},
             readOnlyItem(),
-            {key: "min", label: t("number.min"), type: "number"},
-            {key: "max", label: t("number.max"), type: "number"},
-            {key: "step", label: t("number.step"), type: "number"},
+            {key: "min", label: t("number.min"), type: "number", optional: true},
+            {key: "max", label: t("number.max"), type: "number", optional: true},
+            {key: "step", label: t("number.step"), type: "number", optional: true},
         ],
     },
     EmailInput: {
@@ -431,7 +478,7 @@ const buildDefinitions = (): BlockDefinitions => ({
             required: true,
             helpText: "",
         },
-        editionSchema: prefillableInputSchema(),
+        editionSchema: maskedInputSchema("email"),
     },
     TelInput: {
         id: "drag-telinput",
@@ -447,7 +494,7 @@ const buildDefinitions = (): BlockDefinitions => ({
             required: true,
             helpText: "",
         },
-        editionSchema: prefillableInputSchema(),
+        editionSchema: maskedInputSchema("tel"),
     },
     UrlInput: {
         id: "drag-urlinput",
@@ -463,7 +510,7 @@ const buildDefinitions = (): BlockDefinitions => ({
             required: true,
             helpText: "",
         },
-        editionSchema: prefillableInputSchema(),
+        editionSchema: maskedInputSchema("url"),
     },
     DateTimeInput: {
         id: "drag-datetimeinput",
@@ -520,18 +567,17 @@ const buildDefinitions = (): BlockDefinitions => ({
             required: true,
             helpText: "",
             acceptedFile: "image",
-            allowMultiple: false,
+            maxItems: 0,
         },
         editionSchema: [
             ...commonInputSchemaNoPlaceholder(),
             {
                 key: "acceptedFile", label: t("file.accepted"), type: "select", options: [
                     {value: "image", label: t("file.images")},
-                    {value: "file", label: t("file.pdf")},
-                    {value: "both", label: t("file.both")},
+                    {value: "document", label: t("file.documents")},
                 ]
             },
-            {key: "allowMultiple", label: t("file.multiple"), type: "checkbox"},
+            {key: "maxItems", label: t("file.maxItems"), type: "maxItems", unlimitedLabel: t("file.unlimited"), min: 1},
         ],
     },
     HourMinuteInput: {
@@ -549,7 +595,8 @@ const buildDefinitions = (): BlockDefinitions => ({
         },
         editionSchema: [
             ...commonInputSchemaNoPlaceholder(),
-            {key: "defaultValue", label: t("field.defaultValue"), type: "text", helpText: t("hourMinute.help")},
+            {key: "defaultValue", label: t("field.defaultValue"), type: "text", helpText: t("hourMinute.help"), optional: true},
+            {key: "hasCurrentTime", label: t("hourMinute.prefill"), type: "checkbox"},
             readOnlyItem(),
         ],
     },
@@ -571,7 +618,7 @@ const buildDefinitions = (): BlockDefinitions => ({
         },
         editionSchema: [
             {key: "label", label: t("field.title"), type: "text"},
-            {key: "helpText", label: t("field.helpText"), type: "textarea", rows: 2},
+            {key: "helpText", label: t("field.helpText"), type: "textarea", rows: 2, optional: true},
             {key: "required", label: t("field.required"), type: "checkbox"},
             {key: "multiple", label: t("field.multiple"), type: "checkbox"},
             {key: "customOption", label: t("select.customOption"), type: "checkbox"},
@@ -615,7 +662,7 @@ const buildDefinitions = (): BlockDefinitions => ({
         defaultProps: {
             type: "Repeatable",
             children: [],
-            maxItems: 1,
+            maxItems: 0,
         },
     }
 });

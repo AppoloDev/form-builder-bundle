@@ -99,8 +99,8 @@ const ChoiceGroupInput: FC<Props> = (props) => {
     const addCondition = () => {
         const newRule: ConditionRule = {
             id: uuidv4(),
-            operator: 'is',
-            optionId: form.options[0]?.id ?? "",
+            operator: '',
+            optionId: "",
             children: []
         };
         const patch = {conditions: [...form.conditions, newRule]};
@@ -143,7 +143,7 @@ const ChoiceGroupInput: FC<Props> = (props) => {
         () => {
             const items = [
                 <TextEdition key="label" label={t("field.title")} value={form.label} editItem={(v) => handleChange("label", v)}/>,
-                <TextEdition key="helpText" label={t("field.helpText")} value={form.helpText} type="textarea"
+                <TextEdition key="helpText" optional label={t("field.helpText")} value={form.helpText} type="textarea"
                              editItem={(v) => handleChange("helpText", v)}/>,
                 <CheckboxEdition key="required" label={t("field.required")} checked={form.required}
                                  editItem={(v) => handleChange("required", v)}/>,
@@ -157,29 +157,9 @@ const ChoiceGroupInput: FC<Props> = (props) => {
                                  editItem={(v) => handleChange("readOnly", v)}/>,
             ];
 
-            const filtered = isChildBlock ? items.filter(item => item.key !== 'required') : [...items];
-
-            if (propsUseContionnalField) {
-                filtered.push(
-                    <div className="border-t pt-4">
-                        <Button
-                            key="addCondition"
-                            type="button"
-                            variant="ghost"
-                            onClick={addCondition}
-                            className="w-full justify-start"
-                            disabled={form.options.length === 0}
-                        >
-                            <GitPullRequestIcon/>
-                            {t("condition.add")}
-                        </Button>
-                    </div>
-                );
-            }
-
-            return filtered;
+            return isChildBlock ? items.filter(item => item.key !== 'required') : items;
         },
-        [form.label, form.helpText, form.required, form.readOnly, form.multiple, form.options, form.conditions, isChildBlock, propsUseContionnalField]
+        [form.label, form.helpText, form.required, form.readOnly, form.multiple, form.options, form.conditions, isChildBlock]
     );
 
     const changeOptions = (nextOptions: OptionItem[]) => {
@@ -191,6 +171,17 @@ const ChoiceGroupInput: FC<Props> = (props) => {
 
     return (
         <FieldInput id={id} type={blockType} form={form} editionItems={editionItems}
+                    actions={propsUseContionnalField && (
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            className="w-full justify-start"
+                            onClick={addCondition}
+                            disabled={form.options.length === 0}
+                        >
+                            <GitPullRequestIcon/> {t("condition.add")}
+                        </Button>
+                    )}
                     onLabelChange={(v) => handleChange("label", v)}
                     onRequiredChange={isChildBlock ? undefined : (v) => handleChange("required", v)}>
             <div className="space-y-3">
@@ -198,6 +189,8 @@ const ChoiceGroupInput: FC<Props> = (props) => {
                     options={form.options}
                     onChange={changeOptions}
                     createOption={(optionId) => ({id: optionId, label: "", value: ""})}
+                    indicator={form.multiple ? "checkbox" : "radio"}
+                    readOnly={form.readOnly}
                 />
 
                 {propsUseContionnalField && (

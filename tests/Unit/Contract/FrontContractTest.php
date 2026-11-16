@@ -28,11 +28,13 @@ class FrontContractTest extends TestCase
      */
     private const LEGACY = [
         'DateTimeInput' => ['showDate', 'showHour'],
-        'FileInput' => ['maxItems'],
+        'FileInput' => ['allowMultiple'],
         // Hérité de AbstractValueFieldWithDefault ; sans effet sur un champ heure natif, retiré du builder.
         'HourMinuteInput' => ['placeHolder'],
         'NumberInput' => ['allowDecimal'],
         'Select' => ['checkCases'],
+        // Hérité de AbstractChoiceField ; lecture seule non proposée par le builder pour ce bloc.
+        'YesNo' => ['readOnly'],
     ];
 
     /**

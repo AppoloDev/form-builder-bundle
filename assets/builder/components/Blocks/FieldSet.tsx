@@ -1,11 +1,11 @@
 import { FieldSetProps, BlockDefinition } from "./Definition";
 import { useFormBuilderStore } from "../../stores/block.store";
 import { EditableBlock } from "./EditableBlock";
-import { AddButton } from "../AddButton";
+import { AddElementButton } from "../AddElementButton";
 import { Empty } from "../Empty";
 import { ChildrenSorter, DropZone } from "./ChildrenSorter";
 import { createBlockFromTemplate } from "../../utilities/block.utiles";
-import { ContainerContext, containerFrameClasses } from "./ContainerContext";
+import { ContainerContext, InsideContainerContext, containerFrameClasses } from "./ContainerContext";
 import { t } from "../../i18n";
 import { useContext } from "react";
 
@@ -20,6 +20,7 @@ const FieldSet = ({id, type, children}: FieldSetProps) => {
 
     return (
         <EditableBlock id={id} type={type}>
+            <InsideContainerContext.Provider value={true}>
             <ContainerContext.Provider value={true}>
             <DropZone containerId={id} className={containerFrameClasses(nested)}>
                 {children.length === 0 ? (
@@ -27,11 +28,12 @@ const FieldSet = ({id, type, children}: FieldSetProps) => {
                 ) : (
                     <>
                         <ChildrenSorter childrenBlocks={children} containerId={id}/>
-                        <AddButton onPick={addChild}/>
+                        <AddElementButton onPick={addChild}/>
                     </>
                 )}
             </DropZone>
             </ContainerContext.Provider>
+            </InsideContainerContext.Provider>
         </EditableBlock>
     );
 };

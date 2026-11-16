@@ -94,7 +94,7 @@ export const ChildrenSorter: React.FC<{
     return (
         <ConditionalChildrenContext.Provider value={isConditional}>
             <SortableContext items={childIds} strategy={noShiftStrategy}>
-                <div className={conditional ? "flex flex-col gap-3" : "flex flex-col gap-5"}>
+                <div className={conditional ? "flex flex-col gap-6" : "flex flex-col gap-8"}>
                     {childrenBlocks.map((child) => (
                         <SortableBlock key={child.id} id={child.id} containerId={containerId}>
                             <FollowUpRenderer child={child} conditional={isConditional}/>

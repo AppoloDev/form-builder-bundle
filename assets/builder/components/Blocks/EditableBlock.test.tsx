@@ -12,7 +12,8 @@ describe("barre d'outils des blocs", () => {
         }));
 
         // Un conteneur et son enfant : deux barres, chacune liée au survol de son propre bloc.
-        expect(html.match(/\[\.fb-block:hover&gt;&amp;\]:opacity-100|\[\.fb-block:hover>&\]:opacity-100/g)).toHaveLength(2);
+        // Masquée quand une ligne d'option ou un en-tête de condition est survolé : une seule corbeille visible.
+        expect(html.split("[.fb-block:hover:not(:has([data-row-actions]:hover))&gt;&amp;]:opacity-100")).toHaveLength(3);
         expect(html).not.toContain("group-hover:opacity-100");
     });
 });

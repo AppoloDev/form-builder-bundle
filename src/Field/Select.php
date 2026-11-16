@@ -25,6 +25,12 @@ class Select extends AbstractChoiceField
         return $valid;
     }
 
+    protected function readChoices(FormLayoutBlock $block): void
+    {
+        $this->options = $block->configOptions('options');
+        $this->multiple = $block->configBool('multiple') ?? false;
+    }
+
     protected function isExpanded(): bool
     {
         return $this->checkCases;

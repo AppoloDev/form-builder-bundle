@@ -27,7 +27,7 @@ enum FieldCategory: string
     {
         return match ($this) {
             self::Text => ['TextInput', 'TextareaInput', 'EmailInput', 'TelInput', 'UrlInput'],
-            self::Choice => ['Select', 'ChoiceGroup'],
+            self::Choice => ['Select', 'ChoiceGroup', 'YesNo'],
             self::Number => ['NumberInput'],
             self::DateTime => ['DateTimeInput', 'HourMinuteInput'],
             self::File => ['FileInput'],

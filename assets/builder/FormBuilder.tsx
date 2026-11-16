@@ -193,7 +193,7 @@ export const FormBuilder = ({onChange, json = [], categories, types}: Props) => 
                 {blocks.length === 0 ? (
                     <Empty onPick={handleAdd}/>
                 ) : (
-                    <div className="mx-auto max-w-2xl space-y-4">
+                    <div className="mx-auto max-w-2xl space-y-8">
                     <SortableContext items={ids} strategy={noShiftStrategy}>
                         {blocks.map((block) => {
                             const Component = BLOCK_COMPONENTS[block.type];

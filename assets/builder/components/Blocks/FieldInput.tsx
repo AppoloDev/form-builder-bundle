@@ -1,4 +1,4 @@
-import React, { ReactElement, PropsWithChildren } from "react";
+import React, { ReactElement, ReactNode, PropsWithChildren } from "react";
 import { EditableBlock } from "./EditableBlock";
 import { InlineEditableText } from "../InlineEditableText";
 import { BlockType } from "./Definition";
@@ -10,6 +10,7 @@ type Props = { id: string;
     type?: BlockType;
     form: Record<string, any>;
     editionItems: ReactElement | ReactElement[];
+    actions?: ReactNode;
     onLabelChange?: (value: string) => void;
     /** Absent : champ jamais obligatoire (enfant de condition), pas d'astérisque. */
     onRequiredChange?: (value: boolean) => void; } & PropsWithChildren;
@@ -33,9 +34,9 @@ export const RequiredMark = ({onRemove}: { onRemove: () => void }) => (
     </button>
 );
 
-export const FieldInput = ({id, type, editionItems, form, children, onLabelChange, onRequiredChange}: Props) => {
+export const FieldInput = ({id, type, editionItems, actions, form, children, onLabelChange, onRequiredChange}: Props) => {
     return (
-        <EditableBlock id={id} type={type} editionItems={editionItems}>
+        <EditableBlock id={id} type={type} editionItems={editionItems} actions={actions}>
             <div className={FIELD_CLASSES}>
                 <label className={`self-start flex max-w-full items-baseline ${FIELD_TEXT_INSET_CLASSES} ${FIELD_LABEL_CLASSES}`} htmlFor={id}>
                     <InlineEditableText

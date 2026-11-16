@@ -42,7 +42,7 @@ class FormRenderingTest extends TestCase
      */
     public static function emptyLabelTypes(): iterable
     {
-        foreach (['TextInput', 'TextareaInput', 'EmailInput', 'TelInput', 'UrlInput', 'NumberInput', 'DateTimeInput', 'HourMinuteInput', 'AddressInput', 'Signature', 'Select', 'ChoiceGroup', 'FileInput'] as $type) {
+        foreach (['TextInput', 'TextareaInput', 'EmailInput', 'TelInput', 'UrlInput', 'NumberInput', 'DateTimeInput', 'HourMinuteInput', 'AddressInput', 'Signature', 'Select', 'ChoiceGroup', 'YesNo', 'FileInput'] as $type) {
             yield $type => [$type];
         }
     }
@@ -215,6 +215,16 @@ class FormRenderingTest extends TestCase
             ['type' => 'ChoiceGroup', 'label' => 'Cases', 'multiple' => true, 'options' => self::OPTIONS],
             ["//input[@type='checkbox'][@value='Oui']", "//label[@for='form_builder_f_1'][normalize-space()='Non']"],
         ];
+        yield 'YesNo' => [
+            ['type' => 'YesNo', 'label' => 'Conforme ?', 'helpText' => 'Aide', 'required' => true, 'yesLabel' => 'Conforme', 'noLabel' => 'Non conforme'],
+            [
+                "//label[normalize-space()='Conforme ?']",
+                "//div[@id='form_builder_f'][@class='fb-yes-no']",
+                "//label[@for='form_builder_f_0'][@class='fb-yes-no-option'][normalize-space()='Conforme']/input[@type='radio'][@name='form_builder[f]'][@value='Conforme'][@required]",
+                "//label[@for='form_builder_f_1'][normalize-space()='Non conforme']",
+                "//*[@id='form_builder_f_help'][normalize-space()='Aide']",
+            ],
+        ];
 
         yield 'FileInput' => [
             ['type' => 'FileInput', 'label' => 'Pièce', 'helpText' => 'Aide', 'required' => true, 'acceptedFile' => 'image', 'allowMultiple' => true, 'maxItems' => 3],
@@ -222,8 +232,18 @@ class FormRenderingTest extends TestCase
                 // Libellé, aide et marque « requis » au niveau du bloc, avant tout ajout de fichier.
                 "//label[@class='required'][normalize-space()='Pièce']",
                 "//*[@id='form_builder_f_help'][normalize-space()='Aide']",
-                "//div[@data-controller='form-builder-collection'][@data-max-items='3']",
-                "//div[@data-controller='form-builder-collection'][contains(@data-prototype,'type=\"file\"')]",
+                // Zone de dépôt : maximum, filtre et prototype d'une entrée (input fichier) transmis au contrôleur.
+                "//div[@data-controller='form-builder-file-drop'][@data-form-builder-file-drop-max-items-value='3'][@data-form-builder-file-drop-accept-value='image/*']",
+                "//div[@data-controller='form-builder-file-drop'][contains(@data-form-builder-file-drop-prototype-value,'type=\"file\"')]",
+                "//input[@data-form-builder-file-drop-target='picker'][@accept='image/*'][@multiple]",
+                "//p[@class='fb-file-drop-limit'][contains(.,'images maximum')]",
+            ],
+        ];
+        yield 'FileInput documents' => [
+            ['type' => 'FileInput', 'label' => 'Pièce', 'acceptedFile' => 'document', 'maxItems' => 1],
+            [
+                "//input[@data-form-builder-file-drop-target='picker'][contains(@accept,'.docx')][not(@multiple)]",
+                "//template[@data-form-builder-file-drop-target='icon'][@data-kind='sheet']",
             ],
         ];
         yield 'AddressInput' => [

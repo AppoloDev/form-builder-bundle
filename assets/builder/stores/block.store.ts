@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { Block, BlockId, ConditionRule, OptionItem, SelectOption } from "../components/Blocks/Definition";
 import { v4 as uuidv4 } from "uuid";
+import { isContainerType } from "../components/Blocks/ContainerContext";
 
 interface FormBuilderState {
     blocks: Block[];
@@ -86,6 +87,19 @@ const containerIdsWithin = (block: Block, ids = new Set<BlockId>([block.id])): S
     return ids;
 };
 
+/** Vrai si la liste `containerId` est un groupe / répétable ou se trouve dessous (règle de condition d'un de ses champs). */
+const isInsideContainer = (blocks: Block[], containerId: BlockId, inside = false): boolean | undefined => {
+    for (const block of blocks) {
+        const childInside = inside || isContainerType(block.type);
+        for (const [childContainer, children] of childLists(block)) {
+            if (childContainer === containerId) return childInside;
+            const found = isInsideContainer(children, containerId, childInside);
+            if (found !== undefined) return found;
+        }
+    }
+    return undefined;
+};
+
 /** Applique `fn` à la liste du conteneur `containerId`, à n'importe quelle profondeur. */
 const mapContainer = (blocks: Block[], containerId: ContainerId, fn: (list: Block[]) => Block[]): Block[] => {
     if (containerId === null) return fn(blocks);
@@ -110,6 +124,7 @@ export const moveBlockInTree = (blocks: Block[], activeId: BlockId, target: Move
     const to = 'overId' in target ? findContainer(blocks, target.overId) : target.containerId;
     if (!active || from === undefined || to === undefined) return blocks;
     if (to !== null && containerIdsWithin(active).has(to)) return blocks;
+    if (to !== null && isContainerType(active.type) && isInsideContainer(blocks, to)) return blocks;
 
     return mapContainer(removeBlockRecursive(blocks, activeId), to, (list) => {
         const index = 'overId' in target

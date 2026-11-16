@@ -46,6 +46,7 @@
 
    ```css
    @source '../vendor/appolodev/form-builder-bundle/assets/builder/**/*.tsx';
+   @source '../vendor/appolodev/form-builder-bundle/templates/**/*.twig'; /* answers template */
    /* dark: only applies under a .dark class, not prefers-color-scheme */
    @custom-variant dark (&:where(.dark, .dark *));
    ```
@@ -63,7 +64,9 @@ added; blocks already in the structure are kept.
 
 | Identifier | Used by | Notes |
 |---|---|---|
-| `form-builder-collection` | `repeatable_row`, `file_repeatable_row` | Add/remove rows from a `data-prototype` |
+| `form-builder-collection` | `repeatable_row` | Add/remove rows from a `data-prototype` |
+| `form-builder-input-mask` | `TelInput`, `EmailInput`, `UrlInput` (attributes on the input) | Input mask (`assets/lib/masks.js`, also used by the builder for the placeholder and default value): phone grouped as `06 12 34 56 78` / `+33 6 12 34 56 78` (separators stripped server-side), e-mail without spaces and lowercased, URL without spaces and completed with `https://` on blur. Value: `type` (`tel`, `email`, `url`) |
+| `form-builder-file-drop` | `file_repeatable_row` | Drop zone: each picked/dropped file becomes a collection entry (prototype value) whose file input receives it; existing entries (`data-existing`) are removed by checking their `delete` box. Values: `prototype`, `name`, `max-items`, `accept`. Markup comes from the theme's `<template>` targets (`itemTemplate`, one `icon` per `data-kind`: image, pdf, doc, sheet, slides, file); a file row fills its `data-slot` preview, name, size and inputs |
 | `form-builder-geo-complete` | `address_row` | Google Places autocomplete. The app must load the Maps JS API and dispatch `google-maps:ready` on `document` (or set `window.googleMapsReady`) |
 | `form-builder-condition` | `form_builder_conditional_field_row` | Shows/hides a conditional field from the owner's value (`<select>`, or radio/checkbox container with the owner's id); disables hidden controls so they are not submitted |
 | `form-builder-sign-area` | `signature_row` | `signature_pad` canvas; writes an SVG data URI into the hidden input. Values: `input`, `clear-label`, `modify-label` |

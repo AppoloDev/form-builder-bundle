@@ -32,6 +32,19 @@ export const TITLE_INPUT_CLASSES: Record<HeadingLevel, string> = {
     h6: "text-sm md:text-sm font-bold text-foreground",
 };
 
+/**
+ * Marges au-dessus et sous un titre, comme le formulaire (thème OSCAR, title_row) : 32px (h1), 24px (h2), 16px au-delà. Posées sur
+ * le bloc (hors zone de sélection) ; dans la liste racine elles fusionnent avec la marge de space-y-4 (16px).
+ */
+export const TITLE_SPACING_CLASSES: Record<HeadingLevel, string> = {
+    h1: "mt-8 mb-8",
+    h2: "mt-6 mb-6",
+    h3: "mt-4 mb-4",
+    h4: "mt-4 mb-4",
+    h5: "mt-4 mb-4",
+    h6: "mt-4 mb-4",
+};
+
 /** Classes d'un paragraphe dans le formulaire de réponse. */
 export const PARAGRAPH_CLASSES = "text-base text-muted-foreground";
 

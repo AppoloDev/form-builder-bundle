@@ -13,7 +13,7 @@ describe("resolveAllowedTypes", () => {
     });
 
     it("restreint par catégories", () => {
-        expect(resolveAllowedTypes(["choice"], null)?.sort()).toEqual(["ChoiceGroup", "Select"]);
+        expect(resolveAllowedTypes(["choice"], null)?.sort()).toEqual(["ChoiceGroup", "Select", "YesNo"]);
     });
 
     it("restreint par types", () => {
@@ -21,7 +21,7 @@ describe("resolveAllowedTypes", () => {
     });
 
     it("fait l'union catégories ∪ types sans doublon", () => {
-        expect(resolveAllowedTypes(["choice"], ["Signature", "Select"])?.sort()).toEqual(["ChoiceGroup", "Select", "Signature"]);
+        expect(resolveAllowedTypes(["choice"], ["Signature", "Select"])?.sort()).toEqual(["ChoiceGroup", "Select", "Signature", "YesNo"]);
     });
 
     it("ignore les catégories et types inconnus", () => {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AppoloDev\FormBuilderBundle\Field;
 
+use AppoloDev\FormBuilderBundle\ValueObject\FormLayoutBlock;
 use Symfony\Component\Form\Extension\Core\Type\TimeType;
 
 /**
@@ -12,6 +13,17 @@ use Symfony\Component\Form\Extension\Core\Type\TimeType;
 class HourMinuteInput extends AbstractValueFieldWithDefault
 {
     private const TIME_PATTERN = '/^([01]\d|2[0-3]):[0-5]\d$/';
+
+    /** Préremplir avec l'heure courante (prioritaire sur `defaultValue`). */
+    private bool $hasCurrentTime = false;
+
+    public function validateDefinition(FormLayoutBlock $block, array $formOptions): bool
+    {
+        $valid = parent::validateDefinition($block, $formOptions);
+        $this->hasCurrentTime = $block->configBool('hasCurrentTime') ?? false;
+
+        return $valid;
+    }
 
     protected function getFormType(): string
     {
@@ -25,7 +37,9 @@ class HourMinuteInput extends AbstractValueFieldWithDefault
         $fieldOptions['widget'] = 'single_text';
         $fieldOptions['with_seconds'] = false;
 
-        if (1 !== preg_match(self::TIME_PATTERN, $this->defaultValue)) {
+        if ($this->hasCurrentTime && \array_key_exists('data', $fieldOptions)) {
+            $fieldOptions['data'] = (new \DateTimeImmutable())->format('H:i:00');
+        } elseif (1 !== preg_match(self::TIME_PATTERN, $this->defaultValue)) {
             unset($fieldOptions['data']);
         } elseif (isset($fieldOptions['data'])) {
             // TimeType (input `string`) lit et écrit "HH:MM:SS" : la valeur par défaut saisie en "HH:MM" doit suivre.

@@ -9,11 +9,23 @@ choice:
     empty: 'None'
 theme:
     add_item: 'Add an item'
-    add_file: 'Add a file'
+    add_file: 'Add'
+    # %count% = maximum number of files, 0 = unlimited.
+    file_limit:
+        image: '{0} Add your images|{1} 1 image maximum|]1,Inf[ %count% images maximum'
+        document: '{0} Add your files|{1} 1 file maximum|]1,Inf[ %count% files maximum'
+    clear_files: 'Clear all'
+    file_list:
+        image: 'Image list'
+        document: 'Document list'
+    file_formats:
+        image: 'JPG, PNG, WebP, HEIC…'
+        document: 'Images (JPG, PNG, WebP, HEIC…), Documents (PDF, Word, Excel, PowerPoint, OpenDocument, TXT, CSV…)'
     remove: 'Remove'
     attached_files: 'Attached files'
 signature:
     clear: 'Clear'
+    area: 'Signature area'
     modify: 'Edit'
 answers:
     file_label: 'File'

@@ -1,21 +1,28 @@
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ComponentProps, ReactNode, useContext, useEffect, useRef, useState } from "react";
+import { ACTIONS_GAP, ActionsInsetContext } from "./EditableBlock";
 import { v4 as uuidv4 } from "uuid";
 import { createPortal } from "react-dom";
 import { closestCenter, DndContext, DragEndEvent, DragMoveEvent, DragOverlay, DragStartEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, sortableKeyboardCoordinates, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { DotsSixVerticalIcon, TrashIcon } from "@phosphor-icons/react";
+import { CaretDownIcon, DotsSixVerticalIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { t } from "../../i18n";
 
 type Option = { id: string; label: string };
 
+/** Repère visuel du champ rendu : radio (choix unique), case (choix multiple) ou chevron (liste déroulante), toujours à gauche. */
+export type OptionIndicator = "radio" | "checkbox" | "chevron";
+
 type Props<O extends Option> = {
     options: O[];
     onChange: (next: O[]) => void;
     /** Construit une nouvelle option vide (les types d'option diffèrent entre ChoiceGroup et Select). */
     createOption: (id: string) => O;
+    indicator: OptionIndicator;
+    /** Champ en lecture seule dans le formulaire : options sur fond gris. */
+    readOnly?: boolean;
 };
 
 /**
@@ -24,7 +31,7 @@ type Props<O extends Option> = {
  * Même rendu que le tri des blocs : rien ne bouge, une copie transparente suit le pointeur et une barre bleue
  * indique où l'option sera déposée.
  */
-export const OptionList = <O extends Option>({ options, onChange, createOption }: Props<O>) => {
+export const OptionList = <O extends Option>({ options, onChange, createOption, indicator, readOnly = false }: Props<O>) => {
     const [pendingFocusId, setPendingFocusId] = useState<string | null>(null);
     // Recherches DOM limitées à cette liste : les ids d'option ne sont uniques qu'au sein d'un bloc.
     const listRef = useRef<HTMLDivElement>(null);
@@ -104,27 +111,25 @@ export const OptionList = <O extends Option>({ options, onChange, createOption }
                     <div className="space-y-1">
                         {options.map((opt, idx) => (
                             <OptionRow key={opt.id} id={opt.id} onRemove={() => onChange(options.filter((_, i) => i !== idx))}>
-                                <Input
+                                <OptionField
+                                    indicator={indicator}
+                                    readOnly={readOnly}
                                     data-option-id={opt.id}
                                     value={opt.label}
                                     placeholder={t("option.default", {n: idx + 1})}
                                     onChange={(e) => onChange(options.map((o, i) => (i === idx ? withLabel(o, e.target.value) : o)))}
-                                    className="border-transparent bg-transparent hover:border-input focus-visible:border-ring"
                                 />
                             </OptionRow>
                         ))}
 
-                        {/* Faux bouton : aligné sur les options (emplacements invisibles de la poignée et de la poubelle). */}
-                        <div className="flex items-center gap-2">
-                            <DotsSixVerticalIcon aria-hidden="true" className="invisible"/>
-                            <span aria-hidden="true" className="size-8 shrink-0"/>
-                            <Input
-                                value=""
-                                placeholder={t("option.addLong")}
-                                onChange={(e) => add(e.target.value)}
-                                className="border-transparent bg-transparent hover:border-input focus-visible:border-ring"
-                            />
-                        </div>
+                        <OptionField
+                            indicator="plus"
+                            readOnly={readOnly}
+                            value=""
+                            placeholder={t("option.addLong")}
+                            onChange={(e) => add(e.target.value)}
+                            className="border-dashed"
+                        />
                     </div>
                 </SortableContext>
 
@@ -141,38 +146,60 @@ export const OptionList = <O extends Option>({ options, onChange, createOption }
     );
 };
 
+/** Champ d'une option, à l'allure des boutons du bloc Oui / Non, avec le repère du champ rendu dans le formulaire. */
+/** `plus` : champ d'ajout, qui ne représente pas encore une option. */
+const OptionField = ({indicator, readOnly, className = "", ...props}: ComponentProps<typeof Input> & { indicator: OptionIndicator | "plus"; readOnly?: boolean }) => (
+    <div className="relative w-full max-w-sm">
+        {indicator === "radio" && <span aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 rounded-full border border-input"/>}
+        {indicator === "checkbox" && <span aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 rounded-[4px] border border-input"/>}
+        {indicator === "plus" && <PlusIcon aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"/>}
+        {indicator === "chevron" && <CaretDownIcon aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"/>}
+        <Input
+            {...props}
+            className={`h-9 rounded-lg border-border hover:bg-muted focus-visible:border-ring pl-9 ${readOnly ? "bg-muted" : "bg-background"} ${className}`}
+        />
+    </div>
+);
+
 const OptionRow = ({id, onRemove, children}: { id: string; onRemove: () => void; children: ReactNode }) => {
     const {attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging} = useSortable({id});
+    const inset = useContext(ActionsInsetContext);
     const reveal = "opacity-0 transition-opacity group-hover/option:opacity-100 focus-visible:opacity-100";
 
     return (
         <div
             ref={setNodeRef}
             data-option-row={id}
+            data-row-actions=""
             style={{transform: CSS.Translate.toString(transform), transition, opacity: isDragging ? 0.6 : 1}}
-            className="group/option relative flex items-center gap-2 rounded-md"
+            className="group/option relative flex items-center rounded-md"
         >
-            <button
-                type="button"
-                ref={setActivatorNodeRef}
-                {...attributes}
-                {...listeners}
-                className={`flex cursor-grab touch-none items-center text-muted-foreground active:cursor-grabbing ${reveal}`}
-                aria-label={t("option.reorderAria")}
-            >
-                <DotsSixVerticalIcon/>
-            </button>
+            {/* Actions dans la marge gauche, en colonne avec celles du bloc (EditableBlock : mr-2, gap-0.5, boutons de
+                28 px) : corbeille sous la corbeille, poignée sous la poignée. pr-2 plutôt que mr-2 pour que le survol ne
+                se perde pas entre l'action et le champ. */}
+            <div style={{paddingRight: ACTIONS_GAP + inset}} className="absolute top-1/2 right-full flex -translate-y-1/2 items-center gap-0.5">
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={onRemove}
+                    className={`text-destructive hover:text-destructive ${reveal}`}
+                    aria-label={t("option.deleteAria")}
+                >
+                    <TrashIcon/>
+                </Button>
 
-            <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                onClick={onRemove}
-                className={`text-destructive hover:text-destructive ${reveal}`}
-                aria-label={t("option.deleteAria")}
-            >
-                <TrashIcon/>
-            </Button>
+                <button
+                    type="button"
+                    ref={setActivatorNodeRef}
+                    {...attributes}
+                    {...listeners}
+                    className={`flex size-7 cursor-grab touch-none items-center justify-center text-muted-foreground active:cursor-grabbing ${reveal}`}
+                    aria-label={t("option.reorderAria")}
+                >
+                    <DotsSixVerticalIcon className="size-4"/>
+                </button>
+            </div>
 
             {children}
         </div>

@@ -9,11 +9,23 @@ choice:
     empty: 'Aucun'
 theme:
     add_item: 'Ajouter un élément'
-    add_file: 'Ajouter un fichier'
+    add_file: 'Ajouter'
+    # %count% = nombre maximum de fichiers, 0 = illimité.
+    file_limit:
+        image: '{0} Ajoutez vos images|{1} 1 image maximum|]1,Inf[ %count% images maximum'
+        document: '{0} Ajoutez vos fichiers|{1} 1 fichier maximum|]1,Inf[ %count% fichiers maximum'
+    clear_files: 'Tout supprimer'
+    file_list:
+        image: 'Liste des images'
+        document: 'Liste des documents'
+    file_formats:
+        image: 'JPG, PNG, WebP, HEIC…'
+        document: 'Images (JPG, PNG, WebP, HEIC…), Documents (PDF, Word, Excel, PowerPoint, OpenDocument, TXT, CSV…)'
     remove: 'Supprimer'
     attached_files: 'Fichiers joints'
 signature:
     clear: 'Vider'
+    area: 'Zone de signature'
     modify: 'Modifier'
 answers:
     file_label: 'Fichier'

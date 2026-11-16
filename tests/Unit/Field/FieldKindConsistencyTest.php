@@ -44,7 +44,7 @@ class FieldKindConsistencyTest extends TestCase
             'AddressInput', 'ChoiceGroup', 'DateTimeInput', 'EmailInput', 'FieldSet', 'FileInput',
             'GenericTextInput', 'HourMinuteInput', 'NumberInput', 'Paragraph', 'Repeatable',
             'Select', 'Separator', 'Signature', 'TelInput', 'TextareaInput', 'TextInput',
-            'Title', 'UrlInput',
+            'Title', 'UrlInput', 'YesNo',
         ] as $type) {
             yield $type => [$type];
         }

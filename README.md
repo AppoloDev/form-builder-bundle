@@ -33,11 +33,13 @@ Then follow [docs/installation.md](docs/installation.md).
 
 The default theme (`@FormBuilder/form_theme/default.html.twig`) is neutral. For a design system, create a theme in
 the application and declare it via `form_builder.form_theme`. Blocks to override: `fieldset_row`, `title_row`,
-`paragraph_row`, `repeatable_row`, `repeatable_child_row`, `add_btn`, `remove_btn`, `address_row`, `signature_row`,
-`file_repeatable_row`, `file_repeatable_child_row`, `form_builder_conditional_field_row` (plus the
-`*_children_prototype` helper blocks). `structure.html.twig` is always loaded by the bundle. Keep the `data-*`
+`paragraph_row`, `repeatable_row`, `repeatable_child_row`, `add_btn`, `remove_btn`, `address_row`, `signature_row`, `yes_no_widget`,
+`file_repeatable_row`, `file_repeatable_child_row`, `file_drop_item`, `file_icon`, `form_builder_conditional_field_row` (plus the
+`*_children_prototype`, `file_repeatable_children(_errors)`, `file_repeatable_templates`, `file_drop_controller_attributes`,
+`file_drop_zone_attributes`, `file_drop_picker`, `file_limit_text`, `file_list_title` and `file_formats_text` helper blocks). `structure.html.twig` is always loaded by the bundle. Keep the `data-*`
 attributes and the classes read by the Stimulus controllers (`repeatable`, `repeatable--item`, `collec_child`,
-`repeatable_child`, `file_child`, `file-name`, `remove-container`, `input-delete`). The former
+`repeatable_child`, `remove-container`, `input-delete`; for files, the `form-builder-file-drop` targets and the
+`data-slot`/`data-existing` attributes of `file_drop_item`). The former
 `form_theme/shadcn.html.twig` name remains as an alias of the default theme.
 
 ## Documentation

@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Constraints\Email;
 class EmailInput extends GenericTextInput
 {
     protected string $inputType = EmailType::class;
+    protected ?string $mask = 'email';
 
     /**
      * @return array<string, mixed>

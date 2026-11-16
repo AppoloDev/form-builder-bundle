@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo } from "react";
 import { BlockDefinition, BlockType, getAllBlockDefinitions } from "./Blocks/Definition";
+import { InsideContainerContext, isContainerType } from "./Blocks/ContainerContext";
 
 /**
  * Types que le menu d'ajout propose (`undefined` = tous). Fourni une fois à la racine du builder : tous les
@@ -7,18 +8,22 @@ import { BlockDefinition, BlockType, getAllBlockDefinitions } from "./Blocks/Def
  */
 export const AllowedTypesContext = createContext<readonly BlockType[] | undefined>(undefined);
 
-/** Définitions que l'on peut ajouter ; la prop explicite `allowTypes` l'emporte sur le contexte. */
+/**
+ * Définitions que l'on peut ajouter ; la prop explicite `allowTypes` l'emporte sur le contexte. Jamais de groupe ni
+ * de répétable sous un conteneur.
+ */
 export const useAddableDefinitions = (allowTypes?: readonly BlockType[]): BlockDefinition[] => {
     const fromContext = useContext(AllowedTypesContext);
     const allowed = allowTypes ?? fromContext;
+    const insideContainer = useContext(InsideContainerContext);
 
     return useMemo(() => {
-        const all = getAllBlockDefinitions();
+        const all = getAllBlockDefinitions().filter((definition) => !insideContainer || !isContainerType(definition.type));
         if (!allowed) {
             return all;
         }
         const allow = new Set(allowed);
 
         return all.filter((definition) => allow.has(definition.type));
-    }, [allowed]);
+    }, [allowed, insideContainer]);
 };

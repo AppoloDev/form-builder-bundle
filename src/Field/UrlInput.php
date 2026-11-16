@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Constraints\Url;
 class UrlInput extends GenericTextInput
 {
     protected string $inputType = UrlType::class;
+    protected ?string $mask = 'url';
 
     /**
      * @return array<string, mixed>

@@ -113,7 +113,7 @@
     {% if block.value is iterable and block.value is not empty %}
         {% set files %}{{ block('fileList') }}{% endset %}
         <div class="mb-6 grid gap-1 sm:grid-cols-[minmax(0,33%)_1fr] sm:gap-4">
-            <div class="font-bold text-muted-foreground">{{ 'answers.file_label'|trans({}, 'form_builder_bundle') }}</div>
+            <div class="font-bold text-muted-foreground">{{ block.label is not empty ? block.label : 'answers.file_label'|trans({}, 'form_builder_bundle') }}</div>
             <div>{{ files }}</div>
         </div>
     {% else %}
@@ -130,6 +130,10 @@
 
 {% block ChoiceGroup %}
     {{ block('Select') }}
+{% endblock %}
+
+{% block YesNo %}
+    {{ block('labelAndValue') }}
 {% endblock %}
 
 {% block HourMinuteInput %}
@@ -171,27 +175,26 @@
 {% endblock %}
 
 {% block fileList %}
-    {% for v in block.value %}
-        {% if v.file is defined and v.file is not null %}
-            {% set filePath = form_builder_file_url(formAnswer, v.file.filename) %}
-            {% if v.file.extension is same as('pdf') %}
-                <div class="mb-2 flex items-center gap-3 rounded-md border border-dashed border-border bg-card px-4 py-2">
-                    <div class="flex h-8 w-8 items-center justify-center text-lg text-muted-foreground"><twig:ux:icon name="ph:file-pdf" class="size-5" /></div>
-                    <a href="{{ filePath }}" download="{{ v.file.originalFilename }}" class="text-sm font-medium underline-offset-4 hover:underline">
-                        {{ v.file.originalFilename }}
+    {#- Mêmes vignettes que la zone de dépôt du formulaire : aperçu pour une image, icône et nom sinon. -#}
+    <div class="flex flex-wrap gap-2">
+        {% for v in block.value %}
+            {% if v.file is defined and v.file is not null %}
+                {% set filePath = form_builder_file_url(formAnswer, v.file.filename) %}
+                {% if v.file.extension in ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'bmp', 'svg'] %}
+                    <a href="{{ filePath }}" download="{{ v.file.originalFilename }}" title="{{ v.file.originalFilename }}" class="block size-20 shrink-0 overflow-hidden rounded-lg border border-border">
+                        <img src="{{ filePath }}" alt="{{ v.file.originalFilename }}" class="size-full object-cover">
                     </a>
-                </div>
+                {% else %}
+                    <a href="{{ filePath }}" download="{{ v.file.originalFilename }}" title="{{ v.file.originalFilename }}" class="flex h-20 max-w-60 items-center gap-2 rounded-lg border border-border bg-muted px-3 text-sm font-medium underline-offset-4 hover:underline">
+                        <twig:ux:icon name="{{ v.file.extension is same as('pdf') ? 'ph:file-pdf' : 'ph:file' }}" class="size-5 shrink-0 text-muted-foreground" />
+                        <span class="truncate">{{ v.file.originalFilename }}</span>
+                    </a>
+                {% endif %}
             {% else %}
-                <div class="mb-2 flex items-center rounded-md border border-dashed border-border bg-card px-4 py-2">
-                    <a href="{{ filePath }}" download="{{ v.file.originalFilename }}">
-                        <img src="{{ filePath }}" alt="{{ v.file.originalFilename }}" class="max-h-40 rounded">
-                    </a>
-                </div>
+                –
             {% endif %}
-        {% else %}
-            –
-        {% endif %}
-    {% endfor %}
+        {% endfor %}
+    </div>
 {% endblock %}
 
 {% block optionList %}

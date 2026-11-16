@@ -91,7 +91,7 @@ const Select = (
     };
 
     const addCondition = () => {
-        const newRule: ConditionRule = {id: uuidv4(), operator: 'is', optionId: form.options[0]?.id ?? "", children: []};
+        const newRule: ConditionRule = {id: uuidv4(), operator: '', optionId: "", children: []};
         const patch = {conditions: [...form.conditions, newRule]};
         setForm(prev => ({...prev, ...patch}));
         updateBlock(id, patch);
@@ -130,7 +130,7 @@ const Select = (
 
     const editionItems = [
         <TextEdition key="label" label={t("field.title")} value={form.label} editItem={(v) => handleChange("label", v)}/>,
-        <TextEdition key="helpText" label={t("field.helpText")} type="textarea" value={form.helpText}
+        <TextEdition key="helpText" optional label={t("field.helpText")} type="textarea" value={form.helpText}
                      editItem={(v) => handleChange("helpText", v)}/>,
         ...(isChildBlock ? [] : [
             <CheckboxEdition key="required" label={t("field.required")} checked={form.required}
@@ -142,32 +142,29 @@ const Select = (
                          editItem={(v) => handleChange("customOption", v)}/>,
         <CheckboxEdition key="readOnly" label={t("field.readOnly")} checked={form.readOnly}
                          editItem={(v) => handleChange("readOnly", v)}/>,
-        ...(propsUseContionnalField ? [
-            <div className="border-t pt-4">
-                <Button
-                    key="addCondition"
-                    type="button"
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={addCondition}
-                    disabled={form.options.length === 0}
-
-                >
-                    <GitPullRequestIcon/>
-                    {t("condition.add")}
-                </Button>
-            </div>
-        ] : []),
     ];
 
     return (
         <FieldInput id={id} type={blockType} form={form} editionItems={editionItems}
+                    actions={propsUseContionnalField && (
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            className="w-full justify-start"
+                            onClick={addCondition}
+                            disabled={form.options.length === 0}
+                        >
+                            <GitPullRequestIcon/> {t("condition.add")}
+                        </Button>
+                    )}
                     onLabelChange={(v) => handleChange("label", v)}
                     onRequiredChange={isChildBlock ? undefined : (v) => handleChange("required", v)}>
             <OptionList
                 options={form.options}
                 onChange={(v) => handleChange("options", v)}
                 createOption={(optionId) => ({id: optionId, label: ""})}
+                indicator="chevron"
+                readOnly={form.readOnly}
             />
 
             {propsUseContionnalField && (

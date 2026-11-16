@@ -34,6 +34,7 @@ export const addMenuSections: { titleKey: MessageKey; entries: AddMenuEntry[] }[
             {type: "TextareaInput"},
             {type: "ChoiceGroup", titleKey: "menu.singleChoice"},
             {type: "ChoiceGroup", titleKey: "menu.multipleChoice", icon: CheckSquareIcon, defaultProps: {multiple: true}},
+            {type: "YesNo"},
             {type: "Select"},
             {type: "NumberInput"},
             {type: "DateTimeInput"},

@@ -1,4 +1,4 @@
-import { PointerEvent, ReactElement, ReactNode, useState, useCallback, useContext } from "react";
+import { PointerEvent, ReactElement, ReactNode, createContext, useState, useCallback, useContext } from "react";
 import { Tooltip } from "../Tooltip";
 import { UniqueIdentifier } from "@dnd-kit/core";
 import { ContextMenu } from "../ContextMenu";
@@ -12,6 +12,16 @@ import { t } from "../../i18n";
 import { AddMenu } from "../AddMenu";
 import { createBlockFromTemplate } from "../../utilities/block.utiles";
 
+/**
+ * Retrait (px) du contenu par rapport au bloc qui porte la colonne d'actions : un bloc enfant d'une condition
+ * (bordure + pl-4 = 20 px) repousse ses actions d'autant pour qu'elles restent dans la colonne de celles du parent,
+ * hors de la bordure. Cumulé à chaque condition imbriquée.
+ */
+export const ActionsInsetContext = createContext(0);
+
+/** Écart entre la colonne d'actions et le contenu (mr-2 de la barre d'outils). */
+export const ACTIONS_GAP = 8;
+
 interface EditableBlockProps {
     id: UniqueIdentifier;
     type?: BlockType;
@@ -22,6 +32,8 @@ interface EditableBlockProps {
     /** En-tête du menu d'options, à la place de celui du type (ex. « Titre 2 » pour un titre de niveau 2). */
     title?: string;
     icon?: Icon;
+    /** Actions du menu d'options, au-dessus de « Supprimer ». */
+    actions?: ReactNode;
 }
 
 export const EditableBlock = (
@@ -34,6 +46,7 @@ export const EditableBlock = (
         className = "",
         title,
         icon,
+        actions,
     }: EditableBlockProps) => {
     const definition = type ? blockDefinitions[type] : undefined;
     const [menuOpen, setMenuOpen] = useState(false);
@@ -52,6 +65,7 @@ export const EditableBlock = (
         .sort((a, b) => Number(b.key === "required") - Number(a.key === "required"));
 
     const {attributes, listeners, setActivatorNodeRef} = useContext(DragHandleContext);
+    const inset = useContext(ActionsInsetContext);
     const selected = useFormBuilderStore((state) => state.selectedId === id);
     const select = useFormBuilderStore((state) => state.select);
     const insertBlockAfter = useFormBuilderStore((state) => state.insertBlockAfter);
@@ -81,9 +95,9 @@ export const EditableBlock = (
             {/* Barre d'outils visible quand CE bloc est survolé (sélecteur enfant direct) : `group-hover` la ferait
                 apparaître aussi quand un bloc parent est survolé, donc toutes celles des blocs d'un groupe. */}
             {/* Invisible bridge so the cursor doesn't lose hover crossing the gap to the floating toolbar */}
-            <div className="absolute top-0 right-full h-full w-24" aria-hidden="true"/>
+            <div className="absolute top-0 right-full h-full" style={{width: 96 + inset}} aria-hidden="true"/>
 
-            <div className="absolute right-full top-0 mr-2 z-10 flex items-center gap-0.5 opacity-0 transition-opacity pointer-events-none [.fb-block:hover>&]:opacity-100 [.fb-block:hover>&]:pointer-events-auto has-[[data-popup-open]]:opacity-100">
+            <div style={{marginRight: ACTIONS_GAP + inset}} className="absolute right-full top-0 z-10 flex items-center gap-0.5 opacity-0 transition-opacity pointer-events-none [.fb-block:hover:not(:has([data-row-actions]:hover))>&]:opacity-100 [.fb-block:hover:not(:has([data-row-actions]:hover))>&]:pointer-events-auto has-[[data-popup-open]]:opacity-100">
                 <Tooltip content={t("block.addBelow")}>
                     <AddMenu onPick={(def) => insertBlockAfter(id, createBlockFromTemplate(def))}>
                         <Button variant="ghost" size="icon-sm" aria-label={t("block.addBelow")}>
@@ -113,6 +127,7 @@ export const EditableBlock = (
                             title={title ?? definition?.title}
                             icon={icon ?? definition?.icon}
                             onDelete={handleDelete}
+                            actions={actions}
                             trigger={handle}
                         >
                             {items}

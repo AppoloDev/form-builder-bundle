@@ -48,15 +48,19 @@ abstract class AbstractChoiceField implements FieldInterface
     {
         $this->id = $block->id ?? '';
         $this->label = $block->label ?? '';
-        $this->options = $block->configOptions('options');
         $this->helpText = $block->configString('helpText') ?? '';
         $this->required = $block->configBool('required') ?? false;
         $this->readOnly = $block->configBool('readOnly') ?? false;
-        $this->multiple = $block->configBool('multiple') ?? false;
         $this->formOptions = $formOptions;
+        $this->readChoices($block);
 
         return '' !== $this->id;
     }
+
+    /**
+     * Renseigne `options` (et `multiple`) depuis la config propre au type.
+     */
+    abstract protected function readChoices(FormLayoutBlock $block): void;
 
     /**
      * Options affichées sous forme de radios / cases à cocher plutôt que de liste déroulante.

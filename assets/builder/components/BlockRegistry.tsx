@@ -17,6 +17,7 @@ import Select from "./Blocks/Select";
 import Signature from "./Blocks/Signature";
 import FieldSet from "./Blocks/FieldSet";
 import Repeatable from "./Blocks/Repeatable";
+import YesNo from "./Blocks/YesNo";
 import { BlockType } from "./Blocks/Definition";
 
 export const BLOCK_COMPONENTS: Record<BlockType, ComponentType<any>> = {
@@ -26,6 +27,7 @@ export const BLOCK_COMPONENTS: Record<BlockType, ComponentType<any>> = {
     'Paragraph': Paragraph,
     'Separator': Separator,
     'ChoiceGroup': ChoiceGroupInput,
+    'YesNo': YesNo,
     'NumberInput': NumberInput,
     'EmailInput': EmailInput,
     'TelInput': TelInput,

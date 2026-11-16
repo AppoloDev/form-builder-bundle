@@ -42,6 +42,20 @@ describe("déplacement d'un bloc dans l'arbre", () => {
         expect(moveBlockInTree(blocks, "g", {overId: "b"})).toBe(blocks);
     });
 
+    it("refuse un groupe ou un répétable sous un conteneur, l'accepte dans une règle de condition à la racine", () => {
+        const blocks = [
+            ...tree(),
+            {id: "rep", type: "Repeatable", children: [
+                {id: "sel", type: "Select", options: [], conditions: [{id: "nr", operator: "is", optionId: "o", children: []}]},
+            ]},
+        ] as any;
+        expect(moveBlockInTree(blocks, "rep", {overId: "b"})).toBe(blocks);
+        expect(moveBlockInTree(blocks, "g", {containerId: "rep"})).toBe(blocks);
+        expect(moveBlockInTree(blocks, "g", {containerId: "nr"})).toBe(blocks);
+        expect(moveBlockInTree(blocks, "a", {containerId: "nr"})).not.toBe(blocks);
+        expect((moveBlockInTree(blocks, "g", {containerId: "r"}) as any[])[1].conditions[0].children[0].id).toBe("g");
+    });
+
     it("insère un nouveau bloc juste après le bloc courant, dans sa liste (même imbriquée)", () => {
         useFormBuilderStore.setState({blocks: tree()});
         useFormBuilderStore.getState().insertBlockAfter("b", {id: "n", type: "TextInput"} as any);

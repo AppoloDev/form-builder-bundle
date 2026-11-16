@@ -4,9 +4,9 @@
     choix, date...) restent rendus par le thème de formulaire de l'application. Pour un design system,
     déclarer son propre thème via `form_builder.form_theme` (blocs à surcharger : voir le README).
     Les comportements JS passent par les contrôleurs Stimulus du bundle (form-builder-collection,
-    form-builder-geo-complete, form-builder-sign-area, form-builder-condition) : conserver les
-    `data-*` et les classes `repeatable`, `repeatable--item`, `collec_child`, `repeatable_child`,
-    `file_child`, `file-name`, `remove-container`, `input-delete`. -#}
+    form-builder-file-drop, form-builder-geo-complete, form-builder-sign-area, form-builder-condition) :
+    conserver les `data-*` (dont `data-slot` et `data-existing` des vignettes de fichier) et les classes
+    `repeatable`, `repeatable--item`, `collec_child`, `repeatable_child`, `remove-container`, `input-delete`. -#}
 
 {%- block fieldset_row -%}
     <div class="fb-fieldset-wrapper">
@@ -104,6 +104,28 @@
     </div>
 {%- endblock -%}
 
+{#- Oui / Non : radios natives (soumission et validation inchangées) habillées en boutons, `:checked` = bouton actif. -#}
+{%- block yes_no_widget -%}
+    <div id="{{ id }}" class="fb-yes-no" role="radiogroup">
+        {%- for child in form -%}
+            <label for="{{ child.vars.id }}" class="fb-yes-no-option" style="position:relative">
+                {{- block('yes_no_input') -}}
+                <span>{{ child.vars.label }}</span>
+            </label>
+        {%- endfor -%}
+    </div>
+{%- endblock -%}
+
+{%- block yes_no_input -%}
+    {%- do child.setRendered() -%}
+    <input type="radio" id="{{ child.vars.id }}" name="{{ child.vars.full_name }}" value="{{ child.vars.value }}" class="fb-yes-no-input"
+        style="position:absolute;opacity:0;width:1px;height:1px"
+        {%- if child.vars.checked %} checked{% endif %}
+        {%- if child.vars.required %} required{% endif %}
+        {%- if child.vars.disabled %} disabled{% endif %}
+        {%- if not valid %} aria-invalid="true"{% endif %}>
+{%- endblock -%}
+
 {%- block signature_row -%}
     <div class="fb-row">
         {{ form_label(form) }}
@@ -126,6 +148,11 @@
 {%- endblock -%}
 
 {%- block file_repeatable_row -%}
+    {#- Zone de dépôt (contrôleur form-builder-file-drop, modèle reui « progress file upload ») : zone centrée (icône,
+        nombre maximum, formats, bouton), puis une ligne par fichier. Chaque fichier choisi ou déposé devient une
+        entrée de la collection. Seules les entrées portant un fichier valide sont affichées ; les autres (fichier
+        refusé à la validation) ne laissent que leur message d'erreur. -#}
+    {%- set fb_max_items = attr.maxItems ?? 0 -%}
     <div class="file-item">
         <hr class="fb-separator">
 
@@ -140,21 +167,29 @@
             {{ form_errors(form) }}
 
             <div
-                data-controller="form-builder-collection"
-                data-prototype="{{ block('file_repeatable_children_prototype')|e('html') }}"
-                data-name="__name__"
-                {% if attr.maxItems is defined and attr.maxItems is not same as(0) %}data-max-items="{{ attr.maxItems }}"{% endif %}
-                data-remove-btn-target=".remove-container"
-                data-collection-child-selector=".file_child"
-                data-delete-selector=".input-delete"
+                class="fb-file-drop"
+                {{ block('file_drop_controller_attributes') }}
             >
-                {% for field in form.children %}
-                    <div class="collec_child file_child" data-val="{{ field.vars.name }}">
-                        {% with {form: field} %}
-                            {{ block('file_repeatable_child_row') }}
-                        {% endwith %}
-                    </div>
-                {% endfor %}
+                <div class="fb-file-drop-zone" {{ block('file_drop_zone_attributes') }}>
+                    {{ block('file_drop_picker') }}
+                    <p class="fb-file-drop-limit">{{ block('file_limit_text') }}</p>
+                    <p class="fb-file-drop-formats">{{ block('file_formats_text') }}</p>
+                    <button type="button" class="fb-file-drop-add" data-form-builder-file-drop-target="addButton">
+                        {{ 'theme.add_file'|trans({}, 'form_builder_bundle') }}
+                    </button>
+                </div>
+
+                <div class="fb-file-drop-header" data-form-builder-file-drop-target="header" hidden>
+                    <h4>{{ block('file_list_title') }}</h4>
+                    <button type="button" class="fb-file-drop-clear" data-action="form-builder-file-drop#clear">{{ 'theme.clear_files'|trans({}, 'form_builder_bundle') }}</button>
+                </div>
+
+                <div class="fb-file-drop-list" data-form-builder-file-drop-target="list">
+                    {{ block('file_repeatable_children') }}
+                </div>
+
+                {{ block('file_repeatable_children_errors') }}
+                {{ block('file_repeatable_templates') }}
             </div>
         </div>
 
@@ -162,40 +197,123 @@
     </div>
 {%- endblock -%}
 
-{%- block file_repeatable_children_prototype -%}
-    {% with {form: form.vars.prototype} %}
-        {{ block('file_repeatable_child_row') }}
-    {% endwith %}
+{#- Attributs du contrôleur, à poser sur l'élément qui englobe zone, liste et gabarits. -#}
+{%- block file_drop_controller_attributes -%}
+    data-controller="form-builder-file-drop"
+    data-form-builder-file-drop-prototype-value="{{ block('file_repeatable_children_prototype')|e('html') }}"
+    data-form-builder-file-drop-max-items-value="{{ attr.maxItems ?? 0 }}"
+    data-form-builder-file-drop-accept-value="{{ attr.accept ?? '' }}"
 {%- endblock -%}
 
+{#- Attributs de la zone cliquable / de dépôt (`data-dragging` posé pendant un glisser). -#}
+{%- block file_drop_zone_attributes -%}
+    data-form-builder-file-drop-target="zone"
+    data-action="click->form-builder-file-drop#browse dragenter->form-builder-file-drop#dragOver dragover->form-builder-file-drop#dragOver dragleave->form-builder-file-drop#dragLeave drop->form-builder-file-drop#drop"
+{%- endblock -%}
+
+{#- Sélecteur natif, masqué : ouvert par un clic dans la zone. -#}
+{%- block file_drop_picker -%}
+    <input type="file" hidden {% if attr.accept ?? '' %}accept="{{ attr.accept }}"{% endif %} {% if (attr.maxItems ?? 0) != 1 %}multiple{% endif %} data-form-builder-file-drop-target="picker" data-action="change->form-builder-file-drop#pick">
+{%- endblock -%}
+
+{#- Entrées déjà présentes : une ligne par fichier valide. -#}
+{%- block file_repeatable_children -%}
+    {#- Sans espace autour : la liste reste `:empty` tant qu'aucun fichier n'est présent. -#}
+    {%- for field in form.children -%}
+        {%- if field.file.vars.data is not null and field.file.vars.valid is same as(true) -%}
+            {%- with {form: field} -%}
+                {{- block('file_repeatable_child_row') -}}
+            {%- endwith -%}
+        {%- endif -%}
+    {%- endfor -%}
+{%- endblock -%}
+
+{#- Entrées sans fichier valide : seulement leur erreur, et marquées rendues (sinon form_rest les afficherait). -#}
+{%- block file_repeatable_children_errors -%}
+    {% for field in form.children %}
+        {% if not (field.file.vars.data is not null and field.file.vars.valid is same as(true)) %}
+            {{ form_errors(field.file) }}
+            {% do field.setRendered %}
+        {% endif %}
+    {% endfor %}
+{%- endblock -%}
+
+{#- Prototype d'une entrée (inputs seuls) : le contrôleur l'insère, masqué, dans une nouvelle ligne. -#}
+{%- block file_repeatable_children_prototype -%}
+    {{- form_widget(form.vars.prototype) -}}
+{%- endblock -%}
+
+{#- Ligne d'un fichier déjà enregistré. Familles d'icône : même table que fileKind() (assets/lib/file_drop.js). -#}
 {%- block file_repeatable_child_row -%}
-    <div class="repeatable--item fb-file-item">
-        {{ form_label(form.file) }}
-        <div class="fb-file-row">
-            {% if form.file.vars.data is not null and form.file.vars.valid is same as(true) %}
-                <div class="file-name fb-file-name">
-                    <span>{{ form.file.vars.data.getClientOriginalName() }}</span>
-                    <div hidden>
-                        {{ form_widget(form) }}
-                    </div>
-                </div>
-            {% else %}
-               <div class="fb-file-input">
-                   {{ form_widget(form.file) }}
-                   {{ form_errors(form.file) }}
-                   {{ form_help(form.file) }}
-               </div>
-            {% endif %}
-            {{ form_rest(form) }}
+    {%- set fb_file_extension = form.file.vars.data.getClientOriginalExtension()|lower -%}
+    {%- set fb_file_kinds = {
+        image: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'heic', 'heif', 'bmp', 'svg'],
+        pdf: ['pdf'],
+        doc: ['doc', 'docx', 'odt', 'rtf', 'txt'],
+        sheet: ['xls', 'xlsx', 'ods', 'csv'],
+        slides: ['ppt', 'pptx', 'odp'],
+    } -%}
+    {%- set fb_file_kind = 'file' -%}
+    {%- for fb_kind, fb_extensions in fb_file_kinds -%}
+        {%- if fb_file_extension in fb_extensions -%}{%- set fb_file_kind = fb_kind -%}{%- endif -%}
+    {%- endfor -%}
+    {%- set fb_file = {
+        name: form.file.vars.data.getClientOriginalName(),
+        index: form.vars.name,
+        kind: fb_file_kind,
+    } -%}
+    {%- set fb_file_inputs -%}{{ form_widget(form) }}{%- endset -%}
+    {{- block('file_drop_item') -}}
+{%- endblock -%}
 
-            <div class="remove-container"></div>
+{#- Gabarits lus par le contrôleur : ligne vide (fichier ajouté) et icône de chaque famille de fichier. -#}
+{%- block file_repeatable_templates -%}
+    <template data-form-builder-file-drop-target="itemTemplate">
+        {%- with {fb_file: null, fb_file_inputs: ''} -%}{{ block('file_drop_item') }}{%- endwith -%}
+    </template>
+    {%- for fb_kind in ['image', 'pdf', 'doc', 'sheet', 'slides', 'file'] -%}
+        <template data-form-builder-file-drop-target="icon" data-kind="{{ fb_kind }}">{{ block('file_icon') }}</template>
+    {%- endfor -%}
+{%- endblock -%}
+
+{#- Icône d'une famille de fichier (`fb_kind` : image, pdf, doc, sheet, slides, file). -#}
+{%- block file_icon -%}
+    <twig:ux:icon name="{{ {image: 'ph:image', pdf: 'ph:file-pdf', doc: 'ph:file-doc', sheet: 'ph:file-xls', slides: 'ph:file-ppt'}[fb_kind] ?? 'ph:file' }}" />
+{%- endblock -%}
+
+{#- « 3 images maximum », « 1 fichier maximum », « Ajoutez vos fichiers » (illimité)… selon `attr.fileKind`. -#}
+{%- block file_limit_text -%}
+    {{- ('theme.file_limit.' ~ (attr.fileKind ?? 'document'))|trans({'%count%': attr.maxItems ?? 0}, 'form_builder_bundle') -}}
+{%- endblock -%}
+
+{#- Titre de la liste des fichiers : « Liste des images » ou « Liste des documents ». -#}
+{%- block file_list_title -%}
+    {{- ('theme.file_list.' ~ (attr.fileKind ?? 'document'))|trans({}, 'form_builder_bundle') -}}
+{%- endblock -%}
+
+{#- Formats acceptés : « JPG, PNG, WebP, HEIC… » ou « Images, PDF, Word… ». -#}
+{%- block file_formats_text -%}
+    {{- ('theme.file_formats.' ~ (attr.fileKind ?? 'document'))|trans({}, 'form_builder_bundle') -}}
+{%- endblock -%}
+
+{#- `fb_file` : {name, index, kind} d'un fichier enregistré, ou null pour le gabarit d'un fichier ajouté (le
+    contrôleur remplit alors les emplacements preview, name et size). -#}
+{%- block file_drop_item -%}
+    <div
+        class="fb-file-drop-item file_child"
+        data-form-builder-file-drop-target="item"
+        {% if fb_file %}data-existing data-val="{{ fb_file.index }}"{% endif %}
+    >
+        <div class="fb-file-drop-preview" data-slot="preview">
+            {%- if fb_file -%}{%- with {fb_kind: fb_file.kind} -%}{{ block('file_icon') }}{%- endwith -%}{%- endif -%}
         </div>
+        <div class="fb-file-drop-info">
+            <span class="fb-file-drop-name" data-slot="name">{{ fb_file ? fb_file.name }}</span>
+            <span class="fb-file-drop-size" data-slot="size"></span>
+        </div>
+        <div hidden data-slot="inputs">{{ fb_file_inputs }}</div>
+        <button type="button" class="fb-file-drop-remove" data-action="form-builder-file-drop#remove" title="{{ 'theme.remove'|trans({}, 'form_builder_bundle') }}" aria-label="{{ 'theme.remove'|trans({}, 'form_builder_bundle') }}">×</button>
     </div>
-
-    {% with {label: 'theme.add_file'|trans({}, 'form_builder_bundle')} %}
-        {{ block('add_btn') }}
-    {% endwith %}
-    {{ block('remove_btn') }}
 {%- endblock -%}
 
 {#- Champ conditionnel : enveloppe lue par le contrôleur form-builder-condition, qui l'affiche ou le masque

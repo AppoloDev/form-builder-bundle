@@ -12,11 +12,13 @@ interface ContextMenuProps {
     title?: string;
     icon?: Icon;
     onDelete: () => void;
+    /** Actions propres au bloc (ex. ajout d'une condition), au-dessus de « Supprimer » ; un clic ferme le menu. */
+    actions?: ReactNode;
     children: ReactNode;
 }
 
 /** Menu d'options d'un bloc « à la Tally » : en-tête, options, puis actions. */
-export const ContextMenu = ({trigger, open, onOpenChange, title, icon: Icon, onDelete, children}: ContextMenuProps) => (
+export const ContextMenu = ({trigger, open, onOpenChange, title, icon: Icon, onDelete, actions, children}: ContextMenuProps) => (
     <Popover.Root open={open} onOpenChange={onOpenChange}>
         <Popover.Trigger render={trigger}/>
         <Popover.Portal>
@@ -35,6 +37,7 @@ export const ContextMenu = ({trigger, open, onOpenChange, title, icon: Icon, onD
                     </div>
 
                     <div className="border-t border-border p-1">
+                        {actions && <div onClick={() => onOpenChange(false)}>{actions}</div>}
                         <Button
                             type="button"
                             variant="ghost"

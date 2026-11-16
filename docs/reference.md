@@ -94,8 +94,9 @@ between the two forms; `FormLayoutBlock::listFromArray()` always flattens.
 | `DateTimeInput` | `required`, `readOnly`, `helpText`, `mode` (`date`, `time`, `datetime-local`), `hasCurrentDate`; legacy `showDate` / `showHour` when `mode` is absent |
 | `Select` | `options` (`[{label, isSelected?}]`, extra keys such as `id` ignored), `multiple`, `checkCases` (radio/checkbox), `customOption`, `required`, `readOnly`, `helpText` |
 | `ChoiceGroup` | `options` (`[{label}]`), `multiple` (checkboxes instead of radios), `required`, `readOnly`, `helpText`. Always expanded. Value: the option label (list if `multiple`) |
-| `HourMinuteInput` | `required`, `readOnly`, `helpText`, `defaultValue` (`HH:MM`). Value: string `HH:MM:SS` (seconds `00`) |
-| `FileInput` | `acceptedFile`, `allowMultiple` (`false` ⇒ one file; otherwise up to `maxItems`, default 5), `required`, `helpText` |
+| `YesNo` | `yesLabel`, `noLabel` (the two button labels, editable), `required`, `helpText`. Value: the chosen label |
+| `HourMinuteInput` | `required`, `readOnly`, `helpText`, `defaultValue` (`HH:MM`), `hasCurrentTime` (prefill with the current time, overrides `defaultValue`). Value: string `HH:MM:SS` (seconds `00`) |
+| `FileInput` | `acceptedFile` (`image`, or `document`: images, PDF, Office, OpenDocument, TXT, CSV; legacy `file`/`both` ⇒ `document`), `maxItems` (empty or `0` = unlimited; legacy blocks without it: `allowMultiple: false` ⇒ one file, otherwise 5), `required`, `helpText` |
 | `AddressInput` | `required`, `helpText`, `placeHolder` |
 | `Signature` | `required`, `helpText` |
 | `FieldSet` | `children` |
@@ -113,7 +114,7 @@ type is exposed in `assets/builder/contract/blocks.json` and mirrored by `Enum\F
 | Category | Types |
 |---|---|
 | `text` | `TextInput`, `TextareaInput`, `EmailInput`, `TelInput`, `UrlInput` |
-| `choice` | `Select`, `ChoiceGroup` |
+| `choice` | `Select`, `ChoiceGroup`, `YesNo` |
 | `number` | `NumberInput` |
 | `datetime` | `DateTimeInput`, `HourMinuteInput` |
 | `file` | `FileInput` |
@@ -150,7 +151,7 @@ Collection behaviour comes from the `form-builder-collection` Stimulus controlle
 
 **Answers template** must define block `answers_view` (variables `answers`, `formAnswer`) and one block per
 field type used (`FieldSet`, `Repeatable`, `Title`, `Paragraph`, `Separator`, `TextInput`, …, `FileInput`, `Select`,
-`Signature`, `ChoiceGroup`, `HourMinuteInput`). Extend the default one with `{% extends '@FormBuilder/answers/shadcn.html.twig' %}` and override
+`Signature`, `ChoiceGroup`, `YesNo`, `HourMinuteInput`). Extend the default one with `{% extends '@FormBuilder/answers/shadcn.html.twig' %}` and override
 only what you need (e.g. `FileInput`, `fileList` for PDF).
 
 ## Translations

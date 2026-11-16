@@ -5,7 +5,7 @@ import { EditableBlock } from "./EditableBlock";
 import { TransformEdition } from "../Edition/TransformEdition";
 import { InlineEditableText } from "../InlineEditableText";
 import { t } from "../../i18n";
-import { INLINE_BARE_CLASSES, TITLE_INPUT_CLASSES, headingLevelOf } from "../../utilities/typography";
+import { INLINE_BARE_CLASSES, TITLE_INPUT_CLASSES, TITLE_SPACING_CLASSES, headingLevelOf } from "../../utilities/typography";
 import { TEXT_VARIANTS, textVariantOf, transformTextBlock } from "./TextVariants";
 
 const Title = ({id, type, text, heading}: TitleProps) => {
@@ -24,6 +24,7 @@ const Title = ({id, type, text, heading}: TitleProps) => {
             type={type}
             title={variant && t(variant.titleKey)}
             icon={variant?.icon}
+            className={TITLE_SPACING_CLASSES[level]}
             editionItems={[
                 <TransformEdition
                     key="transform"

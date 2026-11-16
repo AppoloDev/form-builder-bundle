@@ -1,2 +1,3 @@
 - Fichier à revoir
 - Latence à l'éditon d'une option
+- Ajotuer le nb max de fichiers dans les options, et le compteur coté front. Afficher la typologie de ficher acceptés.

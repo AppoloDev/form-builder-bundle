@@ -39,7 +39,7 @@ const Signature = ({id, type, label, helpText, required, isChildBlock}: Props) =
 
     const editionItems = [
         <TextEdition key="label" label={t("field.label")} value={form.label} editItem={(v) => handleChange('label', v)}/>,
-        <TextEdition key="helpText" label={t("field.helpText")} type="textarea" value={form.helpText}
+        <TextEdition key="helpText" optional label={t("field.helpText")} type="textarea" value={form.helpText}
                      editItem={(v) => handleChange('helpText', v)}/>,
         ...(isChildBlock ? [] : [
             <CheckboxEdition key="required" label={t("field.required")} checked={form.required}
@@ -61,9 +61,9 @@ const Signature = ({id, type, label, helpText, required, isChildBlock}: Props) =
                     {!isChildBlock && form.required && <RequiredMark onRemove={() => handleChange('required', false)}/>}
                 </label>
 
-                <div
-                    className="relative flex h-24 items-center justify-center rounded-lg border border-input text-sm text-muted-foreground">
-                    {t("signature.area")}
+                {/* Même rendu que le formulaire (thème signature_row) : ligne de signature en bas, sur la largeur utile. */}
+                <div className="relative flex aspect-video w-full max-w-sm items-end rounded-lg border border-input px-4">
+                    <span className="w-full border-t border-input py-2 text-center text-xs text-muted-foreground">{t("signature.area")}</span>
                     {/* Même emplacement que l'icône des autres champs (GenericInput). */}
                     <div className="absolute top-2.5 right-2">
                         <Tooltip content={blockDefinitions.Signature.title}>
