@@ -5,12 +5,12 @@ import { EditableBlock } from "./EditableBlock";
 import { TextEdition } from "../Edition/TextEdition";
 import { CheckboxEdition } from "../Edition/CheckboxEdition";
 import { InlineEditableText } from "../InlineEditableText";
-import { RequiredMark } from "./FieldInput";
+import { FieldHelp, RequiredMark } from "./FieldInput";
 import { t } from "../../i18n";
 import { SignatureIcon } from "@phosphor-icons/react";
 import { Tooltip } from "../Tooltip";
 import { blockDefinitions } from "./Definition";
-import { FIELD_CLASSES, FIELD_DESCRIPTION_CLASSES, FIELD_TEXT_INSET_CLASSES, FIELD_LABEL_CLASSES, FIELD_LABEL_INPUT_CLASSES } from "../../utilities/typography";
+import { FIELD_CLASSES, FIELD_TEXT_INSET_CLASSES, FIELD_LABEL_CLASSES, FIELD_LABEL_INPUT_CLASSES } from "../../utilities/typography";
 
 type Props = SignatureProps & { isChildBlock?: boolean };
 
@@ -72,7 +72,7 @@ const Signature = ({id, type, label, helpText, required, isChildBlock}: Props) =
                     </div>
                 </div>
 
-                {form.helpText && <p className={FIELD_DESCRIPTION_CLASSES}>{form.helpText}</p>}
+                {form.helpText && <FieldHelp text={form.helpText}/>}
             </div>
         </EditableBlock>
     );

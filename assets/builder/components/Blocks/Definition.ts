@@ -16,7 +16,7 @@ import {
     CaretDownIcon,
     SignatureIcon,
     StackIcon,
-    ArrowsClockwiseIcon,
+    CopyIcon,
     AlignLeftIcon,
     TextTSlashIcon, TextAlignLeftIcon,
     AtIcon,
@@ -657,7 +657,7 @@ const buildDefinitions = (): BlockDefinitions => ({
         type: "Repeatable",
         category: "group",
         title: t("def.Repeatable.title"),
-        icon: ArrowsClockwiseIcon,
+        icon: CopyIcon,
         description: t("def.Repeatable.description"),
         defaultProps: {
             type: "Repeatable",
