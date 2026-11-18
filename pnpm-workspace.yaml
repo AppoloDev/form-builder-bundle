@@ -1,2 +1,7 @@
 allowBuilds:
   esbuild: true
+auditConfig:
+  ignoreGhsas:
+    # picomatch <=4.0.7 (ReDoS) : aucune version corrigée publiée. Dépendance indirecte
+    # (vite > sass > @parcel/watcher, vite > tinyglobby/fdir, vite-plugin-symfony > fast-glob > micromatch), outils de dev uniquement.
+    - GHSA-fc5q-39xc-vjpf
